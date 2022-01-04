@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Introduction | Spatial sampling and resampling for Machine Learning</title>
+<meta name="author" content="Tom Hengl and Leandro Parente">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/header-attrs-2.8.1/header-attrs.js"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-L3N6WJWCR8"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-L3N6WJWCR8');
+    </script><script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/mark.js@8.11.1/dist/mark.min.js"></script><!-- CSS -->
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Spatial sampling and resampling for Machine Learning</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="active" href="index.html">Introduction</a></li>
+<li><a class="" href="alt-text-generating-spatial-sampling.html"><span class="header-section-number">1</span>  Generating spatial sampling</a></li>
+<li><a class="" href="alt-text-resampling-methods-for-machine-learning.html"><span class="header-section-number">2</span>  Resampling methods for Machine Learning</a></li>
+<li><a class="" href="alt-text-generating-2nd-3rd-round-sampling.html"><span class="header-section-number">3</span>  Generating 2nd, 3rd round sampling</a></li>
+<li><a class="" href="summary-notes.html"><span class="header-section-number">4</span> Summary notes</a></li>
+<li><a class="" href="references.html"><span class="header-section-number">5</span> References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/OpenGeoHub/spatial-sampling-ml">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><!--bookdown:title:end--><!--bookdown:title:start--><div id="introduction" class="section level1 unnumbered">
+<h1>Introduction<a class="anchor" aria-label="anchor" href="#introduction"><i class="fas fa-link"></i></a>
+</h1>
+<div id="overview" class="section level2 unnumbered">
+<h2>Overview<a class="anchor" aria-label="anchor" href="#overview"><i class="fas fa-link"></i></a>
+</h2>
+<p><a href="https://gitlab.com/openlandmap/spatial-sampling-tutorial"><img src="cover.png" class="cover" width="250" alt="Access source code"></a> This <a href="https://gitlab.com/openlandmap/spatial-sampling-tutorial">Rmarkdown tutorial</a> provides practical instructions, illustrated with sample
+dataset, on how to generate and evaluate sampling plans using your own data.
+The specific focus is put on preparing sampling designs for predictive mapping,
+running analysis and interpretation on existing point data and planning 2nd and 3rd
+round sampling (based on initial models).</p>
+<p>We use several key R packages and existing tutorials including:</p>
+<ul>
+<li>
+<a href="https://github.com/edzer/sp">sp</a> package,</li>
+<li>
+<a href="https://github.com/pierreroudier/clhs">clhs</a> package,</li>
+<li>
+<a href="https://mlr.mlr-org.com/">mlr</a> package,</li>
+<li>
+<a href="https://github.com/imbs-hl/ranger/">ranger</a> package,</li>
+<li>
+<a href="https://github.com/benjilu/forestError">forestError</a> package,</li>
+</ul>
+<p>For an introduction to Spatial Data Science we recommend studying first:</p>
+<ul>
+<li>Pebesma, E. and Bivand, R: <strong><a href="https://keen-swartz-3146c4.netlify.app/">“Spatial Data Science: with applications in R”</a></strong>;<br>
+</li>
+<li>Lovelace, R., Nowosad, J. and Muenchow, J.: <strong><a href="https://geocompr.robinlovelace.net/">“Geocomputation with R”</a></strong>;</li>
+</ul>
+<p>If you are looking for a more gentle introduction to spatial sampling in R refer to
+<span class="citation"><a href="references.html#ref-Bivand2013Springer" role="doc-biblioref">Bivand, Pebesma, &amp; Rubio</a> (<a href="references.html#ref-Bivand2013Springer" role="doc-biblioref">2013</a>)</span>, <span class="citation"><a href="references.html#ref-BRUS2019464" role="doc-biblioref">Brus</a> (<a href="references.html#ref-BRUS2019464" role="doc-biblioref">2019</a>)</span> and <span class="citation"><a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus</a> (<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">2021</a>)</span>. The <em>“Spatial sampling with R”</em>
+book by Dick Brus and R code examples are available via <a href="https://github.com/DickBrus/SpatialSamplingwithR" class="uri">https://github.com/DickBrus/SpatialSamplingwithR</a>.</p>
+<p>Machine Learning in python with resampling can be best implemented via the <a href="https://scikit-learn.org/stable/">scikit-learn library</a>,
+i.e. it implements most of the functionality available via the mlr package in R.</p>
+<p>To install the most recent <strong>landmap</strong>, <strong>ranger</strong>, <strong>forestError</strong> and <strong>clhs</strong> packages from Github use:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/">devtools</a></span><span class="op">)</span>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"envirometrix/landmap"</span><span class="op">)</span>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"imbs-hl/ranger"</span><span class="op">)</span>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"benjilu/forestError"</span><span class="op">)</span>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"pierreroudier/clhs"</span><span class="op">)</span></code></pre></div>
+</div>
+<div id="license" class="section level2 unnumbered">
+<h2>License<a class="anchor" aria-label="anchor" href="#license"><i class="fas fa-link"></i></a>
+</h2>
+<p><a href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png"></a></p>
+<p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+</div>
+<div id="acknowledgements" class="section level2 unnumbered">
+<h2>Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"><i class="fas fa-link"></i></a>
+</h2>
+<p>This manual is based on the <strong><a href="https://r4ds.had.co.nz/">“R for Data Science”</a></strong> book by Hadley Wickham and contributors.</p>
+<p><a href="https://openlandmap.org">OpenLandMap</a> is a collaborative effort and many people
+have contributed data, software, fixes and improvements via pull request. <a href="https://opengeohub.org">OpenGeoHub</a>
+is an independent not-for-profit research foundation promoting Open Source and Open Data solutions.</p>
+<p><a href="https://opengeohub.org"><img src="tex/opengeohub_logo_ml.png" alt="OpenGeoHub logo" width="350"></a></p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="empty"></div>
+<div class="next"><a href="alt-text-generating-spatial-sampling.html"><span class="header-section-number">1</span>  Generating spatial sampling</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#introduction">Introduction</a></li>
+<li><a class="nav-link" href="#overview">Overview</a></li>
+<li><a class="nav-link" href="#license">License</a></li>
+<li><a class="nav-link" href="#acknowledgements">Acknowledgements</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/OpenGeoHub/spatial-sampling-ml/blob/master/index.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/OpenGeoHub/spatial-sampling-ml/edit/master/index.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Spatial sampling and resampling for Machine Learning</strong>" was written by Tom Hengl and Leandro Parente. </p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer>
+</body>
+</html>

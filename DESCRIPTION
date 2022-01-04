@@ -5,7 +5,7 @@ Authors@R: c(
     person("Tomislav", "Hengl", , "tom.hengl@opengeohub.org", role = c("aut", "cre")),
     person("Leandro", "Parente", , "leandro.parente@opengeohub.org", role = "aut")
   )
-URL: https://gitlab.com/openlandmap/spatial-sampling-tutorial/
+URL: https://github.com/OpenGeoHub/spatial-sampling-ml/
 Depends: 
     R (>= 3.1.0)
 Imports:

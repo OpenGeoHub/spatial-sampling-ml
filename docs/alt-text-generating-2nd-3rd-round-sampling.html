@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>3 Generating 2nd, 3rd round sampling | Spatial sampling and resampling for Machine Learning</title>
+<meta name="author" content="Tom Hengl and Leandro Parente">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/header-attrs-2.8.1/header-attrs.js"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-L3N6WJWCR8"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-L3N6WJWCR8');
+    </script><script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/mark.js@8.11.1/dist/mark.min.js"></script><!-- CSS -->
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Spatial sampling and resampling for Machine Learning</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Introduction</a></li>
+<li><a class="" href="alt-text-generating-spatial-sampling.html"><span class="header-section-number">1</span>  Generating spatial sampling</a></li>
+<li><a class="" href="alt-text-resampling-methods-for-machine-learning.html"><span class="header-section-number">2</span>  Resampling methods for Machine Learning</a></li>
+<li><a class="active" href="alt-text-generating-2nd-3rd-round-sampling.html"><span class="header-section-number">3</span>  Generating 2nd, 3rd round sampling</a></li>
+<li><a class="" href="summary-notes.html"><span class="header-section-number">4</span> Summary notes</a></li>
+<li><a class="" href="references.html"><span class="header-section-number">5</span> References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/OpenGeoHub/spatial-sampling-ml">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="alt-text-generating-2nd-3rd-round-sampling" class="section level1" number="3">
+<h1>
+<span class="header-section-number">3</span> <img src="tex/R_logo.svg.png" title="ML" alt="alt text"> Generating 2nd, 3rd round sampling<a class="anchor" aria-label="anchor" href="#alt-text-generating-2nd-3rd-round-sampling"><i class="fas fa-link"></i></a>
+</h1>
+<div class="rmdnote">
+<p>You are reading the work-in-progress Spatial Sampling and Resampling for Machine Learning. This chapter is currently currently draft version, a peer-review publication is pending. You can find the polished first edition at <a href="https://openlandmap.gitlab.io/spatial-sampling-tutorial/" class="uri">https://openlandmap.gitlab.io/spatial-sampling-tutorial/</a>.</p>
+</div>
+<div id="uncertainty-guided-sampling" class="section level2" number="3.1">
+<h2>
+<span class="header-section-number">3.1</span> Uncertainty guided sampling<a class="anchor" aria-label="anchor" href="#uncertainty-guided-sampling"><i class="fas fa-link"></i></a>
+</h2>
+<p>A sensible approach to improving quality of predictions is to: (a) estimate initial
+ML models, (b) produce a realistic estimate of prediction errors, and (c) revisit
+area and collect 2nd round samples that help at smallest possible costs significantly
+improve predictions. Logical focus of the 2nd round sampling could be thus on minimizing
+the overall prediction errors i.e. revising parts of the study area that shows the
+highest prediction errors / prediction problems (Fig. <a href="alt-text-resampling-methods-for-machine-learning.html#fig:eberg-var-eml">2.7</a>).
+This is exactly procedure that <span class="citation"><a href="references.html#ref-stumpf2017uncertainty" role="doc-biblioref">Stumpf et al.</a> (<a href="references.html#ref-stumpf2017uncertainty" role="doc-biblioref">2017</a>)</span> recommend in their paper and
+that they refer to as the <em>“Uncertainty guided sampling”</em>.</p>
+<p>The 2nd round Uncertainty guided sampling can be implemented either by:</p>
+<ul>
+<li>Producing a strata based on the prediction error map (e.g. extrapolation areas / areas with highest uncertainty), then sampling only within that strata,</li>
+<li>Using the probability of exceeding threshold mapping accuracy to generate sampling,</li>
+</ul>
+<p>In both cases 2nd round points can be then added to the original training dataset and the
+model for the area can then be refitted (this procedure is also referred to as <em>“re-analysis”</em>).
+Assuming that our initial model was unbiased, then even few tens of extra points
+could lead to significant reduction in RMSPE. In practice, we might have to also
+organize the 3rd round sampling until we finally reach some maximum possible accuracy <span class="citation">(<a href="references.html#ref-hengl2018random" role="doc-biblioref">Hengl, Nussbaum, Wright, Heuvelink, &amp; Gräler, 2018</a>)</span>.</p>
+<p>To generate 2nd round sampling for the Edgeroi dataset we can first estimate probability
+of prediction errors exceeding some threshold probability e.g. RMSE=0.2. We first
+load point data and prediction error map produced in the previous example using
+Ensemble Machine Learning:</p>
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">edgeroi</span><span class="op">)</span>
+<span class="va">edgeroi.sp</span> <span class="op">&lt;-</span> <span class="va">edgeroi</span><span class="op">$</span><span class="va">sites</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/xyFromCell.html">coordinates</a></span><span class="op">(</span><span class="va">edgeroi.sp</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="op">~</span> <span class="va">LONGDA94</span> <span class="op">+</span> <span class="va">LATGDA94</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/projection.html">proj4string</a></span><span class="op">(</span><span class="va">edgeroi.sp</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/CRS-class.html">CRS</a></span><span class="op">(</span><span class="st">"+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"</span><span class="op">)</span>
+<span class="va">edgeroi.sp</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/spTransform-methods.html">spTransform</a></span><span class="op">(</span><span class="va">edgeroi.sp</span>, <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/CRS-class.html">CRS</a></span><span class="op">(</span><span class="st">"+init=epsg:28355"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">t.RMSE</span> <span class="op">=</span> <span class="fl">0.2</span>
+<span class="va">edgeroi.error</span> <span class="op">=</span> <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/readGDAL.html">readGDAL</a></span><span class="op">(</span><span class="st">"./output/edgeroi_soc_rmspe.tif"</span><span class="op">)</span>
+<span class="co">#&gt; ./output/edgeroi_soc_rmspe.tif has GDAL driver GTiff </span>
+<span class="co">#&gt; and has 321 rows and 476 columns</span>
+<span class="va">edgeroi.error</span><span class="op">$</span><span class="va">inv.prob</span> <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="fl">2</span><span class="op">*</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="va">edgeroi.error</span><span class="op">$</span><span class="va">band1</span><span class="op">/</span><span class="va">t.RMSE</span><span class="op">)</span><span class="op">-</span><span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
+<p>next, we can generate a sampling plan using the <strong>spatstat</strong> package and the inverse
+probability of the pixels exceeding threshold uncertainty (<code>f</code> argument):</p>
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">dens.var</span> <span class="op">&lt;-</span> <span class="fu">spatstat.geom</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/spatstat.geom/man/as.im.html">as.im</a></span><span class="op">(</span><span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/image.html">as.image.SpatialGridDataFrame</a></span><span class="op">(</span><span class="va">edgeroi.error</span><span class="op">[</span><span class="st">"inv.prob"</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
+<span class="va">pnts.new</span> <span class="op">&lt;-</span> <span class="fu">spatstat.core</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/spatstat.core/man/rpoint.html">rpoint</a></span><span class="op">(</span><span class="fl">50</span>, f<span class="op">=</span><span class="va">dens.var</span><span class="op">)</span></code></pre></div>
+<p>So the new sampling plan, assuming adding only 50 new points would thus look like this:</p>
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log1p</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">edgeroi.error</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"inv.prob"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">edgeroi.sp</span>, pch<span class="op">=</span><span class="st">"+"</span>, cex<span class="op">=</span><span class="fl">.8</span>, col<span class="op">=</span><span class="st">"blue"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/methods/as.html">as</a></span><span class="op">(</span><span class="va">pnts.new</span>, <span class="st">"SpatialPoints"</span><span class="op">)</span>, pch<span class="op">=</span><span class="fl">19</span>, cex<span class="op">=</span><span class="fl">0.8</span>, col<span class="op">=</span><span class="st">"black"</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-pnts-eml"></span>
+<img src="extending_files/figure-html/eberg-pnts-eml-1.png" alt="Uncertainty guided 2nd round sampling: locations of initial (+) and 2nd round points (dots)." width="100%"><p class="caption">
+Figure 3.1: Uncertainty guided 2nd round sampling: locations of initial (+) and 2nd round points (dots).
+</p>
+</div>
+<p>This puts much higher weight at locations where the prediction errors are higher,
+however, technically speaking we finish still sampling points across the whole
+study area and including some randomization.</p>
+<div class="figure" style="text-align: center">
+<span id="fig:scheme-resample"></span>
+<img src="img/Fig_sampling_reanalysis.png" alt="General scheme for re-sampling and re-analysis using uncertainty guided sampling principles." width="70%"><p class="caption">
+Figure 3.2: General scheme for re-sampling and re-analysis using uncertainty guided sampling principles.
+</p>
+</div>
+<p>By adding 2nd, 3rd round sampling we can imagine that the mapping accuracy / RMSE
+would gradually decrease following a decay function (e.g. <code>RMSE = b1 * x ^ -b1</code>) until some
+maximum possible accuracy is achieved. This way soil surveyor can optimize the
+predictions and reduce costs by minimizing number of additional samples i.e. it
+could be considered <em>the shortest path</em> to increasing the mapping accuracy.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="alt-text-resampling-methods-for-machine-learning.html"><span class="header-section-number">2</span>  Resampling methods for Machine Learning</a></div>
+<div class="next"><a href="summary-notes.html"><span class="header-section-number">4</span> Summary notes</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#alt-text-generating-2nd-3rd-round-sampling"><span class="header-section-number">3</span>  Generating 2nd, 3rd round sampling</a></li>
+<li><a class="nav-link" href="#uncertainty-guided-sampling"><span class="header-section-number">3.1</span> Uncertainty guided sampling</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/OpenGeoHub/spatial-sampling-ml/blob/master/extending.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/OpenGeoHub/spatial-sampling-ml/edit/master/extending.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Spatial sampling and resampling for Machine Learning</strong>" was written by Tom Hengl and Leandro Parente. </p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer>
+</body>
+</html>

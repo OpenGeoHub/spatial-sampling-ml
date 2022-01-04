@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>2 Resampling methods for Machine Learning | Spatial sampling and resampling for Machine Learning</title>
+<meta name="author" content="Tom Hengl and Leandro Parente">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/header-attrs-2.8.1/header-attrs.js"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-L3N6WJWCR8"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-L3N6WJWCR8');
+    </script><script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/mark.js@8.11.1/dist/mark.min.js"></script><!-- CSS -->
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Spatial sampling and resampling for Machine Learning</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Introduction</a></li>
+<li><a class="" href="alt-text-generating-spatial-sampling.html"><span class="header-section-number">1</span>  Generating spatial sampling</a></li>
+<li><a class="active" href="alt-text-resampling-methods-for-machine-learning.html"><span class="header-section-number">2</span>  Resampling methods for Machine Learning</a></li>
+<li><a class="" href="alt-text-generating-2nd-3rd-round-sampling.html"><span class="header-section-number">3</span>  Generating 2nd, 3rd round sampling</a></li>
+<li><a class="" href="summary-notes.html"><span class="header-section-number">4</span> Summary notes</a></li>
+<li><a class="" href="references.html"><span class="header-section-number">5</span> References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/OpenGeoHub/spatial-sampling-ml">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="alt-text-resampling-methods-for-machine-learning" class="section level1" number="2">
+<h1>
+<span class="header-section-number">2</span> <img src="tex/R_logo.svg.png" title="ML" alt="alt text"> Resampling methods for Machine Learning<a class="anchor" aria-label="anchor" href="#alt-text-resampling-methods-for-machine-learning"><i class="fas fa-link"></i></a>
+</h1>
+<div class="rmdnote">
+<p>You are reading the work-in-progress Spatial Sampling and Resampling for Machine Learning. This chapter is currently currently draft version, a peer-review publication is pending. You can find the polished first edition at <a href="https://openlandmap.gitlab.io/spatial-sampling-tutorial/" class="uri">https://openlandmap.gitlab.io/spatial-sampling-tutorial/</a>.</p>
+</div>
+<div id="resampling-and-cross-validation" class="section level2" number="2.1">
+<h2>
+<span class="header-section-number">2.1</span> Resampling and Cross-Validation<a class="anchor" aria-label="anchor" href="#resampling-and-cross-validation"><i class="fas fa-link"></i></a>
+</h2>
+<p>In the previous examples we have demonstrated how to prepare sampling designs
+for your own study area assuming now other point data is available. We have also
+shown how to run some sampling representation diagnostics to detect potential
+problems especially in the feature space. In the next sections we will focus on
+how to use different <strong>resampling</strong> methods i.e. 
+<strong>cross-validation strategies</strong> <span class="citation">(<a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span> to help reduce problems such as:</p>
+<ul>
+<li>
+<em>overfitting</em> i.e. producing models that are biased and/or over-optimistic;<br>
+</li>
+<li>
+<em>missing out covariates</em> that are important but possibly <em>shadowed</em> by the covariates
+over-selected due to overfitting;</li>
+<li>
+<em>producing poor extrapolation</em> i.e. generating artifacts or blunders in predictions;<br>
+</li>
+<li>
+<em>over-/under-estimating mapping accuracy</em> i.e. producing a biased estimate of model performance including;</li>
+</ul>
+<p><strong>Resamping</strong> methods are discussed in detail in <span class="citation"><a href="references.html#ref-hastie2009elements" role="doc-biblioref">Hastie, Tibshirani, &amp; Friedman</a> (<a href="references.html#ref-hastie2009elements" role="doc-biblioref">2009</a>)</span>, <span class="citation"><a href="references.html#ref-kuhn2013applied" role="doc-biblioref">Kuhn &amp; Johnson</a> (<a href="references.html#ref-kuhn2013applied" role="doc-biblioref">2013</a>)</span> and
+<span class="citation"><a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al.</a> (<a href="references.html#ref-roberts2017cross" role="doc-biblioref">2017</a>)</span>, and is also commonly implemented in many statistical and machine
+learning packages such as the <a href="https://topepo.github.io/caret/">caret</a> or <a href="https://mlr3.mlr-org.com/">mlr</a>.
+Spatial Resampling methods are discussed in detail in <span class="citation"><a href="references.html#ref-lovelace2019geocomputation" role="doc-biblioref">Lovelace, Nowosad, &amp; Muenchow</a> (<a href="references.html#ref-lovelace2019geocomputation" role="doc-biblioref">2019</a>)</span>.</p>
+<p>For an introduction to Cross-Validation please refer to <a href="https://neptune.ai/blog/cross-validation-in-machine-learning-how-to-do-it-right">this tutorial</a>.
+For an introduction to <strong>spatial Cross-Validation</strong> refer to the <strong><a href="https://geocompr.robinlovelace.net/">“Geocomputation with R”</a></strong> book.</p>
+<p>It can be said that, in general, purpose of Machine Learning for predictive
+mapping is to try to produce <strong>Best Unbiased Predictions</strong> (BUP) of the target
+variable and the associated uncertainty (e.g. prediction error).
+BUP is commonly implemented through: (1) selecting the Best Unbiased Predictor <span class="citation">(<a href="references.html#ref-Venables2002Springer" role="doc-biblioref">Venables &amp; Ripley, 2002</a>)</span>,
+(2) selecting the optimal subset of covariates and model parameters (usually by iterations),
+(3) applying predictions and providing an estimate of the prediction uncertainty i.e. estimate
+of the prediction errors / prediction intervals for a given probability distribution.
+In this tutorial the path to BUP we use includes:</p>
+<ul>
+<li>
+<strong>Ensemble Machine Learning</strong> using stacking approach with 5-fold Cross-Validation
+with a meta-learner i.e. an independent model correlating competing base-learners
+with the target variable <span class="citation">(<a href="references.html#ref-bischl2016mlr" role="doc-biblioref">Bischl et al., 2016</a>; <a href="references.html#ref-polley2010super" role="doc-biblioref">Polley &amp; Van Der Laan, 2010</a>)</span>,</li>
+<li>Estimating prediction errors using <strong>quantile regression Random Forest</strong> <span class="citation">(<a href="references.html#ref-lu2021unified" role="doc-biblioref">Lu &amp; Hardin, 2021</a>)</span>,</li>
+</ul>
+<p>The reasoning for using Ensemble ML for predictive mapping is explained in detail
+in <a href="https://gitlab.com/openlandmap/spatial-predictions-using-eml">this tutorial</a>, and it’s
+advantages for minimizing extrapolation effects in this <a href="https://medium.com/nerd-for-tech/extrapolation-is-tough-for-trees-tree-based-learners-combining-learners-of-different-type-makes-659187a6f58d">medium post</a>.</p>
+</div>
+<div id="resampling-training-points-using-declustering" class="section level2" number="2.2">
+<h2>
+<span class="header-section-number">2.2</span> Resampling training points using declustering<a class="anchor" aria-label="anchor" href="#resampling-training-points-using-declustering"><i class="fas fa-link"></i></a>
+</h2>
+<p>In the previous example we have shown that the actual soil survey points for
+Ebergotzen are somewhat spatially <em>clustered</em>, they under-sample forest areas / hillands.
+In statistical term these sampling points are geographically unbalanced i.e. non-IID.
+If we plot the original sampling points (N=2780) we see high spatial clustering of samples:</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://rgdal.r-forge.r-project.org">rgdal</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster">raster</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Envirometrix/plotKML">plotKML</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/envirometrix/landmap/">landmap</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr.mlr-org.com">mlr</a></span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"eberg_grid25"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/sp/man/gridded-methods.html">gridded</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="op">~</span><span class="va">x</span><span class="op">+</span><span class="va">y</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/projection.html">proj4string</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/CRS-class.html">CRS</a></span><span class="op">(</span><span class="st">"+init=epsg:31467"</span><span class="op">)</span>
+<span class="va">eberg_grid25</span> <span class="op">=</span> <span class="fu"><a href="https://www.math.uzh.ch/pages/spam//reference/xybind.html">cbind</a></span><span class="op">(</span><span class="va">eberg_grid25</span>, <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"./extdata/eberg_dtm_25m.rds"</span><span class="op">)</span><span class="op">)</span>
+<span class="va">eberg_spc</span> <span class="op">=</span> <span class="fu">landmap</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/landmap/man/spc.html">spc</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
+<span class="co">#&gt; Converting PMTZONES to indicators...</span>
+<span class="co">#&gt; Converting covariates to principal components...</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">eberg</span><span class="op">)</span>
+<span class="va">eberg.xy</span> <span class="op">&lt;-</span> <span class="va">eberg</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"X"</span>,<span class="st">"Y"</span><span class="op">)</span><span class="op">]</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/xyFromCell.html">coordinates</a></span><span class="op">(</span><span class="va">eberg.xy</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="op">~</span><span class="va">X</span><span class="op">+</span><span class="va">Y</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/projection.html">proj4string</a></span><span class="op">(</span><span class="va">eberg.xy</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/CRS-class.html">CRS</a></span><span class="op">(</span><span class="st">"+init=epsg:31467"</span><span class="op">)</span>
+<span class="va">ov.xy</span> <span class="op">=</span> <span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/over.html">over</a></span><span class="op">(</span><span class="va">eberg.xy</span>, <span class="va">eberg_grid25</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>
+<span class="va">eberg.xy</span> <span class="op">=</span> <span class="va">eberg.xy</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">ov.xy</span><span class="op">$</span><span class="va">DEMTOPx</span><span class="op">)</span>,<span class="op">]</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">eberg.xy</span>, pch<span class="op">=</span><span class="st">"+"</span>, cex<span class="op">=</span><span class="fl">.5</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-allpnts"></span>
+<img src="resampling_files/figure-html/eberg-allpnts-1.png" alt="All sampling points available for Ebergotzen case study." width="90%"><p class="caption">
+Figure 2.1: All sampling points available for Ebergotzen case study.
+</p>
+</div>
+<p>We can ignore that property of the data and directly fit a predictive model for e.g. 
+top-soil clay content using e.g. random forest <span class="citation">(<a href="references.html#ref-wright2017ranger" role="doc-biblioref">Wright &amp; Ziegler, 2017</a>)</span>:</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger">ranger</a></span><span class="op">)</span>
+<span class="va">rm.eberg</span> <span class="op">=</span> <span class="fu"><a href="https://www.math.uzh.ch/pages/spam//reference/xybind.html">cbind</a></span><span class="op">(</span><span class="va">eberg</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">ov.xy</span><span class="op">$</span><span class="va">DEMTOPx</span><span class="op">)</span>,<span class="op">]</span>, <span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/over.html">over</a></span><span class="op">(</span><span class="va">eberg.xy</span>, <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">)</span><span class="op">)</span>
+<span class="va">cly.fm</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html">as.formula</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"CLYMHT_A ~ "</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"PC"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">13</span>, collapse <span class="op">=</span> <span class="st">"+"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">sel.cly</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html">complete.cases</a></span><span class="op">(</span><span class="va">rm.eberg</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/allnames.html">all.vars</a></span><span class="op">(</span><span class="va">cly.fm</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
+<span class="va">rm.cly</span> <span class="op">=</span> <span class="va">rm.eberg</span><span class="op">[</span><span class="va">sel.cly</span>,<span class="op">]</span>
+<span class="va">rf.cly</span> <span class="op">=</span> <span class="fu">ranger</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ranger/man/ranger.html">ranger</a></span><span class="op">(</span><span class="va">cly.fm</span>, data<span class="op">=</span><span class="va">rm.cly</span><span class="op">)</span>
+<span class="va">rf.cly</span>
+<span class="co">#&gt; Ranger result</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Call:</span>
+<span class="co">#&gt;  ranger::ranger(cly.fm, data = rm.cly) </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Type:                             Regression </span>
+<span class="co">#&gt; Number of trees:                  500 </span>
+<span class="co">#&gt; Sample size:                      2776 </span>
+<span class="co">#&gt; Number of independent variables:  13 </span>
+<span class="co">#&gt; Mtry:                             3 </span>
+<span class="co">#&gt; Target node size:                 5 </span>
+<span class="co">#&gt; Variable importance mode:         none </span>
+<span class="co">#&gt; Splitrule:                        variance </span>
+<span class="co">#&gt; OOB prediction error (MSE):       53.23538 </span>
+<span class="co">#&gt; R squared (OOB):                  0.6081801</span></code></pre></div>
+<p>This shows an RMSE of about 7.3% and an R-square of about 0.61. The problem of this
+accuracy measure is that with this Random Forest model we ignore spatial clustering
+of points, hence both the model and the accuracy metric could be over-optimistic <span class="citation">(<a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span>.
+Because we are typically interested in how does the model perform over the WHOLE
+area of interest, not only in comparison to out-of-bag points, to reduce overfitting
+or any bias in the BUP we need to apply some adjustments.</p>
+<p>Strategy #1 for producing more objective estimate of model parameters is to
+resample sampling points by forcing as much as possible equal sampling intensity
+(hence mimicking the SRS), then observe performance of the model accuracy.
+We can implement such spatial resampling using the <code>sample.grid</code> function,
+which basically resamples the existing point samples with an objective of producing
+a sample more similar to SRS. This type of subsetting can be run <code>M</code> times and
+then an ensemble model can be produced in which each individual model is based
+on spatially balanced samples. These are not true SRS samples but we can refer
+to them as the <strong>pseudo-SRS samples</strong>.</p>
+<p>In R we can implement spatial resampling using the following three steps. First, we generate
+e.g. 10 random subsets where the sampling intensity of points is relatively homogeneous:</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">eberg.sp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/sp/man/SpatialPoints.html">SpatialPointsDataFrame</a></span><span class="op">(</span><span class="va">eberg.xy</span>, <span class="va">rm.eberg</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ID"</span>,<span class="st">"CLYMHT_A"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
+<span class="va">sub.lst</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span><span class="fu">landmap</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/landmap/man/sample.grid.html">sample.grid</a></span><span class="op">(</span><span class="va">eberg.sp</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">500</span><span class="op">)</span>, n<span class="op">=</span><span class="fl">2</span><span class="op">)</span><span class="op">}</span><span class="op">)</span></code></pre></div>
+<p>This randomly subsets each 500-m block to max 2 points i.e. trims down the densely
+sampled points. We can check that the training point sample looks more like a SRS or similar.</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">l1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"sp.points"</span>, <span class="va">sub.lst</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">subset</span>, pch<span class="op">=</span><span class="st">"+"</span>, col<span class="op">=</span><span class="st">"black"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/spplot.html">spplot</a></span><span class="op">(</span><span class="va">sub.lst</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">grid</span>, scales<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>draw<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,
+   col.regions<span class="op">=</span><span class="st">"grey"</span>, sp.layout<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">l1</span><span class="op">)</span>, colorkey<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-grid-sample"></span>
+<img src="resampling_files/figure-html/eberg-grid-sample-1.png" alt="Resampling original points using `sample.grid` function, which produces a sample with similar properties such as SRS." width="90%"><p class="caption">
+Figure 2.2: Resampling original points using <code>sample.grid</code> function, which produces a sample with similar properties such as SRS.
+</p>
+</div>
+<p>Second, we can fit a list of random forest models using 10 random draws mimicking
+some IID sampling:</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">rf.cly.lst</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">sub.lst</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
+        <span class="va">x</span> <span class="op">&lt;-</span> <span class="va">rm.eberg</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">rm.eberg</span><span class="op">$</span><span class="va">ID</span> <span class="op"><a href="https://rdrr.io/pkg/raster/man/match.html">%in%</a></span> <span class="va">sub.lst</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">subset</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span>,<span class="op">]</span>; 
+        <span class="va">x</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html">complete.cases</a></span><span class="op">(</span><span class="va">x</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/allnames.html">all.vars</a></span><span class="op">(</span><span class="va">cly.fm</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,<span class="op">]</span>;
+        <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ranger/man/ranger.html">ranger</a></span><span class="op">(</span><span class="va">cly.fm</span>, data<span class="op">=</span><span class="va">x</span>, num.trees <span class="op">=</span> <span class="fl">50</span><span class="op">)</span>; 
+        <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>
+      <span class="op">}</span>
+<span class="op">)</span></code></pre></div>
+<p>Third, we produce an Ensemble model that combines all predictions by simple
+averaging <span class="citation">(<a href="references.html#ref-wright2017ranger" role="doc-biblioref">Wright &amp; Ziegler, 2017</a>)</span>. To produce final predictions, we can use
+simple averaging because all subsets are symmetrical i.e. have exactly the same
+inputs and settings, hence all models fitted have equal importance for the ensemble model.</p>
+<p>The out-of-bag accuracy of ranger now shows a somewhat higher RMSE, which is also
+probably more realistic:</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">rf.cly.lst</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">i</span><span class="op">[[</span><span class="st">"prediction.error"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">}</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; [1] 8.003919</span></code></pre></div>
+<p>In summary, the actual error is most likely about 20% higher than if we ignore
+clustering and the previous model was likely over-optimistic. The model is too
+much influenced by the clustered point samples and this should be taken into
+account during model fitting <span class="citation">(<a href="references.html#ref-meyer2021predicting" role="doc-biblioref">Meyer &amp; Pebesma, 2021</a>; <a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span>. If we
+visually compare the predictions between the original and ensemble models we see:</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">cn</span> <span class="op">=</span> <span class="va">rf.cly</span><span class="op">$</span><span class="va">forest</span><span class="op">$</span><span class="va">independent.variable.names</span>
+<span class="va">pred.cly</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/predict.html">predict</a></span><span class="op">(</span><span class="va">rf.cly</span>, <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="va">cn</span><span class="op">]</span><span class="op">)</span>
+<span class="va">eberg_grid25</span><span class="op">$</span><span class="va">pred.cly.rf</span> <span class="op">=</span> <span class="va">pred.cly</span><span class="op">$</span><span class="va">predictions</span>
+<span class="va">pred.cly.lst</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">rf.cly.lst</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span> 
+    <span class="fu"><a href="https://rdrr.io/pkg/raster/man/predict.html">predict</a></span><span class="op">(</span><span class="va">i</span>, <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="va">cn</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span> <span class="op">}</span><span class="op">)</span>
+<span class="va">eberg_grid25</span><span class="op">$</span><span class="va">pred.cly.erf</span> <span class="op">=</span> <span class="fu"><a href="https://www.math.uzh.ch/pages/spam//reference/rowcolstats.html">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">cbind</span>, <span class="va">pred.cly.lst</span><span class="op">)</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#zlim.cly = quantile(rm.eberg$CLYMHT_A, c(0.05, 0.95), na.rm=TRUE)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/spplot.html">spplot</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"pred.cly.rf"</span>, <span class="st">"pred.cly.erf"</span><span class="op">)</span><span class="op">]</span>, col.regions<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-pred-erf"></span>
+<img src="resampling_files/figure-html/eberg-pred-erf-1.png" alt="Predictions of clay content: (left) ignoring spatial clustering effect on model, (right) after de-clustering of points." width="90%"><p class="caption">
+Figure 2.3: Predictions of clay content: (left) ignoring spatial clustering effect on model, (right) after de-clustering of points.
+</p>
+</div>
+<p>Overall, the difference is small but there is certainly visible difference in predictions.
+To the end users we would probably suggest to use <code>pred.cly.erf</code> (predictions produced
+using the de-clustered points) map because the other model completely ignores
+spatial clustering of points and this could have resulted in bias estimate of the
+regression parameters. This solution to producing predictions is fully scalable
+and relatively easy to implement, it only requires from user to decide on (1)
+size of the block for subsampling, (2) max sampling intensity per block. In practice,
+both could be determined by iterations.</p>
+</div>
+<div id="weighted-machine-learning" class="section level2" number="2.3">
+<h2>
+<span class="header-section-number">2.3</span> Weighted Machine Learning<a class="anchor" aria-label="anchor" href="#weighted-machine-learning"><i class="fas fa-link"></i></a>
+</h2>
+<p>Note that the function <code>grid.sample</code> per definition draws points that are relatively
+isolated (Fig. <a href="alt-text-generating-spatial-sampling.html#fig:eberg-fs">1.3</a>) with higher probability. Hence, a more generic
+approach (Strategy #2) from declustering, is to use the <code>case.weights</code> parameter
+to instruct <code>ranger</code> to put more emphasis on isolated points / remove impact of
+clustered points. This weighted estimation of model parameters is common in regression,
+and also in spatial statistics (see e.g. the <a href="https://stat.ethz.ch/R-manual/R-devel/library/nlme/html/gls.html">nlme::gls</a> Generalized Least Square (GLS) function).
+Theoretical basis for GLS / weighted regression is that the points that are clustered
+might also be spatially correlated, and that means that they would introduce bias in
+estimation of the regression parameters. Ideally, regression residuals should be
+uncorrelated and uniform, hence a correction is needed that helps ensure these properties.</p>
+<p>Weighted Machine Learning where bias in the sampling intensity is incorporated in
+the modeling can be implemented in two steps. First, we derive the occurrence
+probability (0–1) using the <code>spsample.prob</code> method:</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">iprob.all</span> <span class="op">&lt;-</span> <span class="fu">landmap</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/landmap/man/spsample.prob.html">spsample.prob</a></span><span class="op">(</span><span class="va">eberg.sp</span>, <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>
+<span class="co">#&gt; Deriving kernel density map using sigma 157 ...</span>
+<span class="co">#&gt; Deriving inclusion probabilities using MaxLike analysis...</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">iprob.all</span><span class="op">$</span><span class="va">prob</span><span class="op">)</span>, zlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">iprob.all</span><span class="op">$</span><span class="va">observations</span>, pch<span class="op">=</span><span class="st">"+"</span>, cex<span class="op">=</span><span class="fl">.5</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-iprob"></span>
+<img src="resampling_files/figure-html/eberg-iprob-1.png" alt="Occurrence probability for existing point samples for the Ebergotzen case study derived as an average between the kernel density and maxlike occurrence probabilities." width="90%"><p class="caption">
+Figure 2.4: Occurrence probability for existing point samples for the Ebergotzen case study derived as an average between the kernel density and maxlike occurrence probabilities.
+</p>
+</div>
+<p>Second, we fit a model using all points but we set <code>case.weights</code> to be
+reversely proportional to probability of occurrence (hence points with lower occurrence
+probability get higher weights):</p>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ov.weigths</span> <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/over.html">over</a></span><span class="op">(</span><span class="va">eberg.xy</span>, <span class="va">iprob.all</span><span class="op">$</span><span class="va">prob</span><span class="op">)</span><span class="op">[</span><span class="op">]</span>
+<span class="va">rf.clyI</span> <span class="op">=</span> <span class="fu">ranger</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ranger/man/ranger.html">ranger</a></span><span class="op">(</span><span class="va">cly.fm</span>, data<span class="op">=</span><span class="va">rm.cly</span>, case.weights <span class="op">=</span> <span class="va">ov.weigths</span><span class="op">[</span><span class="va">sel.cly</span>,<span class="op">]</span><span class="op">)</span></code></pre></div>
+<p><a href="https://www.statology.org/weighted-least-squares-in-r/">Weighted regression</a> is a common technique in statistics and in this case the weights are used to helps reduce
+clustering effect i.e. give weights to points proportionally to the sampling bias.
+This method is in principle similar to the <a href="https://stat.ethz.ch/R-manual/R-devel/library/nlme/html/gls.html">nlme::gls</a> Generalized Least Square (GLS) procedure,
+but with the difference that we do not estimate any spatial autocorrelation structure.</p>
+</div>
+<div id="resampling-using-ensemble-ml" class="section level2" number="2.4">
+<h2>
+<span class="header-section-number">2.4</span> Resampling using Ensemble ML<a class="anchor" aria-label="anchor" href="#resampling-using-ensemble-ml"><i class="fas fa-link"></i></a>
+</h2>
+<p>Another approach to improve generating BUP from clustered point data is to switch
+to Ensemble ML i.e. use a multitude of ML methods (so called <strong>base-learners</strong>),
+then estimate final predictions using robust resampling and blocking. Ensemble ML
+has shown to help increase mapping accuracy, but also helps with reducing <em>over-shooting</em>
+effects due to <a href="https://medium.com/nerd-for-tech/extrapolation-is-tough-for-trees-tree-based-learners-combining-learners-of-different-type-makes-659187a6f58d">extrapolation</a>.</p>
+<p>One way to reduce effects of point clustering for predictive is to use <em>spatial blocking</em>
+i.e. to make sure that spatially clustered points are not used both for training and
+internal validation <span class="citation">(<a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span>. First, we need to define a spatial grid that we will use
+as a blocking parameter. We set here arbitrarily size of spatial blocks to 500-m,
+in practice the block size can be determined more objectively by e.g. analyzing
+at which distances is clustering reduced:</p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">grd</span> <span class="op">&lt;-</span> <span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/SpatialGrid.html">GridTopology</a></span><span class="op">(</span>cellcentre.offset<span class="op">=</span><span class="va">eberg_grid25</span><span class="op">@</span><span class="va">bbox</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, cellsize<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">500</span>,<span class="fl">2</span><span class="op">)</span>,
+                        cells.dim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">@</span><span class="va">bbox</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span><span class="op">)</span><span class="op">/</span><span class="fl">500</span><span class="op">)</span><span class="op">)</span><span class="op">+</span><span class="fl">1</span>,
+                        <span class="fu"><a href="https://rdrr.io/r/base/Round.html">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">@</span><span class="va">bbox</span><span class="op">[</span><span class="fl">2</span>,<span class="op">]</span><span class="op">)</span><span class="op">/</span><span class="fl">500</span><span class="op">)</span><span class="op">)</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+<span class="va">r.sp</span> <span class="op">&lt;-</span> <span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/SpatialGridDataFrame.html">SpatialGridDataFrame</a></span><span class="op">(</span><span class="va">grd</span>, proj4string <span class="op">=</span> <span class="va">eberg_grid25</span><span class="op">@</span><span class="va">proj4string</span>,
+                    data<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>gid<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="op">(</span><span class="va">grd</span><span class="op">@</span><span class="va">cells.dim</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">*</span> <span class="va">grd</span><span class="op">@</span><span class="va">cells.dim</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">id</span> <span class="op">&lt;-</span> <span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/over.html">over</a></span><span class="op">(</span><span class="va">eberg.xy</span>, <span class="va">r.sp</span><span class="op">)</span><span class="op">$</span><span class="va">gid</span>
+<span class="co">#summary(as.factor(id))</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">r.sp</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">eberg.xy</span>, pch<span class="op">=</span><span class="st">"+"</span>, cex<span class="op">=</span><span class="fl">.5</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-grid"></span>
+<img src="resampling_files/figure-html/eberg-grid-1.png" alt="500 m grid for spatial resampling." width="90%"><p class="caption">
+Figure 2.5: 500 m grid for spatial resampling.
+</p>
+</div>
+<p>This shows that many blocks basically have no training points, and some blocks
+are densely sampled with e.g. 15–20 points. Next, we can compare models fitted
+using spatial blocking vs no special settings. First, we fit ensemble ML model using no blocking:</p>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">parallelMap</span><span class="fu">::</span><span class="fu"><a href="https://parallelmap.mlr-org.com/reference/parallelStart.html">parallelStartSocket</a></span><span class="op">(</span><span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html">detectCores</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; Starting parallelization in mode=socket with cpus=32.</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr.mlr-org.com">mlr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://glmnet.stanford.edu">glmnet</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://topepo.github.io/Cubist">Cubist</a></span><span class="op">)</span>
+<span class="va">lrns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/makeLearner.html">makeLearner</a></span><span class="op">(</span><span class="st">"regr.ranger"</span>, 
+                num.threads <span class="op">=</span> <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html">detectCores</a></span><span class="op">(</span><span class="op">)</span>, num.trees<span class="op">=</span><span class="fl">150</span>, importance<span class="op">=</span><span class="st">"impurity"</span><span class="op">)</span>,
+             <span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/makeLearner.html">makeLearner</a></span><span class="op">(</span><span class="st">"regr.glm"</span><span class="op">)</span>, <span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/makeLearner.html">makeLearner</a></span><span class="op">(</span><span class="st">"regr.cubist"</span><span class="op">)</span>,
+             <span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/makeLearner.html">makeLearner</a></span><span class="op">(</span><span class="st">"regr.cvglmnet"</span><span class="op">)</span><span class="op">)</span>
+<span class="va">tsk0</span> <span class="op">&lt;-</span> <span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/RegrTask.html">makeRegrTask</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">rm.cly</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/allnames.html">all.vars</a></span><span class="op">(</span><span class="va">cly.fm</span><span class="op">)</span><span class="op">]</span>, target <span class="op">=</span> <span class="st">"CLYMHT_A"</span><span class="op">)</span>
+<span class="va">init0.m</span> <span class="op">&lt;-</span> <span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/makeStackedLearner.html">makeStackedLearner</a></span><span class="op">(</span><span class="va">lrns</span>, method <span class="op">=</span> <span class="st">"stack.cv"</span>, 
+                                  super.learner <span class="op">=</span> <span class="st">"regr.lm"</span>,
+                                  resampling<span class="op">=</span><span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/makeResampleDesc.html">makeResampleDesc</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"CV"</span><span class="op">)</span><span class="op">)</span>
+<span class="va">eml0</span> <span class="op">=</span> <span class="fu"><a href="https://mlr.mlr-org.com/reference/train.html">train</a></span><span class="op">(</span><span class="va">init0.m</span>, <span class="va">tsk0</span><span class="op">)</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">eml0</span><span class="op">$</span><span class="va">learner.model</span><span class="op">$</span><span class="va">super.model</span><span class="op">$</span><span class="va">learner.model</span><span class="op">)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Call:</span>
+<span class="co">#&gt; stats::lm(formula = f, data = d)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Residuals:</span>
+<span class="co">#&gt;     Min      1Q  Median      3Q     Max </span>
+<span class="co">#&gt; -33.228  -4.005   0.298   3.054  37.818 </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Coefficients:</span>
+<span class="co">#&gt;               Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="co">#&gt; (Intercept)   -0.55143    0.47112  -1.170 0.241906    </span>
+<span class="co">#&gt; regr.ranger    0.80513    0.05689  14.152  &lt; 2e-16 ***</span>
+<span class="co">#&gt; regr.glm       0.24905    0.11067   2.250 0.024502 *  </span>
+<span class="co">#&gt; regr.cubist    0.13973    0.04208   3.320 0.000911 ***</span>
+<span class="co">#&gt; regr.cvglmnet -0.17004    0.11544  -1.473 0.140868    </span>
+<span class="co">#&gt; ---</span>
+<span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Residual standard error: 7.339 on 2771 degrees of freedom</span>
+<span class="co">#&gt; Multiple R-squared:  0.6041, Adjusted R-squared:  0.6036 </span>
+<span class="co">#&gt; F-statistic:  1057 on 4 and 2771 DF,  p-value: &lt; 2.2e-16</span></code></pre></div>
+<p>This shows that <code>ranger</code> i.e. random forest and <code>cubist</code> are the most important
+learners and the overall model performance matches the previously fitted model using ranger.
+Next, we fit an ensemble ML model with the spatial blocking (500-m):</p>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">tsk1</span> <span class="op">&lt;-</span> <span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/RegrTask.html">makeRegrTask</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">rm.cly</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/allnames.html">all.vars</a></span><span class="op">(</span><span class="va">cly.fm</span><span class="op">)</span><span class="op">]</span>, target <span class="op">=</span> <span class="st">"CLYMHT_A"</span>, 
+                          blocking <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/factor.html">as.factor</a></span><span class="op">(</span><span class="va">id</span><span class="op">[</span><span class="va">sel.cly</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
+<span class="va">init1.m</span> <span class="op">&lt;-</span> <span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/makeStackedLearner.html">makeStackedLearner</a></span><span class="op">(</span><span class="va">lrns</span>, method <span class="op">=</span> <span class="st">"stack.cv"</span>, 
+                  super.learner <span class="op">=</span> <span class="st">"regr.lm"</span>,
+                  resampling<span class="op">=</span><span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/makeResampleDesc.html">makeResampleDesc</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"CV"</span>, blocking.cv<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
+<span class="va">eml1</span> <span class="op">=</span> <span class="fu"><a href="https://mlr.mlr-org.com/reference/train.html">train</a></span><span class="op">(</span><span class="va">init1.m</span>, <span class="va">tsk1</span><span class="op">)</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">eml1</span><span class="op">$</span><span class="va">learner.model</span><span class="op">$</span><span class="va">super.model</span><span class="op">$</span><span class="va">learner.model</span><span class="op">)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Call:</span>
+<span class="co">#&gt; stats::lm(formula = f, data = d)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Residuals:</span>
+<span class="co">#&gt;     Min      1Q  Median      3Q     Max </span>
+<span class="co">#&gt; -31.676  -4.201   0.443   3.109  40.386 </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Coefficients:</span>
+<span class="co">#&gt;               Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="co">#&gt; (Intercept)   -0.36065    0.48143  -0.749   0.4539    </span>
+<span class="co">#&gt; regr.ranger    0.63875    0.05688  11.229  &lt; 2e-16 ***</span>
+<span class="co">#&gt; regr.glm       0.21547    0.11185   1.926   0.0542 .  </span>
+<span class="co">#&gt; regr.cubist    0.23915    0.04124   5.800  7.4e-09 ***</span>
+<span class="co">#&gt; regr.cvglmnet -0.08255    0.11581  -0.713   0.4760    </span>
+<span class="co">#&gt; ---</span>
+<span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Residual standard error: 7.514 on 2771 degrees of freedom</span>
+<span class="co">#&gt; Multiple R-squared:  0.5851, Adjusted R-squared:  0.5845 </span>
+<span class="co">#&gt; F-statistic: 976.9 on 4 and 2771 DF,  p-value: &lt; 2.2e-16</span></code></pre></div>
+<p>which shows a difference: the RMSE drops for 10–20% and the <code>regr.glm</code> learner is
+now also significant. In the previous example, it is possible that the Ensemble
+ML was possibly shadowed by the fitting power of ranger and Cubist, while after
+more strict CV, also more simple models seem to be comparable.</p>
+<p>We can produce predictions using the Ensemble ML model developed with blocking by running:</p>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">pred.cly.eml</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/predict.html">predict</a></span><span class="op">(</span><span class="va">eml1</span>, newdata<span class="op">=</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="va">eml1</span><span class="op">$</span><span class="va">features</span><span class="op">]</span><span class="op">)</span>
+<span class="va">eberg_grid25</span><span class="op">$</span><span class="va">pred.cly.eml</span> <span class="op">=</span> <span class="va">pred.cly.eml</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">response</span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/spplot.html">spplot</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"pred.cly.eml"</span>, <span class="st">"pred.cly.erf"</span><span class="op">)</span><span class="op">]</span>, col.regions<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-eml"></span>
+<img src="resampling_files/figure-html/eberg-eml-1.png" alt="Predictions of clay content: (left) Ensemble ML with spatial blocking, (right) after de-clustring of points." width="90%"><p class="caption">
+Figure 2.6: Predictions of clay content: (left) Ensemble ML with spatial blocking, (right) after de-clustring of points.
+</p>
+</div>
+<p>Visual comparison with the predictions produced in previous section, show that
+the Ensemble method <code>pred.cly.eml</code> predicts somewhat higher clay content in the
+extrapolation area, but also smooths out some higher values in the plains.
+Again, if we have to choose we would suggest users to use the map on the left for
+two main reasons:</p>
+<ol style="list-style-type: decimal">
+<li>It is based on multiple base-learners, not only on Random Forest and results
+show that both Cubist and glmnet package produce comparable results to RF.<br>
+</li>
+<li>It is probably more sensible to use the predictions produced by the meta-learner,
+especially in the extrapolation space.</li>
+</ol>
+</div>
+<div id="estimating-the-area-of-applicability" class="section level2" number="2.5">
+<h2>
+<span class="header-section-number">2.5</span> Estimating the Area of Applicability<a class="anchor" aria-label="anchor" href="#estimating-the-area-of-applicability"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation"><a href="references.html#ref-meyer2021predicting" role="doc-biblioref">Meyer &amp; Pebesma</a> (<a href="references.html#ref-meyer2021predicting" role="doc-biblioref">2021</a>)</span> have developed a method to estimate so-called <a href="https://cran.r-project.org/web/packages/CAST/vignettes/AOA-tutorial.html">“Area of Applicability”</a>
+using a fitted model and feature space analysis. This method can be used for
+post-modeling analysis and helps users realize what are the true extrapolation
+areas and where the predictions are critically poor. The users can then choose to
+e.g. limit predictions only to combinations of pixels that are NOT extrapolation.</p>
+<p>For the RF model fitted above we can derive AoA using:</p>
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/HannaMeyer/CAST">CAST</a></span><span class="op">)</span>
+<span class="va">train.df</span> <span class="op">=</span> <span class="va">rm.cly</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/allnames.html">all.vars</a></span><span class="op">(</span><span class="va">cly.fm</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
+<span class="va">weight</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/getFeatureImportance.html">getFeatureImportance</a></span><span class="op">(</span><span class="va">eml1</span><span class="op">$</span><span class="va">learner.model</span><span class="op">$</span><span class="va">base.models</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">res</span><span class="op">)</span>
+<span class="va">AOA</span> <span class="op">&lt;-</span> <span class="fu">CAST</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/CAST/man/aoa.html">aoa</a></span><span class="op">(</span>train<span class="op">=</span><span class="va">train.df</span>, predictors<span class="op">=</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="va">eml1</span><span class="op">$</span><span class="va">features</span><span class="op">]</span>, weight<span class="op">=</span><span class="va">weight</span><span class="op">)</span></code></pre></div>
+<p>This method can be computational so it is probably not recommended for larger datasets.
+Some example of the Area of Applicability can be found in the <a href="https://cran.r-project.org/web/packages/CAST/vignettes/AOA-tutorial.html">CAST package tutorial</a>.</p>
+</div>
+<div id="estimating-per-pixel-mapping-accuracy" class="section level2" number="2.6">
+<h2>
+<span class="header-section-number">2.6</span> Estimating per-pixel mapping accuracy<a class="anchor" aria-label="anchor" href="#estimating-per-pixel-mapping-accuracy"><i class="fas fa-link"></i></a>
+</h2>
+<p>Using the Ensemble Model we can also estimate the mapping accuracy per pixel i.e. 
+by deriving the <strong>Mean Square Prediction Error</strong> (MSPE). The <strong>forestError</strong> package currently
+provides a <em>“Unified Framework for Random Forest Prediction Error Estimation”</em> <span class="citation">(<a href="references.html#ref-lu2021unified" role="doc-biblioref">Lu &amp; Hardin, 2021</a>)</span>
+and is probably the most worked-out procedure for deriving prediction errors
+and estimating potential bias. This requires two steps, (1) first, we need to
+fit an additional quantile Regression RF model (using the four base learners from the
+previous section), (2) second, we can then estimate complete error statistics
+per pixel using the <a href="https://rdrr.io/cran/forestError/man/quantForestError.html">quantForestError</a> function.</p>
+<p>Because derivation of prediction errors per pixel can often be computational
+(even at the order of magnitude more computational than predictions), it is important
+to use a method that is computationally efficient and precise enough. In the
+landmap package the uncertainty is derived using base learners instead of using
+ALL raster layers which could be hundreds. This approach of using (few) base learners
+instead of (many) original covariates helps compress the complexity of model and
+significantly speed-up computing. The base learners can be accessed from the
+mlr object and used to fit (an independent) quantile RF:</p>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">eml.t</span> <span class="op">=</span> <span class="va">eml1</span><span class="op">$</span><span class="va">learner.model</span><span class="op">$</span><span class="va">super.model</span><span class="op">$</span><span class="va">learner.model</span><span class="op">$</span><span class="va">terms</span>
+<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">eml.t</span><span class="op">)</span>
+<span class="co">#&gt; [1] "~"                                                   </span>
+<span class="co">#&gt; [2] "CLYMHT_A"                                            </span>
+<span class="co">#&gt; [3] "regr.ranger + regr.glm + regr.cubist + regr.cvglmnet"</span>
+<span class="va">eml.m</span> <span class="op">=</span> <span class="va">eml1</span><span class="op">$</span><span class="va">learner.model</span><span class="op">$</span><span class="va">super.model</span><span class="op">$</span><span class="va">learner.model</span><span class="op">$</span><span class="va">model</span>
+<span class="va">eml.qr</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ranger/man/ranger.html">ranger</a></span><span class="op">(</span><span class="va">eml.t</span>, <span class="va">eml.m</span>, num.trees<span class="op">=</span><span class="fl">85</span>, importance<span class="op">=</span><span class="st">"impurity"</span>, 
+                         quantreg<span class="op">=</span><span class="cn">TRUE</span>, keep.inbag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">#eml.qr</span></code></pre></div>
+<p>Next, we can use the <code>forestError</code> package to derive prediction errors by:</p>
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">forestError</span><span class="op">)</span>
+<span class="va">quantiles</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="fl">.682</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="fl">.682</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span>
+<span class="va">n.cores</span> <span class="op">=</span> <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html">detectCores</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">out.c</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/getStackedBaseLearnerPredictions.html">getStackedBaseLearnerPredictions</a></span><span class="op">(</span><span class="va">eml1</span>, 
+          newdata<span class="op">=</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="va">eml1</span><span class="op">$</span><span class="va">features</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
+<span class="va">pred.q</span> <span class="op">=</span> <span class="fu">forestError</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/forestError/man/quantForestError.html">quantForestError</a></span><span class="op">(</span><span class="va">eml.qr</span>, 
+                    X.train <span class="op">=</span> <span class="va">eml.m</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/allnames.html">all.vars</a></span><span class="op">(</span><span class="va">eml.t</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, 
+                    X.test <span class="op">=</span> <span class="va">out.c</span>, 
+                    Y.train <span class="op">=</span> <span class="va">eml.m</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/allnames.html">all.vars</a></span><span class="op">(</span><span class="va">eml.t</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, 
+                    alpha <span class="op">=</span> <span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="op">(</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">-</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>, n.cores<span class="op">=</span><span class="va">n.cores</span><span class="op">)</span></code></pre></div>
+<p>We could have also subset e.g. 10% of the input points and keep them ONLY for
+estimating the prediction errors using the <code>quantForestError</code>, which is also
+recommended by the authors of the forestError package. In practice, because
+base learners have been fitted using 5-fold Cross-Validation with blocking,
+they already include out-of-bag samples hence taking out extra OOB samples is
+probably not required.</p>
+<p>The <code>quantForestError</code> function runs a complete uncertainty assessment and
+includes both MSPE, bias and upper and lower confidence intervals:</p>
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">pred.q</span><span class="op">)</span>
+<span class="co">#&gt; List of 3</span>
+<span class="co">#&gt;  $ estimates:'data.frame':   160000 obs. of  5 variables:</span>
+<span class="co">#&gt;   ..$ pred       : num [1:160000] 35.2 37.5 31.7 36 35.9 ...</span>
+<span class="co">#&gt;   ..$ mspe       : num [1:160000] 138.1 104.1 82.7 90.9 76.2 ...</span>
+<span class="co">#&gt;   ..$ bias       : num [1:160000] -1.77 -1.22 -1.13 -1.18 -1.45 ...</span>
+<span class="co">#&gt;   ..$ lower_0.318: num [1:160000] 23.5 27.8 21.5 29.6 29.5 ...</span>
+<span class="co">#&gt;   ..$ upper_0.318: num [1:160000] 52.7 47.7 40.2 47.7 42.3 ...</span>
+<span class="co">#&gt;  $ perror   :function (q, xs = 1:n.test)  </span>
+<span class="co">#&gt;  $ qerror   :function (p, xs = 1:n.test)</span></code></pre></div>
+<p>In this case, for the lower and upper confidence intervals we use 1-standard
+deviation probability which is about 2/3 probability and hence the lower value is 0.159
+and upper 0.841. The RMSPE should match the half of the difference between
+the lower and upper interval in this case, although there will be difference.</p>
+<p>The mean RMSPE for the whole study area should be as expected somewhat higher
+than the RMSE we get from model fitting:</p>
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">pred.q</span><span class="op">$</span><span class="va">estimates</span><span class="op">$</span><span class="va">mspe</span><span class="op">)</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">#&gt; [1] 7.780946</span></code></pre></div>
+<p>This is because we are also extrapolating in the large part of the area.
+The map in Fig. <a href="alt-text-resampling-methods-for-machine-learning.html#fig:eberg-var-eml">2.7</a> correctly depicts the extrapolation areas
+as having much higher RMSPE (compare with Fig. <a href="alt-text-resampling-methods-for-machine-learning.html#fig:eberg-iprob">2.4</a>):</p>
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">eberg_grid25</span><span class="op">$</span><span class="va">rmspe.cly.eml</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">pred.q</span><span class="op">$</span><span class="va">estimates</span><span class="op">$</span><span class="va">mspe</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"rmspe.cly.eml"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">16</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">eberg.sp</span>, pch<span class="op">=</span><span class="st">"+"</span>, cex<span class="op">=</span><span class="fl">.6</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-var-eml"></span>
+<img src="resampling_files/figure-html/eberg-var-eml-1.png" alt="Prediction errors for the clay content based on the forestError package and Ensemble ML." width="90%"><p class="caption">
+Figure 2.7: Prediction errors for the clay content based on the forestError package and Ensemble ML.
+</p>
+</div>
+<p>In the previous examples we have shown that the actual samples from the Ebergotzen
+dataset are actually clustered and cover only agricultural land. Can we
+still use these samples to estimate the mapping accuracy for the whole area?
+The answer is yes, but we need to be aware that our estimate might be biased
+(usually over-optimistic) and we need to do our best to reduce the over-fitting
+effects by implementing some of the strategies above e.g.: assign different
+weights to training points, and/or implement blocking settings.</p>
+<p>Assuming that forest soils are possibly very different from agricultural
+soils, once we collect new sampling in the forest part of the study area we
+might discovering that the actual mapping accuracy we estimated for the whole
+study area using only agricultural soil samples is significantly lower than what
+we have estimated in Fig. <a href="alt-text-resampling-methods-for-machine-learning.html#fig:eberg-var-eml">2.7</a>.</p>
+<div class="figure" style="text-align: center">
+<span id="fig:example-cv"></span>
+<img src="img/Fig_zone_radius_CV.png" alt="Example of effects of the size of the spatial blocking (buffer) on mapping accuracy." width="70%"><p class="caption">
+Figure 2.8: Example of effects of the size of the spatial blocking (buffer) on mapping accuracy.
+</p>
+</div>
+<p>Fig. <a href="alt-text-resampling-methods-for-machine-learning.html#fig:example-cv">2.8</a> shows the usual effect of spatial blocking (for varying buffer size) on the
+Cross-Validation accuracy <span class="citation">(<a href="references.html#ref-pohjankukka2017estimating" role="doc-biblioref">Pohjankukka, Pahikkala, Nevalainen, &amp; Heikkonen, 2017</a>)</span>. Note that the accuracy
+tends to stabilize at some distance, although too strict blocking can also lead
+to over-pessimistic estimates of accuracy hence bias in predictions.
+In the Ebergotzen case, prediction error could be over-pessimistic although the
+block size is relatively small considering the size of the study area.
+On the other hand, if the training points are clustered, blocking becomes
+important because otherwise the estimate of error and choice of model parameters
+could get over-optimistic <span class="citation">(<a href="references.html#ref-lovelace2019geocomputation" role="doc-biblioref">Lovelace, Nowosad, &amp; Muenchow, 2019</a>)</span>. If in doubt of whether
+to produce over-optimistic or over-pessimistic estimates of uncertainty, it is
+ideal to avoid both, but if necessary consider that somewhat over-pessimistic
+estimate of accuracy could be slightly more <em>on a safe side</em> <span class="citation">(<a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span>.</p>
+</div>
+<div id="testing-mapping-accuracy-using-resampling-and-blocking" class="section level2" number="2.7">
+<h2>
+<span class="header-section-number">2.7</span> Testing mapping accuracy using resampling and blocking<a class="anchor" aria-label="anchor" href="#testing-mapping-accuracy-using-resampling-and-blocking"><i class="fas fa-link"></i></a>
+</h2>
+<p>We can switch to the Edgeroi dataset <span class="citation">(<a href="references.html#ref-Malone2009Geoderma" role="doc-biblioref">B. P. Malone, McBratney, Minasny, &amp; Laslett, 2009</a>)</span> that is originally
+based on <em>designed</em> sampling and as such is more interesting for assessing
+effects of various blocking strategies on overall mapping accuracy. We can load
+the dataset and prepare a regression matrix by using <span class="citation">(<a href="references.html#ref-hengl2019predictive" role="doc-biblioref">Hengl &amp; MacMillan, 2019</a>)</span>:</p>
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">edgeroi</span><span class="op">)</span>
+<span class="va">edgeroi.sp</span> <span class="op">&lt;-</span> <span class="va">edgeroi</span><span class="op">$</span><span class="va">sites</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/xyFromCell.html">coordinates</a></span><span class="op">(</span><span class="va">edgeroi.sp</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="op">~</span> <span class="va">LONGDA94</span> <span class="op">+</span> <span class="va">LATGDA94</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/projection.html">proj4string</a></span><span class="op">(</span><span class="va">edgeroi.sp</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/CRS-class.html">CRS</a></span><span class="op">(</span><span class="st">"+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"</span><span class="op">)</span>
+<span class="va">edgeroi.sp</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/spTransform-methods.html">spTransform</a></span><span class="op">(</span><span class="va">edgeroi.sp</span>, <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/CRS-class.html">CRS</a></span><span class="op">(</span><span class="st">"+init=epsg:28355"</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">edgeroi.sp</span><span class="op">)</span>
+<span class="co">#&gt; [1] 359</span>
+<span class="va">h2</span> <span class="op">&lt;-</span> <span class="fu">hor2xyd</span><span class="op">(</span><span class="va">edgeroi</span><span class="op">$</span><span class="va">horizons</span><span class="op">)</span>
+<span class="va">edgeroi.grids.100m</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"./extdata/edgeroi.grids.100m.rds"</span><span class="op">)</span>
+<span class="va">edgeroi.grids</span> <span class="op">=</span> <span class="fu">landmap</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/landmap/man/spc.html">spc</a></span><span class="op">(</span><span class="va">edgeroi.grids.100m</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>
+<span class="co">#&gt; Converting covariates to principal components...</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">edgeroi.grids</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">edgeroi.sp</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:edgeroi-map"></span>
+<img src="resampling_files/figure-html/edgeroi-map-1.png" alt="The Edgeroi dataset consisting of 359 soil profiles." width="90%"><p class="caption">
+Figure 2.9: The Edgeroi dataset consisting of 359 soil profiles.
+</p>
+</div>
+<p>The dataset documentation indicates that from a total of 359 profiles, 210 soil profiles
+were sampled on a systematic, equilateral triangular grid with a spacing of 2.8 km
+between sites; the further 131 soil profiles are distributed more irregularly
+or on transects <span class="citation">(<a href="references.html#ref-malone2009mapping" role="doc-biblioref">Brendan P. Malone, McBratney, Minasny, &amp; Laslett, 2009</a>)</span>. This is hence a hybrid soil sampling design
+but in general satisfying IID, and hence any subsample of these points should give
+an unbiased estimate of the accuracy. We first prepare a regression matrix that includes
+all covariates, location IDs and we also add a spatial grid of 500-m size:</p>
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">grdE</span> <span class="op">&lt;-</span> <span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/SpatialGrid.html">GridTopology</a></span><span class="op">(</span>cellcentre.offset<span class="op">=</span><span class="va">edgeroi.grids.100m</span><span class="op">@</span><span class="va">bbox</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, cellsize<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">500</span>,<span class="fl">2</span><span class="op">)</span>,
+                        cells.dim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span><span class="op">(</span><span class="va">edgeroi.grids.100m</span><span class="op">@</span><span class="va">bbox</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span><span class="op">)</span><span class="op">/</span><span class="fl">500</span><span class="op">)</span><span class="op">)</span><span class="op">+</span><span class="fl">1</span>,
+                        <span class="fu"><a href="https://rdrr.io/r/base/Round.html">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span><span class="op">(</span><span class="va">edgeroi.grids.100m</span><span class="op">@</span><span class="va">bbox</span><span class="op">[</span><span class="fl">2</span>,<span class="op">]</span><span class="op">)</span><span class="op">/</span><span class="fl">500</span><span class="op">)</span><span class="op">)</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+<span class="va">rE.sp</span> <span class="op">&lt;-</span> <span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/SpatialGridDataFrame.html">SpatialGridDataFrame</a></span><span class="op">(</span><span class="va">grdE</span>, proj4string <span class="op">=</span> <span class="va">edgeroi.grids.100m</span><span class="op">@</span><span class="va">proj4string</span>,
+                    data<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>gid<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="op">(</span><span class="va">grdE</span><span class="op">@</span><span class="va">cells.dim</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">*</span> <span class="va">grdE</span><span class="op">@</span><span class="va">cells.dim</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">ovF</span> <span class="op">&lt;-</span> <span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/over.html">over</a></span><span class="op">(</span><span class="va">edgeroi.sp</span>, <span class="va">edgeroi.grids</span><span class="op">@</span><span class="va">predicted</span><span class="op">)</span>
+<span class="va">ovF</span><span class="op">$</span><span class="va">SOURCEID</span> <span class="op">&lt;-</span> <span class="va">edgeroi.sp</span><span class="op">$</span><span class="va">SOURCEID</span>
+<span class="va">ovF</span><span class="op">$</span><span class="va">gid</span> <span class="op">&lt;-</span> <span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/over.html">over</a></span><span class="op">(</span><span class="va">edgeroi.sp</span>, <span class="va">rE.sp</span><span class="op">)</span><span class="op">$</span><span class="va">gid</span>
+<span class="va">ovF</span><span class="op">$</span><span class="va">x</span> <span class="op">=</span> <span class="va">edgeroi.sp</span><span class="op">@</span><span class="va">coords</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>
+<span class="va">ovF</span><span class="op">$</span><span class="va">y</span> <span class="op">=</span> <span class="va">edgeroi.sp</span><span class="op">@</span><span class="va">coords</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>
+<span class="va">rmF</span> <span class="op">&lt;-</span> <span class="fu">plyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plyr/man/join_all.html">join_all</a></span><span class="op">(</span>dfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">edgeroi</span><span class="op">$</span><span class="va">sites</span>, <span class="va">h2</span>, <span class="va">ovF</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; Joining by: SOURCEID</span>
+<span class="co">#&gt; Joining by: SOURCEID</span></code></pre></div>
+<p>This produces a regression matrix with unique IDs of profiles <code>SOURCEID</code>, spatial
+block IDs (<code>gid</code>) and all target and covariate layers.</p>
+<p>We can now fit a model to predict soil organic carbon content (in g/kg) in 3D:</p>
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">rmF</span><span class="op">$</span><span class="va">log.ORCDRC</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log1p</a></span><span class="op">(</span><span class="va">rmF</span><span class="op">$</span><span class="va">ORCDRC</span><span class="op">)</span>
+<span class="va">formulaStringPF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html">as.formula</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"log.ORCDRC ~ DEPTH + "</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"PC"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, collapse <span class="op">=</span> <span class="st">"+"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">rmPF</span> <span class="op">&lt;-</span> <span class="va">rmF</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html">complete.cases</a></span><span class="op">(</span><span class="va">rmF</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/allnames.html">all.vars</a></span><span class="op">(</span><span class="va">formulaStringPF</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,<span class="op">]</span>
+<span class="co">#str(rmPF[,all.vars(formulaStringPF)])</span></code></pre></div>
+<p>We first fit a model ignoring any spatial clustering or similar:</p>
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">soc.rf</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/ranger/man/ranger.html">ranger</a></span><span class="op">(</span><span class="va">formulaStringPF</span>, <span class="va">rmPF</span><span class="op">)</span>
+<span class="va">soc.rf</span>
+<span class="co">#&gt; Ranger result</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Call:</span>
+<span class="co">#&gt;  ranger(formulaStringPF, rmPF) </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Type:                             Regression </span>
+<span class="co">#&gt; Number of trees:                  500 </span>
+<span class="co">#&gt; Sample size:                      5001 </span>
+<span class="co">#&gt; Number of independent variables:  11 </span>
+<span class="co">#&gt; Mtry:                             3 </span>
+<span class="co">#&gt; Target node size:                 5 </span>
+<span class="co">#&gt; Variable importance mode:         none </span>
+<span class="co">#&gt; Splitrule:                        variance </span>
+<span class="co">#&gt; OOB prediction error (MSE):       0.1116369 </span>
+<span class="co">#&gt; R squared (OOB):                  0.8166682</span></code></pre></div>
+<p>If we compare this model with an Ensemble ML where whole blocks i.e. including
+also whole soil profiles are taken out from modeling:</p>
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">SL.library2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"regr.ranger"</span>, <span class="st">"regr.glm"</span>, <span class="st">"regr.cvglmnet"</span>, <span class="st">"regr.xgboost"</span>, <span class="st">"regr.ksvm"</span><span class="op">)</span>
+<span class="va">lrnsE</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">SL.library2</span>, <span class="fu">mlr</span><span class="fu">::</span><span class="va"><a href="https://mlr.mlr-org.com/reference/makeLearner.html">makeLearner</a></span><span class="op">)</span>
+<span class="va">tskE</span> <span class="op">&lt;-</span> <span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/RegrTask.html">makeRegrTask</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">rmPF</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/allnames.html">all.vars</a></span><span class="op">(</span><span class="va">formulaStringPF</span><span class="op">)</span><span class="op">]</span>, target<span class="op">=</span><span class="st">"log.ORCDRC"</span>, 
+                          blocking <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/factor.html">as.factor</a></span><span class="op">(</span><span class="va">rmPF</span><span class="op">$</span><span class="va">gid</span><span class="op">)</span><span class="op">)</span>
+<span class="va">initE.m</span> <span class="op">&lt;-</span> <span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/makeStackedLearner.html">makeStackedLearner</a></span><span class="op">(</span><span class="va">lrnsE</span>, method <span class="op">=</span> <span class="st">"stack.cv"</span>, 
+                  super.learner <span class="op">=</span> <span class="st">"regr.lm"</span>,
+                  resampling<span class="op">=</span><span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/makeResampleDesc.html">makeResampleDesc</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"CV"</span>, blocking.cv<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
+<span class="va">emlE</span> <span class="op">=</span> <span class="fu"><a href="https://mlr.mlr-org.com/reference/train.html">train</a></span><span class="op">(</span><span class="va">initE.m</span>, <span class="va">tskE</span><span class="op">)</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="co">#&gt; [21:40:44] WARNING: amalgamation/../src/objective/regression_obj.cu:170: reg:linear is now deprecated in favor of reg:squarederror.</span>
+<span class="co">#&gt; Exporting objects to slaves for mode socket: .mlr.slave.options</span>
+<span class="co">#&gt; Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">emlE</span><span class="op">$</span><span class="va">learner.model</span><span class="op">$</span><span class="va">super.model</span><span class="op">$</span><span class="va">learner.model</span><span class="op">)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Call:</span>
+<span class="co">#&gt; stats::lm(formula = f, data = d)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Residuals:</span>
+<span class="co">#&gt;     Min      1Q  Median      3Q     Max </span>
+<span class="co">#&gt; -2.1642 -0.2550 -0.0232  0.2376  3.1830 </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Coefficients:</span>
+<span class="co">#&gt;               Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="co">#&gt; (Intercept)   -0.17386    0.03557  -4.887 1.05e-06 ***</span>
+<span class="co">#&gt; regr.ranger    0.83042    0.04432  18.736  &lt; 2e-16 ***</span>
+<span class="co">#&gt; regr.glm       0.42906    0.07066   6.072 1.36e-09 ***</span>
+<span class="co">#&gt; regr.cvglmnet -0.37021    0.07626  -4.855 1.24e-06 ***</span>
+<span class="co">#&gt; regr.xgboost   0.20284    0.09370   2.165   0.0305 *  </span>
+<span class="co">#&gt; regr.ksvm      0.12077    0.02840   4.253 2.15e-05 ***</span>
+<span class="co">#&gt; ---</span>
+<span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Residual standard error: 0.449 on 4995 degrees of freedom</span>
+<span class="co">#&gt; Multiple R-squared:  0.6693, Adjusted R-squared:  0.6689 </span>
+<span class="co">#&gt; F-statistic:  2022 on 5 and 4995 DF,  p-value: &lt; 2.2e-16</span></code></pre></div>
+<p>Notice a large difference in the model accuracy with R-square dropping from
+about 0.82 to 0.65. How can we check which of the two models is more accurate /
+which shows a more realistic mapping accuracy? We can again generate pseudo-grid
+samples e.g. 10 subsets where in each subset we make sure that the points are at
+least 3.5-km apart and are taken selected randomly:</p>
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">subE.lst</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span><span class="fu">landmap</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/landmap/man/sample.grid.html">sample.grid</a></span><span class="op">(</span><span class="va">edgeroi.sp</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3.5e3</span>, <span class="fl">3.5e3</span><span class="op">)</span>, n<span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">}</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">lE1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"sp.points"</span>, <span class="va">subE.lst</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">subset</span>, pch<span class="op">=</span><span class="st">"+"</span>, col<span class="op">=</span><span class="st">"black"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/spplot.html">spplot</a></span><span class="op">(</span><span class="va">subE.lst</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">grid</span>, scales<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>draw<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,
+   col.regions<span class="op">=</span><span class="st">"grey"</span>, sp.layout<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">lE1</span><span class="op">)</span>, colorkey<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:edgeroi-grid-sample"></span>
+<img src="resampling_files/figure-html/edgeroi-grid-sample-1.png" alt="Resampling original points using `sample.grid` function for the Edgeroi dataset." width="90%"><p class="caption">
+Figure 2.10: Resampling original points using <code>sample.grid</code> function for the Edgeroi dataset.
+</p>
+</div>
+<p>So in any random pseudo-grid subset we select about 100 profiles from 359. We can next
+repeatedly fit models using the two approaches and derive prediction errors. First, for
+simple model ignoring any spatial clustering / soil profile locations:</p>
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">rf.soc.lst</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">subE.lst</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
+        <span class="va">sel</span> <span class="op">&lt;-</span> <span class="op">!</span><span class="va">rmPF</span><span class="op">$</span><span class="va">SOURCEID</span> <span class="op"><a href="https://rdrr.io/pkg/raster/man/match.html">%in%</a></span> <span class="va">subE.lst</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">subset</span><span class="op">$</span><span class="va">SOURCEID</span>;
+        <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ranger/man/ranger.html">ranger</a></span><span class="op">(</span><span class="va">formulaStringPF</span>, <span class="va">rmPF</span><span class="op">[</span><span class="va">sel</span>,<span class="op">]</span><span class="op">)</span>;
+        <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>meas<span class="op">=</span><span class="va">rmPF</span><span class="op">[</span><span class="op">!</span><span class="va">sel</span>,<span class="st">"log.ORCDRC"</span><span class="op">]</span>, pred<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/predict.html">predict</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">rmPF</span><span class="op">[</span><span class="op">!</span><span class="va">sel</span>,<span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span><span class="op">)</span>;
+        <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span>
+      <span class="op">}</span>
+<span class="op">)</span>
+<span class="va">rf.cv</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">rf.soc.lst</span><span class="op">)</span>
+<span class="fu">Metrics</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Metrics/man/rmse.html">rmse</a></span><span class="op">(</span><span class="va">rf.cv</span><span class="op">$</span><span class="va">meas</span>, <span class="va">rf.cv</span><span class="op">$</span><span class="va">pred</span><span class="op">)</span>
+<span class="co">#&gt; [1] 0.4343792</span></code></pre></div>
+<p>This gives an RMSPE of 0.44, which is higher than what is reported by the OOB for RF
+without blocking. The accuracy plot shows that the <a href="https://rdrr.io/cran/yardstick/man/ccc.html">Concordance Correlation Coefficient (CCC)</a>
+is about 0.79 (corresponding to a R-square of about 0.62 and thus significantly
+less than what is reported by ranger):</p>
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">t.b</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/quantile.html">quantile</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log1p</a></span><span class="op">(</span><span class="va">rmPF</span><span class="op">$</span><span class="va">ORCDRC</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.999</span><span class="op">)</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
+<span class="fu">plot_hexbin</span><span class="op">(</span>varn<span class="op">=</span><span class="st">"SOC_RF"</span>, breaks<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">t.b</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="va">t.b</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="va">t.b</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, length<span class="op">=</span><span class="fl">25</span><span class="op">)</span><span class="op">)</span>, 
+      meas<span class="op">=</span><span class="va">rf.cv</span><span class="op">$</span><span class="va">meas</span>, pred<span class="op">=</span><span class="va">rf.cv</span><span class="op">$</span><span class="va">pred</span>, main<span class="op">=</span><span class="st">"SOC [RF]"</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:ac-soc1"></span>
+<img src="img/plot_CV_SOC_RF.png" alt="Accuracy plot for soil organic carbon fitted using RF." width="70%"><p class="caption">
+Figure 2.11: Accuracy plot for soil organic carbon fitted using RF.
+</p>
+</div>
+<p>We repeat the same process of re-fitting the model using Ensemble ML with spatial
+blocking:</p>
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">eml.soc.lst</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">subE.lst</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
+        <span class="va">sel</span> <span class="op">&lt;-</span> <span class="op">!</span><span class="va">rmPF</span><span class="op">$</span><span class="va">SOURCEID</span> <span class="op"><a href="https://rdrr.io/pkg/raster/man/match.html">%in%</a></span> <span class="va">subE.lst</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">subset</span><span class="op">$</span><span class="va">SOURCEID</span>;
+        <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/RegrTask.html">makeRegrTask</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">rmPF</span><span class="op">[</span><span class="va">sel</span>,<span class="fu"><a href="https://rdrr.io/r/base/allnames.html">all.vars</a></span><span class="op">(</span><span class="va">formulaStringPF</span><span class="op">)</span><span class="op">]</span>, 
+                  target<span class="op">=</span><span class="st">"log.ORCDRC"</span>, blocking <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/factor.html">as.factor</a></span><span class="op">(</span><span class="va">rmPF</span><span class="op">$</span><span class="va">gid</span><span class="op">[</span><span class="va">sel</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>;
+        <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr.mlr-org.com/reference/train.html">train</a></span><span class="op">(</span><span class="va">initE.m</span>, <span class="va">x</span><span class="op">)</span>
+        <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>meas<span class="op">=</span><span class="va">rmPF</span><span class="op">[</span><span class="op">!</span><span class="va">sel</span>,<span class="st">"log.ORCDRC"</span><span class="op">]</span>, pred<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/predict.html">predict</a></span><span class="op">(</span><span class="va">y</span>, newdata<span class="op">=</span><span class="va">rmPF</span><span class="op">[</span><span class="op">!</span><span class="va">sel</span>, <span class="va">y</span><span class="op">$</span><span class="va">features</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">response</span><span class="op">)</span>;
+        <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span>
+      <span class="op">}</span>
+<span class="op">)</span>
+<span class="va">eml.cv</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">eml.soc.lst</span><span class="op">)</span>
+<span class="fu">Metrics</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Metrics/man/rmse.html">rmse</a></span><span class="op">(</span><span class="va">eml.cv</span><span class="op">$</span><span class="va">meas</span>, <span class="va">eml.cv</span><span class="op">$</span><span class="va">pred</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">plot_hexbin</span><span class="op">(</span>varn<span class="op">=</span><span class="st">"SOC_EML"</span>, breaks<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">t.b</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="va">t.b</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="va">t.b</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, length<span class="op">=</span><span class="fl">25</span><span class="op">)</span><span class="op">)</span>, 
+      meas<span class="op">=</span><span class="va">eml.cv</span><span class="op">$</span><span class="va">meas</span>, pred<span class="op">=</span><span class="va">eml.cv</span><span class="op">$</span><span class="va">pred</span>, main<span class="op">=</span><span class="st">"SOC [EML]"</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:ac-soc2"></span>
+<img src="img/plot_CV_SOC_EML.png" alt="Accuracy plot for soil organic carbon fitted using Ensemble Machine Learning with spatial blocking." width="70%"><p class="caption">
+Figure 2.12: Accuracy plot for soil organic carbon fitted using Ensemble Machine Learning with spatial blocking.
+</p>
+</div>
+<p>So in summary, independent validation using pseudo-probability samples indicates
+that the Ensemble ML produces more accurate predictions (in this case only slightly
+better) and the RMSE estimated by the meta-learner the Ensemble ML approach is more
+realistic (<code>Residual standard error: 0.45</code>). This clearly demonstrates that spatial
+blocking is important to (a) prevent from over-fitting, (b) produce a more realistic
+estimate of the uncertainty / mapping accuracy. Ensemble ML comes at costs of
+at the order of magnitude higher computing costs however.</p>
+<p>We can again plot the predictions produced by two methods next to each other:</p>
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">newdata</span> <span class="op">=</span> <span class="va">edgeroi.grids</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"PC"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">]</span>
+<span class="va">newdata</span><span class="op">$</span><span class="va">DEPTH</span> <span class="op">=</span> <span class="fl">5</span></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">edgeroi.grids.100m</span><span class="op">$</span><span class="va">rf_soc_5cm</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/predict.html">predict</a></span><span class="op">(</span><span class="va">soc.rf</span>, <span class="va">newdata</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span>
+<span class="va">edgeroi.grids.100m</span><span class="op">$</span><span class="va">eml_soc_5cm</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/predict.html">predict</a></span><span class="op">(</span><span class="va">emlE</span>, newdata<span class="op">=</span><span class="va">newdata</span><span class="op">[</span>,<span class="va">emlE</span><span class="op">$</span><span class="va">features</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">response</span>
+<span class="va">l.pnts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"sp.points"</span>, <span class="va">edgeroi.sp</span>, pch<span class="op">=</span><span class="st">"+"</span>, col<span class="op">=</span><span class="st">"black"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/spplot.html">spplot</a></span><span class="op">(</span><span class="va">edgeroi.grids.100m</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"rf_soc_5cm"</span>, <span class="st">"eml_soc_5cm"</span><span class="op">)</span><span class="op">]</span>, 
+       sp.layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">l.pnts</span><span class="op">)</span>, col.regions<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:pred-soc"></span>
+<img src="img/edgeroi_predictions_SOC_5cm.png" alt="Predictions of soil organic carbon (in log-scale) based on Random Forest (RF) and Ensemble ML (EML)." width="100%"><p class="caption">
+Figure 2.13: Predictions of soil organic carbon (in log-scale) based on Random Forest (RF) and Ensemble ML (EML).
+</p>
+</div>
+<p>Which shows that the Ensemble ML seems to predict significantly higher SOC in the
+hillands (right part of the study area), so again significant difference in predictions
+between the two models. Even though the Ensemble ML with spatial blocking is only
+slightly better in accuracy (RMSE based on 10-times out-of-bag declustered validation points),
+these results confirm that it helps produce a more realistic map of RMSPE.
+This matches the result of <span class="citation"><a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al.</a> (<a href="references.html#ref-roberts2017cross" role="doc-biblioref">2017</a>)</span> who suggest that block cross-validation is
+nearly universally more appropriate than random cross-validation if the goal is
+predicting to new data or predictor space, or for selecting causal predictors.</p>
+<p>We can also map the prediction errors:</p>
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">emlE.t</span> <span class="op">=</span> <span class="va">emlE</span><span class="op">$</span><span class="va">learner.model</span><span class="op">$</span><span class="va">super.model</span><span class="op">$</span><span class="va">learner.model</span><span class="op">$</span><span class="va">terms</span>
+<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">emlE.t</span><span class="op">)</span>
+<span class="co">#&gt; [1] "~"                                                                </span>
+<span class="co">#&gt; [2] "log.ORCDRC"                                                       </span>
+<span class="co">#&gt; [3] "regr.ranger + regr.glm + regr.cvglmnet + regr.xgboost + regr.ksvm"</span>
+<span class="va">emlE.m</span> <span class="op">=</span> <span class="va">emlE</span><span class="op">$</span><span class="va">learner.model</span><span class="op">$</span><span class="va">super.model</span><span class="op">$</span><span class="va">learner.model</span><span class="op">$</span><span class="va">model</span>
+<span class="va">emlE.qr</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ranger/man/ranger.html">ranger</a></span><span class="op">(</span><span class="va">emlE.t</span>, <span class="va">emlE.m</span>, num.trees<span class="op">=</span><span class="fl">85</span>, importance<span class="op">=</span><span class="st">"impurity"</span>, 
+                         quantreg<span class="op">=</span><span class="cn">TRUE</span>, keep.inbag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">outE.c</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu">mlr</span><span class="fu">::</span><span class="fu"><a href="https://mlr.mlr-org.com/reference/getStackedBaseLearnerPredictions.html">getStackedBaseLearnerPredictions</a></span><span class="op">(</span><span class="va">emlE</span>, 
+                                      newdata<span class="op">=</span><span class="va">newdata</span><span class="op">[</span>,<span class="va">emlE</span><span class="op">$</span><span class="va">features</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
+<span class="va">predE.q</span> <span class="op">=</span> <span class="fu">forestError</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/forestError/man/quantForestError.html">quantForestError</a></span><span class="op">(</span><span class="va">emlE.qr</span>, 
+                    X.train <span class="op">=</span> <span class="va">emlE.m</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/allnames.html">all.vars</a></span><span class="op">(</span><span class="va">emlE.t</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, 
+                    X.test <span class="op">=</span> <span class="va">outE.c</span>, 
+                    Y.train <span class="op">=</span> <span class="va">emlE.m</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/allnames.html">all.vars</a></span><span class="op">(</span><span class="va">emlE.t</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, 
+                    alpha <span class="op">=</span> <span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="op">(</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">-</span><span class="va">quantiles</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>, n.cores<span class="op">=</span><span class="va">n.cores</span><span class="op">)</span></code></pre></div>
+<p>Which again shows where could be the main extrapolation problems i.e. where
+multiple base learners perform poorly:</p>
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">edgeroi.grids.100m</span><span class="op">$</span><span class="va">rmspe.soc.eml</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">predE.q</span><span class="op">$</span><span class="va">estimates</span><span class="op">$</span><span class="va">mspe</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">edgeroi.grids.100m</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"rmspe.soc.eml"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">16</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">edgeroi.sp</span>, pch<span class="op">=</span><span class="st">"+"</span>, cex<span class="op">=</span><span class="fl">.8</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:edgeroi-var-eml"></span>
+<img src="resampling_files/figure-html/edgeroi-var-eml-1.png" alt="Prediction errors for the soil organic carbon content based on the forestError package and Ensemble ML." width="90%"><p class="caption">
+Figure 2.14: Prediction errors for the soil organic carbon content based on the forestError package and Ensemble ML.
+</p>
+</div>
+<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">rgdal</span><span class="fu">::</span><span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/readGDAL.html">writeGDAL</a></span><span class="op">(</span><span class="va">edgeroi.grids.100m</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"rmspe.soc.eml"</span><span class="op">)</span><span class="op">]</span>, 
+                 <span class="st">"./output/edgeroi_soc_rmspe.tif"</span>, 
+                 options<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"COMPRESS=DEFLATE"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<p>The overall mapping accuracy for Edgeroi based on the mean prediction error is thus:</p>
+<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">predE.q</span><span class="op">$</span><span class="va">estimates</span><span class="op">$</span><span class="va">mspe</span><span class="op">)</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">#&gt; [1] 0.4352432</span></code></pre></div>
+<p>which in general matches what we get through repeated validation using pseudo-SRS
+subsampling.</p>
+<p>From this experiment we can conclude that the mapping accuracy estimated using
+ranger and out-of-bag samples and ignoring locations of profiles was
+probably over-optimistic and hence ranger has possibly over-fitted the target variable.
+This is in fact common problem observed with many 3D predictive soil mapping models
+where soil profiles basically have ALL the same values of covariates and Random
+Forest thus easier predicts values due to overlap in covariate data. For a
+discussion on why is thus important to run internal training and Cross-Validation
+using spatial blocking refer also to <span class="citation"><a href="references.html#ref-Gasch2015SPASTA" role="doc-biblioref">Gasch et al.</a> (<a href="references.html#ref-Gasch2015SPASTA" role="doc-biblioref">2015</a>)</span> and <span class="citation"><a href="references.html#ref-hengl2019predictive" role="doc-biblioref">Hengl &amp; MacMillan</a> (<a href="references.html#ref-hengl2019predictive" role="doc-biblioref">2019</a>)</span>.</p>
+<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">parallelMap</span><span class="fu">::</span><span class="fu"><a href="https://parallelmap.mlr-org.com/reference/parallelStop.html">parallelStop</a></span><span class="op">(</span><span class="op">)</span>
+<span class="co">#&gt; Stopped parallelization. All cleaned up.</span></code></pre></div>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="alt-text-generating-spatial-sampling.html"><span class="header-section-number">1</span>  Generating spatial sampling</a></div>
+<div class="next"><a href="alt-text-generating-2nd-3rd-round-sampling.html"><span class="header-section-number">3</span>  Generating 2nd, 3rd round sampling</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#alt-text-resampling-methods-for-machine-learning"><span class="header-section-number">2</span>  Resampling methods for Machine Learning</a></li>
+<li><a class="nav-link" href="#resampling-and-cross-validation"><span class="header-section-number">2.1</span> Resampling and Cross-Validation</a></li>
+<li><a class="nav-link" href="#resampling-training-points-using-declustering"><span class="header-section-number">2.2</span> Resampling training points using declustering</a></li>
+<li><a class="nav-link" href="#weighted-machine-learning"><span class="header-section-number">2.3</span> Weighted Machine Learning</a></li>
+<li><a class="nav-link" href="#resampling-using-ensemble-ml"><span class="header-section-number">2.4</span> Resampling using Ensemble ML</a></li>
+<li><a class="nav-link" href="#estimating-the-area-of-applicability"><span class="header-section-number">2.5</span> Estimating the Area of Applicability</a></li>
+<li><a class="nav-link" href="#estimating-per-pixel-mapping-accuracy"><span class="header-section-number">2.6</span> Estimating per-pixel mapping accuracy</a></li>
+<li><a class="nav-link" href="#testing-mapping-accuracy-using-resampling-and-blocking"><span class="header-section-number">2.7</span> Testing mapping accuracy using resampling and blocking</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/OpenGeoHub/spatial-sampling-ml/blob/master/resampling.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/OpenGeoHub/spatial-sampling-ml/edit/master/resampling.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Spatial sampling and resampling for Machine Learning</strong>" was written by Tom Hengl and Leandro Parente. </p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer>
+</body>
+</html>
