@@ -3,12 +3,12 @@ knit: "bookdown::render_book"
 title: "Spatial sampling and resampling for Machine Learning"
 author: "Tom Hengl and Leandro Parente"
 description: "This R tutorial contains instructions on how to organize spatial sampling using R packages. It is organized in three main parts: (1) planning new surveys: i.e. starting from scratch, (2) implementing resampling: learning from existing point data, focusing on subsampling and Cross-Validation strategies, (3) planning additional sampling: sampling additional point data based on initial models. We use simple and illustrative datasets to demonstrate processing steps and provide interpretation and dicussion of the results. More chapters will be added in the future. Contributions are welcome. To discuss issues or report a bug please use the repository homepage."
-url: 'https\://openlandmap.gitlab.io/spatial-sampling-tutorial/'
+url: 'https\://opengeohub.github.io/spatial-sampling-ml/'
 bibliography: ./tex/refs.bib
 csl: ./tex/apa.csl  
 fig_caption: yes
 link-citations: yes
-gilab-repo: openlandmap/spatial-sampling-tutorial
+gihub-repo: OpenGeoHub/spatial-sampling-ml/
 twitter-handle: opengeohub
 cover-image: cover.png
 site: bookdown::bookdown_site

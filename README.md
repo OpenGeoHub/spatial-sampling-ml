@@ -1,13 +1,13 @@
 # Spatial Sampling and Resampling for Machine Learning
 
-This repository contains the source of [Spatial Sampling and Resampling for Machine Learning](https://openlandmap.gitlab.io/spatial-sampling-tutorial/)
+This repository contains the source of [Spatial Sampling and Resampling for Machine Learning](https://opengeohub.github.io/spatial-sampling-ml/)
 book. The book is built using [bookdown](https://github.com/rstudio/bookdown) 
 using the Rmarkdown functionality.
 
 The R packages used in this book can be installed via
 
 ```{r}
-devtools::install_gitlab("openlandmap/spatial-sampling-tutorial")
+devtools::install_github("opengeohub/spatial-sampling-ml")
 ```
 
 ## OpenLandMap project
