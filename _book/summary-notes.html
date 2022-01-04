@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>4 Summary notes | Spatial sampling and resampling for Machine Learning</title>
+<meta name="author" content="Tom Hengl and Leandro Parente">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/header-attrs-2.8.1/header-attrs.js"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-L3N6WJWCR8"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-L3N6WJWCR8');
+    </script><script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/mark.js@8.11.1/dist/mark.min.js"></script><!-- CSS -->
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Spatial sampling and resampling for Machine Learning</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Introduction</a></li>
+<li><a class="" href="alt-text-generating-spatial-sampling.html"><span class="header-section-number">1</span>  Generating spatial sampling</a></li>
+<li><a class="" href="alt-text-resampling-methods-for-machine-learning.html"><span class="header-section-number">2</span>  Resampling methods for Machine Learning</a></li>
+<li><a class="" href="alt-text-generating-2nd-3rd-round-sampling.html"><span class="header-section-number">3</span>  Generating 2nd, 3rd round sampling</a></li>
+<li><a class="active" href="summary-notes.html"><span class="header-section-number">4</span> Summary notes</a></li>
+<li><a class="" href="references.html"><span class="header-section-number">5</span> References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://gitlab.com/openlandmap/spatial-sampling-tutorial">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="summary-notes" class="section level1" number="4">
+<h1>
+<span class="header-section-number">4</span> Summary notes<a class="anchor" aria-label="anchor" href="#summary-notes"><i class="fas fa-link"></i></a>
+</h1>
+<div class="rmdnote">
+<p>You are reading the work-in-progress Spatial Sampling and Resampling for Machine Learning. This chapter is currently currently draft version, a peer-review publication is pending. You can find the polished first edition at <a href="https://openlandmap.gitlab.io/spatial-sampling-tutorial/" class="uri">https://openlandmap.gitlab.io/spatial-sampling-tutorial/</a>.</p>
+</div>
+<p>In this tutorial we have demonstrated some main steps required to analyze
+existing sample designs (point patterns) and compare them with sampling algorithms
+such as the SRC, LHS and FSCS. Some general conclusions are:</p>
+<ul>
+<li>Understanding limitations of spatial samples used for ML is important. Diversity of tools
+now exist that allow for sampling diagnostics, especially to determine spatial
+clustering, potential extrapolation areas, to test Complete Spatial Randomness etc;<br>
+</li>
+<li>Ensemble Machine Learning is at the order of magnitude more computational, but
+using combination of simple and complex base learners and spatial blocking seem to
+help produce models with less artifacts in extrapolation space and which report
+a more realistic mapping accuracy than if spatial clustering is ignored;<br>
+</li>
+<li>The <strong>forestError</strong> package seems to provide a complete framework for uncertainty
+assessment and can be used to derive the prediction errors (RMSPE) per pixel,
+ultimately the average prediction error of the whole area is the mean prediction
+error that one can report to the users;</li>
+</ul>
+<p>Assuming that there is significant spatial and/or feature space clustering in
+training points, it appears that various blocking / Cross-Validation strategies,
+especially based on Ensemble ML help produce more balanced estimate of regression
+parameters and of the mapping accuracy. Incorporation of spatial proximity i.e. 
+autocorrelation has roots in the <strong>Generalized Least Squares methods</strong> <span class="citation">(<a href="references.html#ref-Venables2002Springer" role="doc-biblioref">Venables &amp; Ripley, 2002</a>)</span>
+and in the classical data science papers e.g. by <span class="citation"><a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al.</a> (<a href="references.html#ref-roberts2017cross" role="doc-biblioref">2017</a>)</span>. Ensemble ML
+with spatial blocking comes, however, at the costs of the order of magnitude
+higher computing costs.</p>
+<p>In theory, even the most clustered point datasets can be used to fit predictive mapping models,
+however, it is then important to use modeling methods that account for clustering and
+prevent doing over-fitting and/or producing not realistic measures of mapping accuracy.
+Eventually, very biased point samples totally missing &gt;&gt;50% of the feature / geographical
+space would be of limited use for producing predictions, but could still be used to
+get some initial estimates.</p>
+<p><span class="citation"><a href="references.html#ref-Wadoux2021EM" role="doc-biblioref">Wadoux, Heuvelink, de Bruin, &amp; Brus</a> (<a href="references.html#ref-Wadoux2021EM" role="doc-biblioref">2021</a>)</span> shows that, assuming that training points are based on the probability
+sampling i.e. SRS, there is no need for spatial blocking i.e. regardless of the
+spatial dependence structure in the target variable, any subset of SRS would give an
+unbiased estimator of the mean population parameters. Many spatial statisticians
+hence argue that mapping accuracy can be determined only by collecting data
+using probability sampling <span class="citation">(<a href="references.html#ref-Brus2011EJSS" role="doc-biblioref">Brus, Kempen, &amp; Heuvelink, 2011</a>)</span>. Indeed, we also recommend to users of these tutorials
+to try your best to generate sampling designs using LHS, FSCS or at least SRS,
+as this ensures unbiased derivation of population parameters. Here the book by
+<span class="citation"><a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus</a> (<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">2021</a>)</span> seems to be a valuable resource as it also provides
+<a href="https://github.com/DickBrus/SpatialSamplingwithR">practical instructions</a> for a diversity of data types.</p>
+<p>If you have a dataset that you have used to test sampling and resampling, please
+share your experiences by posting <a href="https://gitlab.com/openlandmap/spatial-sampling-tutorial">an issue</a> and/or providing a screenshot of your results.</p>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="alt-text-generating-2nd-3rd-round-sampling.html"><span class="header-section-number">3</span>  Generating 2nd, 3rd round sampling</a></div>
+<div class="next"><a href="references.html"><span class="header-section-number">5</span> References</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav"><li><a class="nav-link" href="#summary-notes"><span class="header-section-number">4</span> Summary notes</a></li></ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://gitlab.com/openlandmap/spatial-sampling-tutorial/blob/master/summary.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://gitlab.com/openlandmap/spatial-sampling-tutorial/edit/master/summary.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Spatial sampling and resampling for Machine Learning</strong>" was written by Tom Hengl and Leandro Parente. </p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer>
+</body>
+</html>

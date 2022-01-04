@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>1 Generating spatial sampling | Spatial sampling and resampling for Machine Learning</title>
+<meta name="author" content="Tom Hengl and Leandro Parente">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/header-attrs-2.8.1/header-attrs.js"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-L3N6WJWCR8"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-L3N6WJWCR8');
+    </script><script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/mark.js@8.11.1/dist/mark.min.js"></script><!-- CSS -->
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Spatial sampling and resampling for Machine Learning</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Introduction</a></li>
+<li><a class="active" href="alt-text-generating-spatial-sampling.html"><span class="header-section-number">1</span>  Generating spatial sampling</a></li>
+<li><a class="" href="alt-text-resampling-methods-for-machine-learning.html"><span class="header-section-number">2</span>  Resampling methods for Machine Learning</a></li>
+<li><a class="" href="alt-text-generating-2nd-3rd-round-sampling.html"><span class="header-section-number">3</span>  Generating 2nd, 3rd round sampling</a></li>
+<li><a class="" href="summary-notes.html"><span class="header-section-number">4</span> Summary notes</a></li>
+<li><a class="" href="references.html"><span class="header-section-number">5</span> References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://gitlab.com/openlandmap/spatial-sampling-tutorial">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="alt-text-generating-spatial-sampling" class="section level1" number="1">
+<h1>
+<span class="header-section-number">1</span> <img src="tex/R_logo.svg.png" title="Generating samples" alt="alt text"> Generating spatial sampling<a class="anchor" aria-label="anchor" href="#alt-text-generating-spatial-sampling"><i class="fas fa-link"></i></a>
+</h1>
+<div class="rmdnote">
+<p>You are reading the work-in-progress Spatial Sampling and Resampling for Machine Learning. This chapter is currently currently draft version, a peer-review publication is pending. You can find the polished first edition at <a href="https://openlandmap.gitlab.io/spatial-sampling-tutorial/" class="uri">https://openlandmap.gitlab.io/spatial-sampling-tutorial/</a>.</p>
+</div>
+<div id="spatial-sampling-algorithms-of-interest" class="section level2" number="1.1">
+<h2>
+<span class="header-section-number">1.1</span> Spatial sampling algorithms of interest<a class="anchor" aria-label="anchor" href="#spatial-sampling-algorithms-of-interest"><i class="fas fa-link"></i></a>
+</h2>
+<p>This chapter reviews some common approaches for preparing point samples for a
+study area that you are visiting for the first time and/or no previous samples or
+models are available. We focus on the following spatial sampling methods:</p>
+<ul>
+<li>Subjective or convenience sampling,</li>
+<li>Simple Random Sampling (<strong>SRS</strong>) <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus, 2021</a>)</span>,</li>
+<li>Latin Hypercube Sampling (<strong>LHS</strong>) and its variants e.g. Conditioned LHS <span class="citation">(<a href="references.html#ref-Malone2019PeerJ" role="doc-biblioref">B. P. Malone, Minansy, &amp; Brungard, 2019</a>; <a href="references.html#ref-minasny2006conditioned" role="doc-biblioref">Minasny &amp; McBratney, 2006</a>)</span>,</li>
+<li>Feature Space Coverage Sampling (<strong>FSCS</strong>) <span class="citation">(<a href="references.html#ref-Goerg2013" role="doc-biblioref">Goerg, 2013</a>)</span> and fuzzy k-means clustering <span class="citation">(<a href="references.html#ref-hastie2009elements" role="doc-biblioref">Hastie, Tibshirani, &amp; Friedman, 2009</a>)</span>,</li>
+<li>2nd round sampling <span class="citation">(<a href="references.html#ref-stumpf2017uncertainty" role="doc-biblioref">Stumpf et al., 2017</a>)</span>,</li>
+</ul>
+<p>Our interest is in producing predictions (maps) of the target variable by employing
+regression / correlation between the target variable and multitude of features
+(raster layers), and where various Machine Learning techniques are used for training.
+Hence spatial sampling methods are only reviewing within this context.</p>
+<p>Once we collect enough training points in an area we can overlay points and GIS
+layers to produce a <strong>regression matrix</strong> or <strong>classification matrix</strong>, and
+which can then be used in a Machine Learning framework to generate spatial predictions
+i.e. produce maps. For an introduction to Ensemble Machine Learning for
+Predictive Mapping please refer to <a href="https://gitlab.com/openlandmap/spatial-predictions-using-eml">this tutorial</a>.</p>
+</div>
+<div id="ebergotzen-dataset" class="section level2" number="1.2">
+<h2>
+<span class="header-section-number">1.2</span> Ebergotzen dataset<a class="anchor" aria-label="anchor" href="#ebergotzen-dataset"><i class="fas fa-link"></i></a>
+</h2>
+<p>To test various sampling and mapping algorithms, we can use the Ebergotzen
+dataset available also via the <strong>plotKML</strong> package <span class="citation">(<a href="references.html#ref-hengl2015plotkml" role="doc-biblioref">Hengl, Roudier, Beaudette, &amp; Pebesma, 2015</a>)</span>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Envirometrix/plotKML">plotKML</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/edzer/sp/">sp</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/sjmgarnier/viridis">viridis</a></span><span class="op">)</span>
+<span class="co">#&gt; Loading required package: viridisLite</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster">raster</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"eberg_grid25"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/sp/man/gridded-methods.html">gridded</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="op">~</span><span class="va">x</span><span class="op">+</span><span class="va">y</span>
+<span class="fu"><a href="https://rdrr.io/pkg/sp/man/is.projected.html">proj4string</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/sp/man/CRS-class.html">CRS</a></span><span class="op">(</span><span class="st">"+init=epsg:31467"</span><span class="op">)</span></code></pre></div>
+<p>This dataset is described in detail in <span class="citation"><a href="references.html#ref-Bohner2008Hamburg" role="doc-biblioref">Böhner, Blaschke, &amp; Montanarella</a> (<a href="references.html#ref-Bohner2008Hamburg" role="doc-biblioref">2008</a>)</span>. It is a soil survey
+dataset with ground observations and measurements of soil properties including soil
+types. The study area is a perfect square 10×10 km in size.</p>
+<p>We have previously derived 2–3 additional DEM parameters directly using SAGA GIS
+and which we can add to the list of covariates:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">eberg_grid25</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">eberg_grid25</span>, <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"./extdata/eberg_dtm_25m.rds"</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">)</span>
+<span class="co">#&gt;  [1] "DEMTOPx"        "HBTSOLx"        "TWITOPx"        "NVILANx"       </span>
+<span class="co">#&gt;  [5] "eberg_dscurv"   "eberg_hshade"   "eberg_lsfactor" "eberg_pcurv"   </span>
+<span class="co">#&gt;  [9] "eberg_slope"    "eberg_stwi"     "eberg_twi"      "eberg_vdepth"  </span>
+<span class="co">#&gt; [13] "PMTZONES"</span></code></pre></div>
+<p>so a total of 11 layers from which two layers are factors (<code>HBTSOLx</code> and <code>PMTZONES</code>).
+Next, for further analysis, and to reduce data overlap we can convert all
+primary variables to (numeric) principal components using:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">eberg_spc</span> <span class="op">=</span> <span class="fu">landmap</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/landmap/man/spc.html">spc</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
+<span class="co">#&gt; Converting PMTZONES to indicators...</span>
+<span class="co">#&gt; Converting covariates to principal components...</span></code></pre></div>
+<p>which gives the a total of 14 PCs. The patterns reflect a combination of terrain
+variables, lithological discontinuities (<code>PMTZONES</code>) and surface vegetation (<code>NVILANx</code>):</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/sp/man/spplot.html">spplot</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, col.regions<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:plot-spc"></span>
+<img src="img/Fig_PCA_components_Ebergotzen.png" alt="Principal Components derived using Ebergotzen dataset." width="100%"><p class="caption">
+Figure 1.1: Principal Components derived using Ebergotzen dataset.
+</p>
+</div>
+</div>
+<div id="simple-random-sampling" class="section level2" number="1.3">
+<h2>
+<span class="header-section-number">1.3</span> Simple Random Sampling<a class="anchor" aria-label="anchor" href="#simple-random-sampling"><i class="fas fa-link"></i></a>
+</h2>
+<p>To generate a SRS with e.g. 100 points we can simply using the <strong>sp</strong> package:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">rnd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/sp/man/spsample.html">spsample</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, type<span class="op">=</span><span class="st">"random"</span>, n<span class="op">=</span><span class="fl">100</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">rnd</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-srs"></span>
+<img src="sampling_files/figure-html/eberg-srs-1.png" alt="An example of a Simple Random Sample (SRS)." width="80%"><p class="caption">
+Figure 1.2: An example of a Simple Random Sample (SRS).
+</p>
+</div>
+<p>This sample is generated purely based on the spatial domain, the feature space
+is completely ignored / not taken into account, hence we can check how well do
+these points represent the feature space using a density plot:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ov.rnd</span> <span class="op">=</span> <span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/over.html">over</a></span><span class="op">(</span><span class="va">rnd</span>, <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://github.com/edzer/hexbin">hexbin</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">grid</span><span class="op">)</span>
+<span class="va">reds</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/colorRamp.html">colorRampPalette</a></span><span class="op">(</span><span class="fu">RColorBrewer</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html">brewer.pal</a></span><span class="op">(</span><span class="fl">9</span>, <span class="st">"YlOrRd"</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>
+<span class="va">hb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/hexbin/man/hexbin.html">hexbin</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, xbins<span class="op">=</span><span class="fl">60</span><span class="op">)</span>
+<span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">hb</span>, colramp <span class="op">=</span> <span class="va">reds</span>, main<span class="op">=</span><span class="st">'PCA Ebergotzen SRS'</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/hexbin/man/pushHexport.html">pushHexport</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">plot.vp</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/grid/grid.points.html">grid.points</a></span><span class="op">(</span><span class="va">ov.rnd</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, <span class="va">ov.rnd</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-fs"></span>
+<img src="sampling_files/figure-html/eberg-fs-1.png" alt="Distribution of the SRS points from the previous example in the feature space." width="80%"><p class="caption">
+Figure 1.3: Distribution of the SRS points from the previous example in the feature space.
+</p>
+</div>
+<p>Visually, we do not directly see from Fig. <a href="alt-text-generating-spatial-sampling.html#fig:eberg-fs">1.3</a> that the generated SRS
+maybe misses some important feature space, however if we zoom in, then we can see that some
+parts of feature space with high density (in this specific randomization) are somewhat
+under-represented. Imagine if we reduce number of sampling points then we run
+even higher risk of missing some areas in the feature space by using SRS.</p>
+<p>Next we are interested to evaluate what is the occurrence probability of
+the SRS points based on the PCA components. To derive the occurrence probability we can use
+the <strong>maxlike</strong> package method <span class="citation">(<a href="references.html#ref-Royle2012" role="doc-biblioref">Royle, Chandler, Yackulic, &amp; Nichols, 2012</a>)</span>:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fm.cov</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html">as.formula</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="st">"~"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>, collapse<span class="op">=</span><span class="st">"+"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">ml</span> <span class="op">&lt;-</span> <span class="fu">maxlike</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/maxlike/man/maxlike.html">maxlike</a></span><span class="op">(</span>formula<span class="op">=</span><span class="va">fm.cov</span>, rasters<span class="op">=</span><span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/stack.html">stack</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>, 
+                       points<span class="op">=</span><span class="va">rnd</span><span class="op">@</span><span class="va">coords</span>, method<span class="op">=</span><span class="st">"BFGS"</span>, removeDuplicates<span class="op">=</span><span class="cn">TRUE</span>, savedata<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">ml.prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/predict.html">predict</a></span><span class="op">(</span><span class="va">ml</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">ml.prob</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">rnd</span><span class="op">@</span><span class="va">coords</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-maxlike"></span>
+<img src="sampling_files/figure-html/eberg-maxlike-1.png" alt="Occurrence probability for SRS derived using the maxlike package." width="80%"><p class="caption">
+Figure 1.4: Occurrence probability for SRS derived using the maxlike package.
+</p>
+</div>
+<p>Note: for the sake of reducing the computing intensity we focus on the first four PCs.
+In practice, feature space analysis can be quite computational and we recommend using
+parallelized versions within an High Performance Computing environments to run such analysis.</p>
+<p>Fig. <a href="alt-text-generating-spatial-sampling.html#fig:eberg-maxlike">1.4</a> shows that, by accident, some parts of the feature
+space might be somewhat under-represented (areas with low probability of occurrence).
+Note however that occurrence probability for this dataset is overall <em>very</em> low (&lt;0.05),
+which indicates that distribution of points is not much correlated with the features,
+hence this specific SRS is probably satisfactory also for feature space analysis.
+The SRS points do not seem to group (by accident) and hence maxlike gives very low
+probability of occurrence.</p>
+<p>We can repeat SRS many times and then see if the clustering of points gets more
+problematic, but as you can image, in practice for large number of samples it is
+a good chance that all features would get well represented also in the feature
+space.</p>
+<p>We can now also load the actual points collected for the Ebergotzen case study:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">eberg</span><span class="op">)</span>
+<span class="va">eberg.xy</span> <span class="op">&lt;-</span> <span class="va">eberg</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"X"</span>,<span class="st">"Y"</span><span class="op">)</span><span class="op">]</span>
+<span class="fu"><a href="https://rdrr.io/pkg/sp/man/coordinates.html">coordinates</a></span><span class="op">(</span><span class="va">eberg.xy</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="op">~</span><span class="va">X</span><span class="op">+</span><span class="va">Y</span>
+<span class="fu"><a href="https://rdrr.io/pkg/sp/man/is.projected.html">proj4string</a></span><span class="op">(</span><span class="va">eberg.xy</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/sp/man/CRS-class.html">CRS</a></span><span class="op">(</span><span class="st">"+init=epsg:31467"</span><span class="op">)</span>
+<span class="va">ov.xy</span> <span class="op">=</span> <span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/over.html">over</a></span><span class="op">(</span><span class="va">eberg.xy</span>, <span class="va">eberg_grid25</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>
+<span class="va">eberg.xy</span> <span class="op">=</span> <span class="va">eberg.xy</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">ov.xy</span><span class="op">$</span><span class="va">DEMTOPx</span><span class="op">)</span>,<span class="op">]</span>
+<span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">eberg.xy</span><span class="op">)</span>, <span class="fl">100</span><span class="op">)</span>
+<span class="va">eberg.smp</span> <span class="op">=</span> <span class="va">eberg.xy</span><span class="op">[</span><span class="va">sel</span>,<span class="op">]</span></code></pre></div>
+<p>To quickly estimate spread of points in geographical and feature spaces, we can
+also use the function <code>spsample.prob</code> that calls both the kernel density function
+from the <strong>spatstat</strong> package, and derives the probability of occurrence using the
+<strong>maxlike</strong> package:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">iprob</span> <span class="op">&lt;-</span> <span class="fu">landmap</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/landmap/man/spsample.prob.html">spsample.prob</a></span><span class="op">(</span><span class="va">eberg.smp</span>, <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>
+<span class="co">#&gt; Deriving kernel density map using sigma 1010 ...</span>
+<span class="co">#&gt; Deriving inclusion probabilities using MaxLike analysis...</span></code></pre></div>
+<p>In this specific case, the actual sampling points are much more clustered, so if we plot
+the two occurrence probability maps next to each other we get:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">iprob</span><span class="op">$</span><span class="va">maxlike</span><span class="op">)</span>, zlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">eberg.smp</span><span class="op">@</span><span class="va">coords</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">ml.prob</span>, zlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">rnd</span><span class="op">@</span><span class="va">coords</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-maxlike2"></span>
+<img src="sampling_files/figure-html/eberg-maxlike2-1.png" alt="Comparison occurrence probability for actual and SRS samples derived using the maxlike package." width="100%"><p class="caption">
+Figure 1.5: Comparison occurrence probability for actual and SRS samples derived using the maxlike package.
+</p>
+</div>
+<p>The map on the left clearly indicates that most of the sampling points are
+basically in the plain area and the hills are systematically under-sampled. This
+we can also cross-check by reading the description of the dataset in <span class="citation"><a href="references.html#ref-Bohner2008Hamburg" role="doc-biblioref">Böhner, Blaschke, &amp; Montanarella</a> (<a href="references.html#ref-Bohner2008Hamburg" role="doc-biblioref">2008</a>)</span>:</p>
+<ul>
+<li>the Ebergotzen soil survey points focus on agricultural land only,<br>
+</li>
+<li>no objective sampling design has been used, hence some points are clustered,</li>
+</ul>
+<p>This is also clearly visible from the <em>feature map</em> plot where one part of the feature
+space seem to completely omitted from sampling:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ov2.rnd</span> <span class="op">=</span> <span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/over.html">over</a></span><span class="op">(</span><span class="va">eberg.smp</span>, <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>
+<span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">hb</span>, colramp <span class="op">=</span> <span class="va">reds</span>, main<span class="op">=</span><span class="st">'PCA Ebergotzen actual'</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/hexbin/man/pushHexport.html">pushHexport</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">plot.vp</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/grid/grid.points.html">grid.points</a></span><span class="op">(</span><span class="va">ov2.rnd</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, <span class="va">ov2.rnd</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-fs2"></span>
+<img src="sampling_files/figure-html/eberg-fs2-1.png" alt="Distribution of the actual survey points from the previous example displayed in the feature space." width="80%"><p class="caption">
+Figure 1.6: Distribution of the actual survey points from the previous example displayed in the feature space.
+</p>
+</div>
+</div>
+<div id="latin-hypercube-sampling" class="section level2" number="1.4">
+<h2>
+<span class="header-section-number">1.4</span> Latin Hypercube Sampling<a class="anchor" aria-label="anchor" href="#latin-hypercube-sampling"><i class="fas fa-link"></i></a>
+</h2>
+<p>In the previous example we have shown how to implement SRS and then also evaluate it
+against feature layers. Often SRS represent very well SRS so it can be directly used for
+Machine Learning and with a guarantee of not making too much bias in predictions.
+To avoid, however, risk of missing out some parts of the feature space, and also
+to try to optimize allocation of points, we can generate a sample using the
+<strong><a href="https://en.wikipedia.org/wiki/Latin_hypercube_sampling">Latin Hypercube Sampling</a></strong> (LHS) method. In a nutshell, LHS methods are based on
+dividing the <strong>Cumulative Density Function</strong> (CDF) into <em>n</em> equal partitions, and
+then choosing a random data point in each partition, consequently:</p>
+<ul>
+<li>CDF of LHS samples matches the CDF of population (unbiased representation),<br>
+</li>
+<li>Extrapolation in the feature space should be minimized,</li>
+</ul>
+<p>Latin Hypercube and sampling optimization using LHS is explained in detail in <span class="citation"><a href="references.html#ref-minasny2006conditioned" role="doc-biblioref">Minasny &amp; McBratney</a> (<a href="references.html#ref-minasny2006conditioned" role="doc-biblioref">2006</a>)</span>
+and <span class="citation"><a href="references.html#ref-shields2016generalization" role="doc-biblioref">Shields &amp; Zhang</a> (<a href="references.html#ref-shields2016generalization" role="doc-biblioref">2016</a>)</span>. The <a href="https://github.com/bertcarnell/lhs">lhs package</a>
+also contains numerous examples of how to implement for (non-spatial) data.</p>
+<p>Here we use an implementation of the LHS available in the <strong>clhs</strong> package <span class="citation">(<a href="references.html#ref-Roudier2011" role="doc-biblioref">P. Roudier, 2021</a>)</span>:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pierreroudier/clhs/">clhs</a></span><span class="op">)</span>
+<span class="va">rnd.lhs</span> <span class="op">=</span> <span class="fu">clhs</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/clhs/man/clhs.html">clhs</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, size<span class="op">=</span><span class="fl">100</span>, iter<span class="op">=</span><span class="fl">100</span>, progress<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<p>This actually implements the so-called <em>“Conditional LHS”</em> <span class="citation">(<a href="references.html#ref-minasny2006conditioned" role="doc-biblioref">Minasny &amp; McBratney, 2006</a>)</span>,
+and can get quite computational for large stack of rasters, hence we manually limit the
+number of iterations to 100.</p>
+<p>We can plot the LHS sampling plan:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">rnd.lhs</span><span class="op">@</span><span class="va">coords</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-clhs"></span>
+<img src="sampling_files/figure-html/eberg-clhs-1.png" alt="An example of a Latin Hypercube Sample (LHS)." width="80%"><p class="caption">
+Figure 1.7: An example of a Latin Hypercube Sample (LHS).
+</p>
+</div>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">hb</span>, colramp <span class="op">=</span> <span class="va">reds</span>, main<span class="op">=</span><span class="st">'PCA Ebergotzen actual'</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/hexbin/man/pushHexport.html">pushHexport</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">plot.vp</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/grid/grid.points.html">grid.points</a></span><span class="op">(</span><span class="va">rnd.lhs</span><span class="op">$</span><span class="va">PC1</span>, <span class="va">rnd.lhs</span><span class="op">$</span><span class="va">PC2</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-lhs2"></span>
+<img src="sampling_files/figure-html/eberg-lhs2-1.png" alt="Distribution of the LHS points from the previous example displayed in the feature space." width="80%"><p class="caption">
+Figure 1.8: Distribution of the LHS points from the previous example displayed in the feature space.
+</p>
+</div>
+<p>Although in principle we might not see any difference in the point pattern between
+SRS and LHS, the feature space plot clearly shows that LHS covers systematically
+feature space map, i.e. we would have a relatively low risk of missing out some
+important features as compared to Fig. <a href="alt-text-generating-spatial-sampling.html#fig:eberg-fs2">1.6</a>.</p>
+<p>Thus the main advantages of the LHS are:</p>
+<ul>
+<li>it ensures that feature space is represented systematically i.e. it is optimized
+for Machine Learning using the specific feature layers;<br>
+</li>
+<li>it is an <strong><a href="https://xzhu0027.gitbook.io/blog/ml-system/sys-ml-index/learning-from-non-iid-data">Independent Identically Distributed (IID)</a></strong> sampling design;<br>
+</li>
+<li>thanks to the clhs package, also the survey costs can be integrated to still
+keep systematic spread, but reduce survey costs as much as possible <span class="citation">(<a href="references.html#ref-roudier2012conditioned" role="doc-biblioref">Pierre Roudier, Beaudette, &amp; Hewitt, 2012</a>)</span>;</li>
+</ul>
+</div>
+<div id="feature-space-coverage-sampling" class="section level2" number="1.5">
+<h2>
+<span class="header-section-number">1.5</span> Feature Space Coverage Sampling<a class="anchor" aria-label="anchor" href="#feature-space-coverage-sampling"><i class="fas fa-link"></i></a>
+</h2>
+<p>The <strong>Feature Space Coverage Sampling</strong> (FSCS) is described in detail in <span class="citation"><a href="references.html#ref-BRUS2019464" role="doc-biblioref">Brus</a> (<a href="references.html#ref-BRUS2019464" role="doc-biblioref">2019</a>)</span>.
+In a nutshell, FSCS aims at optimal coverage of the feature space which is achieved
+by minimizing the average distance of the population units (raster cells) to the
+nearest sampling units in the feature space represented by the raster layers <span class="citation">(<a href="references.html#ref-ma2020comparison" role="doc-biblioref">Ma, Brus, Zhu, Zhang, &amp; Scholten, 2020</a>)</span>.</p>
+<p>To produce FSCS point sample we can use function <code>kmeanspp</code> of package <strong>LICORS</strong> <span class="citation">(<a href="references.html#ref-Goerg2013" role="doc-biblioref">Goerg, 2013</a>)</span>.
+First we partition the feature space cube to e.g. 100 clusters. We then select raster cells
+with the shortest scaled Euclidean distance in covariate-space to the centres of
+the clusters as the sampling units:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://www.stat.cmu.edu/~gmg">LICORS</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/NCAR/Fields">fields</a></span><span class="op">)</span>
+<span class="va">fscs.clust</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/LICORS/man/kmeanspp.html">kmeanspp</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, k<span class="op">=</span><span class="fl">100</span>, iter.max<span class="op">=</span><span class="fl">100</span><span class="op">)</span>
+<span class="va">D</span> <span class="op">&lt;-</span> <span class="fu">fields</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/fields/man/rdist.html">rdist</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="va">fscs.clust</span><span class="op">$</span><span class="va">centers</span>, x2 <span class="op">=</span> <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>
+<span class="va">units</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">D</span>, MARGIN <span class="op">=</span> <span class="fl">1</span>, FUN <span class="op">=</span> <span class="va">which.min</span><span class="op">)</span>
+<span class="va">rnd.fscs</span> <span class="op">&lt;-</span> <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">coords</span><span class="op">[</span><span class="va">units</span>,<span class="op">]</span></code></pre></div>
+<p>Note: the k-means++ algorithm is of most interest for small sample sizes: <em>“for large
+sample sizes the extra time needed for computing the initial centres can become
+substantial and may not outweigh the larger number of starts that can be afforded
+with the usual k-means algorithm for the same computing time”</em> <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus, 2021</a>)</span>.
+The <code>kmeanspp</code> algorithm from the LICORS package is unfortunately quite computational
+and is in principle not recommended for large grids / to generate large number of
+samples. Instead, we recommend clustering feature space using the <code>h2o.kmeans</code> function
+from the <a href="https://docs.h2o.ai/h2o/latest-stable/h2o-docs/data-science/k-means.html">h2o
+package</a>,
+which is also suitable for larger datasets with computing running in parallel:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="alt-text-generating-spatial-sampling.html#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(h2o)</span>
+<span id="cb19-2"><a href="alt-text-generating-spatial-sampling.html#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">h2o.init</span>(<span class="at">nthreads =</span> <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb19-3"><a href="alt-text-generating-spatial-sampling.html#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb19-4"><a href="alt-text-generating-spatial-sampling.html#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; H2O is not running yet, starting it now...</span></span>
+<span id="cb19-5"><a href="alt-text-generating-spatial-sampling.html#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb19-6"><a href="alt-text-generating-spatial-sampling.html#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Note:  In case of errors look at the following log files:</span></span>
+<span id="cb19-7"><a href="alt-text-generating-spatial-sampling.html#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmpiprBNs/file10366f2181bf/h2o_tomislav_started_from_r.out</span></span>
+<span id="cb19-8"><a href="alt-text-generating-spatial-sampling.html#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmpiprBNs/file10362f8c5018/h2o_tomislav_started_from_r.err</span></span>
+<span id="cb19-9"><a href="alt-text-generating-spatial-sampling.html#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb19-10"><a href="alt-text-generating-spatial-sampling.html#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb19-11"><a href="alt-text-generating-spatial-sampling.html#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Starting H2O JVM and connecting: .. Connection successful!</span></span>
+<span id="cb19-12"><a href="alt-text-generating-spatial-sampling.html#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb19-13"><a href="alt-text-generating-spatial-sampling.html#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; R is connected to the H2O cluster: </span></span>
+<span id="cb19-14"><a href="alt-text-generating-spatial-sampling.html#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster uptime:         1 seconds 972 milliseconds </span></span>
+<span id="cb19-15"><a href="alt-text-generating-spatial-sampling.html#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster timezone:       Europe/Amsterdam </span></span>
+<span id="cb19-16"><a href="alt-text-generating-spatial-sampling.html#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O data parsing timezone:  UTC </span></span>
+<span id="cb19-17"><a href="alt-text-generating-spatial-sampling.html#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster version:        3.30.0.1 </span></span>
+<span id="cb19-18"><a href="alt-text-generating-spatial-sampling.html#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster version age:    1 year and 9 months !!! </span></span>
+<span id="cb19-19"><a href="alt-text-generating-spatial-sampling.html#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster name:           H2O_started_from_R_tomislav_vru837 </span></span>
+<span id="cb19-20"><a href="alt-text-generating-spatial-sampling.html#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster total nodes:    1 </span></span>
+<span id="cb19-21"><a href="alt-text-generating-spatial-sampling.html#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster total memory:   15.71 GB </span></span>
+<span id="cb19-22"><a href="alt-text-generating-spatial-sampling.html#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster total cores:    32 </span></span>
+<span id="cb19-23"><a href="alt-text-generating-spatial-sampling.html#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster allowed cores:  32 </span></span>
+<span id="cb19-24"><a href="alt-text-generating-spatial-sampling.html#cb19-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster healthy:        TRUE </span></span>
+<span id="cb19-25"><a href="alt-text-generating-spatial-sampling.html#cb19-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O Connection ip:          localhost </span></span>
+<span id="cb19-26"><a href="alt-text-generating-spatial-sampling.html#cb19-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O Connection port:        54321 </span></span>
+<span id="cb19-27"><a href="alt-text-generating-spatial-sampling.html#cb19-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O Connection proxy:       NA </span></span>
+<span id="cb19-28"><a href="alt-text-generating-spatial-sampling.html#cb19-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O Internal Security:      FALSE </span></span>
+<span id="cb19-29"><a href="alt-text-generating-spatial-sampling.html#cb19-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 </span></span>
+<span id="cb19-30"><a href="alt-text-generating-spatial-sampling.html#cb19-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     R Version:                  R version 4.0.2 (2020-06-22)</span></span>
+<span id="cb19-31"><a href="alt-text-generating-spatial-sampling.html#cb19-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in h2o.clusterInfo(): </span></span>
+<span id="cb19-32"><a href="alt-text-generating-spatial-sampling.html#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Your H2O cluster version is too old (1 year and 9 months)!</span></span>
+<span id="cb19-33"><a href="alt-text-generating-spatial-sampling.html#cb19-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Please download and install the latest version from http://h2o.ai/download/</span></span>
+<span id="cb19-34"><a href="alt-text-generating-spatial-sampling.html#cb19-34" aria-hidden="true" tabindex="-1"></a>df.hex <span class="ot">&lt;-</span> <span class="fu">as.h2o</span>(eberg_spc<span class="sc">@</span>predicted<span class="sc">@</span>data[,<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="at">destination_frame =</span> <span class="st">"df"</span>)</span>
+<span id="cb19-35"><a href="alt-text-generating-spatial-sampling.html#cb19-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb19-36"><a href="alt-text-generating-spatial-sampling.html#cb19-36" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
+<span id="cb19-37"><a href="alt-text-generating-spatial-sampling.html#cb19-37" aria-hidden="true" tabindex="-1"></a>  <span class="er">|</span>                                                                      <span class="er">|</span>   <span class="dv">0</span>%</span>
+<span id="cb19-38"><a href="alt-text-generating-spatial-sampling.html#cb19-38" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
+<span id="cb19-39"><a href="alt-text-generating-spatial-sampling.html#cb19-39" aria-hidden="true" tabindex="-1"></a>  <span class="er">|======================================================================|</span> <span class="dv">100</span>%</span>
+<span id="cb19-40"><a href="alt-text-generating-spatial-sampling.html#cb19-40" aria-hidden="true" tabindex="-1"></a>km.nut <span class="ot">&lt;-</span> <span class="fu">h2o.kmeans</span>(<span class="at">training_frame=</span>df.hex, <span class="at">k=</span><span class="dv">100</span>, <span class="at">keep_cross_validation_predictions =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-41"><a href="alt-text-generating-spatial-sampling.html#cb19-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb19-42"><a href="alt-text-generating-spatial-sampling.html#cb19-42" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
+<span id="cb19-43"><a href="alt-text-generating-spatial-sampling.html#cb19-43" aria-hidden="true" tabindex="-1"></a>  <span class="er">|</span>                                                                      <span class="er">|</span>   <span class="dv">0</span>%</span>
+<span id="cb19-44"><a href="alt-text-generating-spatial-sampling.html#cb19-44" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
+<span id="cb19-45"><a href="alt-text-generating-spatial-sampling.html#cb19-45" aria-hidden="true" tabindex="-1"></a>  <span class="er">|=====================</span>                                                 <span class="er">|</span>  <span class="dv">30</span>%</span>
+<span id="cb19-46"><a href="alt-text-generating-spatial-sampling.html#cb19-46" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
+<span id="cb19-47"><a href="alt-text-generating-spatial-sampling.html#cb19-47" aria-hidden="true" tabindex="-1"></a>  <span class="er">|======================================================================|</span> <span class="dv">100</span>%</span>
+<span id="cb19-48"><a href="alt-text-generating-spatial-sampling.html#cb19-48" aria-hidden="true" tabindex="-1"></a><span class="co">#km.nut</span></span></code></pre></div>
+<p>Note: in the example above, we have manually set the number of clusters to 100,
+but the number of clusters could be also derived using some optimization procedure.
+Next, we predict the clusters and plot the output:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="alt-text-generating-spatial-sampling.html#cb20-1" aria-hidden="true" tabindex="-1"></a>m.km <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">h2o.predict</span>(km.nut, df.hex, <span class="at">na.action=</span>na.pass))</span>
+<span id="cb20-2"><a href="alt-text-generating-spatial-sampling.html#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb20-3"><a href="alt-text-generating-spatial-sampling.html#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
+<span id="cb20-4"><a href="alt-text-generating-spatial-sampling.html#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="er">|</span>                                                                      <span class="er">|</span>   <span class="dv">0</span>%</span>
+<span id="cb20-5"><a href="alt-text-generating-spatial-sampling.html#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
+<span id="cb20-6"><a href="alt-text-generating-spatial-sampling.html#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="er">|======================================================================|</span> <span class="dv">100</span>%</span></code></pre></div>
+<p>We can save the class centers (if needed for any further analysis):</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">class_df.c</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu">h2o.centers</span><span class="op">(</span><span class="va">km.nut</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">class_df.c</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">class_df.c</span><span class="op">)</span>
+<span class="co">#&gt; 'data.frame':    100 obs. of  4 variables:</span>
+<span class="co">#&gt;  $ PC1: num  3.25 -2.75 -1.86 -4.95 -3.63 ...</span>
+<span class="co">#&gt;  $ PC2: num  -0.0491 -4.2362 2.5881 2.1994 3.3685 ...</span>
+<span class="co">#&gt;  $ PC3: num  0.796 -3.329 5.757 -0.688 0.277 ...</span>
+<span class="co">#&gt;  $ PC4: num  0.385 -2.563 4.664 -1.098 3.236 ...</span>
+<span class="co">#write.csv(class_df.c, "NCluster_100_class_centers.csv")</span></code></pre></div>
+<p>To select sampling points we use the minimum distance to class centers <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus, 2021</a>)</span>:</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">D</span> <span class="op">&lt;-</span> <span class="fu">fields</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/fields/man/rdist.html">rdist</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="va">class_df.c</span>, x2 <span class="op">=</span> <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>
+<span class="va">units</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">D</span>, MARGIN <span class="op">=</span> <span class="fl">1</span>, FUN <span class="op">=</span> <span class="va">which.min</span><span class="op">)</span>
+<span class="va">rnd.fscs</span> <span class="op">&lt;-</span> <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">coords</span><span class="op">[</span><span class="va">units</span>,<span class="op">]</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">rnd.fscs</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-fscs"></span>
+<img src="sampling_files/figure-html/eberg-fscs-1.png" alt="An example of a Feature Space Coverage Sampling (FSCS)." width="80%"><p class="caption">
+Figure 1.9: An example of a Feature Space Coverage Sampling (FSCS).
+</p>
+</div>
+<p>Visually, FSCS seem to add higher spatial density of points in areas where there
+is higher complexity. So the <code>h2o.kmeans</code> algorithm stratifies area into most
+possible homogeneous units (in the example above, large plains in the right
+part of the study area are relatively homogeneous, hence the sampling intensity
+in geographical space drops significantly), and the points are then allocated per
+each strata.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">hb</span>, colramp <span class="op">=</span> <span class="va">reds</span>, main<span class="op">=</span><span class="st">'PCA Ebergotzen FSCS'</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/hexbin/man/pushHexport.html">pushHexport</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">plot.vp</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/grid/grid.points.html">grid.points</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span><span class="va">units</span>,<span class="st">"PC1"</span><span class="op">]</span>, <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span><span class="va">units</span>,<span class="st">"PC2"</span><span class="op">]</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span id="fig:eberg-fscs-pnts"></span>
+<img src="sampling_files/figure-html/eberg-fscs-pnts-1.png" alt="Distribution of the FSCS points from the previous example displayed in the feature space." width="80%"><p class="caption">
+Figure 1.10: Distribution of the FSCS points from the previous example displayed in the feature space.
+</p>
+</div>
+<p>The FSCS sampling pattern in feature space looks almost as grid sampling in feature
+space. FSCS seems to put more effort on sampling at the edges on the feature space
+in comparison to LHS and SRS, and hence can be compared to classical response
+surface designs such as <a href="https://en.wikipedia.org/wiki/Optimal_design">D-optimal designs</a> <span class="citation">(<a href="references.html#ref-Hengl2004AJSR" role="doc-biblioref">Hengl, Rossiter, &amp; Stein, 2004</a>)</span>.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">h2o.shutdown</span><span class="op">(</span>prompt <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+</div>
+<div id="summary-points" class="section level2" number="1.6">
+<h2>
+<span class="header-section-number">1.6</span> Summary points<a class="anchor" aria-label="anchor" href="#summary-points"><i class="fas fa-link"></i></a>
+</h2>
+<p>In the previous examples we have shown differences between SRS, LHS and FSCS.
+SRS and LHS are IID sampling methods and as long as the number of samples is large
+and the study area is complex, it is often difficult to notice or quantify any under- or
+over-sampling. Depending on which variant of FSCS we implement, FSCS can result in
+higher spatial spreading especially if a study area consists of a combination
+of a relatively homogeneous and complex terrain units.</p>
+<p>The Ebergotzen dataset (existing point samples) clearly shows that the <em>“convenience surveys”</em> can
+show significant clustering and under-representation of feature space
+(Fig. <a href="alt-text-generating-spatial-sampling.html#fig:eberg-fs2">1.6</a>). Consequently, these sampling bias could lead to:</p>
+<ul>
+<li>
+<em>Bias in estimating regression parameters</em> i.e. overfitting;<br>
+</li>
+<li>
+<em>Extrapolation problems</em> due to under-representation of feature space;<br>
+</li>
+<li>
+<em>Bias</em> in estimating population parameters of the target variable;</li>
+</ul>
+<p>The first step to deal with these problems is to detect them, second is to try
+to implement a strategy that prevents from overfitting. Some possible approaches
+are addressed in the second part of the tutorial.</p>
+<p>LHS and FSCS are recommended sampling methods if the purpose of sampling is to
+build regression or classification models using multitude of (terrain,
+climate, land cover etc) covariate layers. <span class="citation"><a href="references.html#ref-ma2020comparison" role="doc-biblioref">Ma, Brus, Zhu, Zhang, &amp; Scholten</a> (<a href="references.html#ref-ma2020comparison" role="doc-biblioref">2020</a>)</span> compared LHS to FSCS
+for mapping soil types and concluded that FSCS results in better mapping accuracy,
+most likely because FSCS spreads points better in feature space and hence in
+their case studies that seem to have helped with producing more accurate predictions.
+<span class="citation"><a href="references.html#ref-yang2020evaluation" role="doc-biblioref">Yang et al.</a> (<a href="references.html#ref-yang2020evaluation" role="doc-biblioref">2020</a>)</span> also report that LHS helps improve accuracy only for the large size of points.</p>
+<p>The <code>h2o.kmeans</code> algorithm is suited for large datasets, but nevertheless to
+generate &gt;&gt;100 clusters using large number of raster layers could become RAM
+consuming and is maybe not practical for operational sampling. An alternative
+would be to reduce number of clusters and select multiple points per cluster.</p>
+<p>In the case of doubt which method to use LHS or FSCS, we recommend the following
+simple rules of thumb:</p>
+<ul>
+<li>If your dataset contains relatively smaller-size rasters and the targeted number of sampling
+points is relatively small (e.g. &lt;&lt;1000), we recommend using the FSCS algorithm;<br>
+</li>
+<li>If your project requires large number of sampling points (&gt;&gt;100), then you should probably
+consider using the LHS algorithm;</li>
+</ul>
+<p>In general, as the number of sampling points starts growing, differences between
+SRS (no feature space) and LHS becomes minor, which can also be witnessed
+visually (basically it becomes difficult to tell the difference between the two).
+SRS could, however, by accident miss some important parts of the feature space,
+so in principle it is still important to use either LHS or FSCS algorithms to
+prepare sampling locations for ML where objective is to fit regression and/or
+classification models using ML algorithms.</p>
+<p>To evaluate potential sampling clustering and pin-point under-represented areas
+one can run multiple diagnostics:</p>
+<ol style="list-style-type: decimal">
+<li>In <em>geographical space</em>:
+<ol style="list-style-type: lower-alpha">
+<li>
+<a href="https://rdrr.io/cran/spatstat.core/man/density.ppp.html">kernel density analysis</a> using the spatstat package, then determine if some parts of the study area have systematically higher density;<br>
+</li>
+<li>testing for <strong>Complete Spatial Randomness</strong> <span class="citation">(<a href="references.html#ref-schabenberger2005statistical" role="doc-biblioref">Schabenberger &amp; Gotway, 2005</a>)</span> using e.g. <a href="https://rdrr.io/cran/spatstat.core/man/dclf.test.html">spatstat.core::mad.test</a> and/or <a href="https://rdrr.io/cran/dbmss/man/Ktest.html">dbmss::Ktest</a>;<br>
+</li>
+</ol>
+</li>
+<li>In <em>feature space</em>:
+<ol style="list-style-type: lower-alpha">
+<li>occurrence probability analysis using the <a href="https://rdrr.io/github/rbchan/maxlike/man/maxlike-package.html">maxlike package</a>;</li>
+<li>unsupervised clustering of the feature space using e.g. <code>h2o.kmeans</code>, then determining if
+any of the clusters are significantly under-represented / under-sampled;<br>
+</li>
+<li>estimating <strong>Area of Applicability</strong> based on similarities between training
+prediction and feature spaces <span class="citation">(<a href="references.html#ref-meyer2021predicting" role="doc-biblioref">Meyer &amp; Pebesma, 2021</a>)</span>;</li>
+</ol>
+</li>
+</ol>
+<p>Plotting generated sampling points both on a map and <em>feature space map</em> helps
+detect possible extrapolation problems (Fig. <a href="alt-text-generating-spatial-sampling.html#fig:eberg-fs2">1.6</a>). If you detect
+problems in feature space representation based on the an existing point sampling set,
+you can try to reduce those problems by adding additional samples e.g. through
+<strong>covariate space infill sampling</strong> <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus, 2021</a>)</span> or through 2nd round
+sampling and then re-analysis. These methods are discussed in further chapters.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="index.html">Introduction</a></div>
+<div class="next"><a href="alt-text-resampling-methods-for-machine-learning.html"><span class="header-section-number">2</span>  Resampling methods for Machine Learning</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#alt-text-generating-spatial-sampling"><span class="header-section-number">1</span>  Generating spatial sampling</a></li>
+<li><a class="nav-link" href="#spatial-sampling-algorithms-of-interest"><span class="header-section-number">1.1</span> Spatial sampling algorithms of interest</a></li>
+<li><a class="nav-link" href="#ebergotzen-dataset"><span class="header-section-number">1.2</span> Ebergotzen dataset</a></li>
+<li><a class="nav-link" href="#simple-random-sampling"><span class="header-section-number">1.3</span> Simple Random Sampling</a></li>
+<li><a class="nav-link" href="#latin-hypercube-sampling"><span class="header-section-number">1.4</span> Latin Hypercube Sampling</a></li>
+<li><a class="nav-link" href="#feature-space-coverage-sampling"><span class="header-section-number">1.5</span> Feature Space Coverage Sampling</a></li>
+<li><a class="nav-link" href="#summary-points"><span class="header-section-number">1.6</span> Summary points</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://gitlab.com/openlandmap/spatial-sampling-tutorial/blob/master/sampling.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://gitlab.com/openlandmap/spatial-sampling-tutorial/edit/master/sampling.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Spatial sampling and resampling for Machine Learning</strong>" was written by Tom Hengl and Leandro Parente. </p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,33 @@
+Package: ssr4ml
+Title: Spatial Sampling and Resampling for Machine Learning.
+Version: 0.1
+Authors@R: c(
+    person("Tomislav", "Hengl", , "tom.hengl@opengeohub.org", role = c("aut", "cre")),
+    person("Leandro", "Parente", , "leandro.parente@opengeohub.org", role = "aut")
+  )
+URL: https://gitlab.com/openlandmap/spatial-sampling-tutorial/
+Depends: 
+    R (>= 3.1.0)
+Imports:
+    landmap,
+    sp,
+    mlr
+Suggests:
+    bookdown,
+    bslib,
+    downlit,
+    htmltools,
+    htmlwidgets,
+    jpeg,
+    jsonlite,
+    knitr,
+    png,
+    sessioninfo,
+    xml2
+Remotes:
+    r-lib/downlit,
+    rstudio/bookdown,
+    rstudio/bslib,
+    tidyverse/stringr
+Encoding: UTF-8
+License: CC SA 4.0
