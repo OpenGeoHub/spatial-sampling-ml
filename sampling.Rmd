@@ -241,7 +241,7 @@ points(rnd.lhs@coords, pch="+")
 ```
 
 ```{r eberg-lhs2, echo = TRUE, out.width = "80%", fig.cap = "Distribution of the LHS points from the previous example displayed in the feature space."}
-p <- plot(hb, colramp = reds, main='PCA Ebergotzen actual')
+p <- plot(hb, colramp = reds, main='PCA Ebergotzen LHS')
 pushHexport(p$plot.vp)
 grid.points(rnd.lhs$PC1, rnd.lhs$PC2, pch="+")
 ```

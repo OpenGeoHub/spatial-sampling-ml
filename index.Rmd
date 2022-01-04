@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Overview {.unnumbered}
 
-[![Access source code](cover.png){.cover width="250"}](https://gitlab.com/openlandmap/spatial-sampling-tutorial) This [Rmarkdown tutorial](https://gitlab.com/openlandmap/spatial-sampling-tutorial) provides practical instructions, illustrated with sample 
+[![Access source code](cover.png){.cover width="250"}](https://opengeohub.github.io/spatial-sampling-ml/) This [Rmarkdown tutorial](https://opengeohub.github.io/spatial-sampling-ml/) provides practical instructions, illustrated with sample 
 dataset, on how to generate and evaluate sampling plans using your own data. 
 The specific focus is put on preparing sampling designs for predictive mapping, 
 running analysis and interpretation on existing point data and planning 2nd and 3rd 

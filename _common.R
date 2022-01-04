@@ -32,7 +32,7 @@ status <- function(type) {
     "::: {.rmdnote}\n",
     "You are reading the work-in-progress Spatial Sampling and Resampling for Machine Learning. ",
     "This chapter is currently ", status, ". ",
-    "You can find the polished first edition at <https://openlandmap.gitlab.io/spatial-sampling-tutorial/>.\n",
+    "You can find the polished first edition at <https://opengeohub.github.io/spatial-sampling-ml/>.\n",
     ":::\n"
   ))
 }

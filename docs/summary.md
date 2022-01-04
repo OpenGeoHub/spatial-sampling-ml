@@ -1,7 +1,7 @@
 # Summary notes
 
 ::: {.rmdnote}
-You are reading the work-in-progress Spatial Sampling and Resampling for Machine Learning. This chapter is currently currently draft version, a peer-review publication is pending. You can find the polished first edition at <https://openlandmap.gitlab.io/spatial-sampling-tutorial/>.
+You are reading the work-in-progress Spatial Sampling and Resampling for Machine Learning. This chapter is currently currently draft version, a peer-review publication is pending. You can find the polished first edition at <https://opengeohub.github.io/spatial-sampling-ml/>.
 :::
 
 In this tutorial we have demonstrated some main steps required to analyze 
