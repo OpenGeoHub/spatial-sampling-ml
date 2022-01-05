@@ -9,34 +9,36 @@ You are reading the work-in-progress Spatial Sampling and Resampling for Machine
 ## Resampling and Cross-Validation
 
 In the previous examples we have demonstrated how to prepare sampling designs 
-for your own study area assuming now other point data is available. We have also 
-shown how to run some sampling representation diagnostics to detect potential 
+for your own study area assuming no other point data is available. We have also 
+demonstrated how to run some sampling representation diagnostics to detect potential 
 problems especially in the feature space. In the next sections we will focus on 
 how to use different **resampling** methods i.e. 
 **cross-validation strategies** [@roberts2017cross] to help reduce problems such as:
 
 - _overfitting_ i.e. producing models that are biased and/or over-optimistic;  
 - _missing out covariates_ that are important but possibly _shadowed_ by the covariates 
-  over-selected due to overfitting;
+  over-selected due to overfitting;  
 - _producing poor extrapolation_ i.e. generating artifacts or blunders in predictions;  
 - _over-/under-estimating mapping accuracy_ i.e. producing a biased estimate of model performance including;  
 
 **Resamping** methods are discussed in detail in @hastie2009elements, @kuhn2013applied and 
 @roberts2017cross, and is also commonly implemented in many statistical and machine 
 learning packages such as the [caret](https://topepo.github.io/caret/) or [mlr](https://mlr3.mlr-org.com/).
-Spatial Resampling methods are discussed in detail in @lovelace2019geocomputation.
+Spatial resampling methods are discussed in detail in @lovelace2019geocomputation.
 
-For an introduction to Cross-Validation please refer to [this tutorial](https://neptune.ai/blog/cross-validation-in-machine-learning-how-to-do-it-right). 
-For an introduction to **spatial Cross-Validation** refer to the **[“Geocomputation with R”](https://geocompr.robinlovelace.net/)** book.
+For an introduction to Cross-Validation please refer to [this tutorial](https://neptune.ai/blog/cross-validation-in-machine-learning-how-to-do-it-right) 
+and the **[“Data Analysis and Prediction Algorithms with R”](https://rafalab.github.io/dsbook/cross-validation.html)** chapters on cross validation. 
+For an introduction to **spatial Cross-Validation** refer to the **[“Geocomputation with R”](https://geocompr.robinlovelace.net/spatial-cv.html)** book.
 
 It can be said that, in general, purpose of Machine Learning for predictive 
-mapping is to try to produce **Best Unbiased Predictions** (BUP) of the target 
+mapping is to try to produce **Best Unbiased Predictions** (BUPS) of the target 
 variable and the associated uncertainty (e.g. prediction error). 
-BUP is commonly implemented through: (1) selecting the Best Unbiased Predictor [@Venables2002Springer], 
-(2) selecting the optimal subset of covariates and model parameters (usually by iterations), 
-(3) applying predictions and providing an estimate of the prediction uncertainty i.e. estimate 
-of the prediction errors / prediction intervals for a given probability distribution.
-In this tutorial the path to BUP we use includes:
+BUPS is commonly implemented through: (1) selecting the Best Unbiased Predictor 
+[@Venables2002Springer], (2) selecting the optimal subset of covariates and model 
+parameters (usually by iterations), (3) applying predictions and providing an 
+estimate of the prediction uncertainty i.e. estimate of the prediction errors / 
+prediction intervals for a given probability distribution. In this tutorial the 
+path to BUPS we use includes:
 
 - **Ensemble Machine Learning** using stacking approach with 5-fold Cross-Validation 
   with a meta-learner i.e. an independent model correlating competing base-learners 
@@ -87,8 +89,8 @@ points(eberg.xy, pch="+", cex=.5)
 <p class="caption">(\#fig:eberg-allpnts)All sampling points available for Ebergotzen case study.</p>
 </div>
 
-We can ignore that property of the data and directly fit a predictive model for e.g. 
-top-soil clay content using e.g. random forest [@wright2017ranger]:
+If we ignore that property of the data and directly fit a predictive model for e.g. 
+top-soil clay content using e.g. random forest [@wright2017ranger] we get:
 
 
 ```r
@@ -118,10 +120,10 @@ rf.cly
 
 This shows an RMSE of about 7.3% and an R-square of about 0.61. The problem of this 
 accuracy measure is that with this Random Forest model we ignore spatial clustering 
-of points, hence both the model and the accuracy metric could be over-optimistic [@roberts2017cross]. 
+of points, hence both the model and the accuracy metric could be over-optimistic [@roberts2017cross;@meyer2018improving]. 
 Because we are typically interested in how does the model perform over the WHOLE 
 area of interest, not only in comparison to out-of-bag points, to reduce overfitting 
-or any bias in the BUP we need to apply some adjustments.
+or any bias in the BUPS we need to apply some adjustments.
 
 Strategy #1 for producing more objective estimate of model parameters is to 
 resample sampling points by forcing as much as possible equal sampling intensity 
@@ -131,10 +133,12 @@ which basically resamples the existing point samples with an objective of produc
 a sample more similar to SRS. This type of subsetting can be run `M` times and 
 then an ensemble model can be produced in which each individual model is based 
 on spatially balanced samples. These are not true SRS samples but we can refer 
-to them as the **pseudo-SRS samples**.
+to them as the **pseudo-SRS samples** as they would probably pass all Spatial 
+Randomness tests.
 
-In R we can implement spatial resampling using the following three steps. First, we generate 
-e.g. 10 random subsets where the sampling intensity of points is relatively homogeneous:
+In R we can implement spatial resampling using the following three steps. First, 
+we generate e.g. 10 random subsets where the sampling intensity of points is 
+relatively homogeneous:
 
 
 ```r
@@ -143,7 +147,8 @@ sub.lst = lapply(1:10, function(i){landmap::sample.grid(eberg.sp, c(500, 500), n
 ```
 
 This randomly subsets each 500-m block to max 2 points i.e. trims down the densely 
-sampled points. We can check that the training point sample looks more like a SRS or similar. 
+sampled points to produce a relatively balanced spatial sampling intensity. We can 
+check that the training point sample looks more like a SRS or similar. 
 
 
 ```r
@@ -256,7 +261,7 @@ points(iprob.all$observations, pch="+", cex=.5)
 <p class="caption">(\#fig:eberg-iprob)Occurrence probability for existing point samples for the Ebergotzen case study derived as an average between the kernel density and maxlike occurrence probabilities.</p>
 </div>
 
-Second, we fit a model using all points but we set `case.weights` to be 
+Second, we fit a model using all points, but this time we set `case.weights` to be 
 reversely proportional to probability of occurrence (hence points with lower occurrence 
 probability get higher weights):
 
@@ -269,11 +274,13 @@ rf.clyI = ranger::ranger(cly.fm, data=rm.cly, case.weights = ov.weigths[sel.cly,
 [Weighted regression](https://www.statology.org/weighted-least-squares-in-r/) is a common technique in statistics and in this case the weights are used to helps reduce 
 clustering effect i.e. give weights to points proportionally to the sampling bias. 
 This method is in principle similar to the [nlme::gls](https://stat.ethz.ch/R-manual/R-devel/library/nlme/html/gls.html) Generalized Least Square (GLS) procedure, 
-but with the difference that we do not estimate any spatial autocorrelation structure. 
+but with the difference that we do not estimate any spatial autocorrelation structure, but 
+instead incorporate the probability of occurrence to reduce effect of spatial clustering.
+
 
 ## Resampling using Ensemble ML
 
-Another approach to improve generating BUP from clustered point data is to switch 
+Another approach to improve generating BUPS from clustered point data is to switch 
 to Ensemble ML i.e. use a multitude of ML methods (so called **base-learners**), 
 then estimate final predictions using robust resampling and blocking. Ensemble ML 
 has shown to help increase mapping accuracy, but also helps with reducing _over-shooting_ 
@@ -409,9 +416,9 @@ summary(eml1$learner.model$super.model$learner.model)
 ```
 
 which shows a difference: the RMSE drops for 10–20% and the `regr.glm` learner is 
-now also significant. In the previous example, it is possible that the Ensemble 
-ML was possibly shadowed by the fitting power of ranger and Cubist, while after 
-more strict CV, also more simple models seem to be comparable. 
+now also significant. In the previous example, it is possible that the `regr.glm` model 
+was possibly _shadowed_ by the fitting power of ranger and Cubist, while after 
+more strict CV, also more simple models seem to perform with a comparable accuracy. 
 
 We can produce predictions using the Ensemble ML model developed with blocking by running:
 
@@ -449,7 +456,7 @@ two main reasons:
 using a fitted model and feature space analysis. This method can be used for 
 post-modeling analysis and helps users realize what are the true extrapolation 
 areas and where the predictions are critically poor. The users can then choose to 
-e.g. limit predictions only to combinations of pixels that are NOT extrapolation.
+e.g. limit predictions only to combinations of pixels that are NOT too risky (extrapolation).
 
 For the RF model fitted above we can derive AoA using:
 
@@ -482,7 +489,7 @@ landmap package the uncertainty is derived using base learners instead of using
 ALL raster layers which could be hundreds. This approach of using (few) base learners 
 instead of (many) original covariates helps compress the complexity of model and 
 significantly speed-up computing. The base learners can be accessed from the 
-mlr object and used to fit (an independent) quantile RF:
+mlr object:
 
 
 ```r
@@ -492,6 +499,12 @@ paste(eml.t)
 #> [2] "CLYMHT_A"                                            
 #> [3] "regr.ranger + regr.glm + regr.cubist + regr.cvglmnet"
 eml.m = eml1$learner.model$super.model$learner.model$model
+```
+
+We use the spatially resampled base-learners to fit (an independent) quantile RF:
+
+
+```r
 eml.qr <- ranger::ranger(eml.t, eml.m, num.trees=85, importance="impurity", 
                          quantreg=TRUE, keep.inbag = TRUE)
 #eml.qr
@@ -517,8 +530,8 @@ We could have also subset e.g. 10% of the input points and keep them ONLY for
 estimating the prediction errors using the `quantForestError`, which is also 
 recommended by the authors of the forestError package. In practice, because 
 base learners have been fitted using 5-fold Cross-Validation with blocking, 
-they already include out-of-bag samples hence taking out extra OOB samples is 
-probably not required. 
+they are already out-of-bag samples hence taking out extra OOB samples is 
+probably not required, but you can also test this with your own data. 
 
 The `quantForestError` function runs a complete uncertainty assessment and 
 includes both MSPE, bias and upper and lower confidence intervals:
@@ -540,10 +553,10 @@ str(pred.q)
 In this case, for the lower and upper confidence intervals we use 1-standard 
 deviation probability which is about 2/3 probability and hence the lower value is 0.159 
 and upper 0.841. The RMSPE should match the half of the difference between 
-the lower and upper interval in this case, although there will be difference.
+the lower and upper interval in this case, although there will be difference in exact numbers.
 
-The mean RMSPE for the whole study area should be as expected somewhat higher 
-than the RMSE we get from model fitting:
+The mean RMSPE for the whole study area (mean of all pixels) should be as expected 
+somewhat higher than the RMSE we get from model fitting:
 
 
 ```r
@@ -595,10 +608,10 @@ In the Ebergotzen case, prediction error could be over-pessimistic although the
 block size is relatively small considering the size of the study area. 
 On the other hand, if the training points are clustered, blocking becomes 
 important because otherwise the estimate of error and choice of model parameters 
-could get over-optimistic [@lovelace2019geocomputation]. If in doubt of whether 
-to produce over-optimistic or over-pessimistic estimates of uncertainty, it is 
-ideal to avoid both, but if necessary consider that somewhat over-pessimistic 
-estimate of accuracy could be slightly more _on a safe side_ [@roberts2017cross].
+could get over-optimistic [@meyer2018improving;@lovelace2019geocomputation]. 
+If in doubt of whether to produce over-optimistic or over-pessimistic estimates of 
+uncertainty, it is of course ideal to avoid both, but if necessary consider that 
+somewhat over-pessimistic estimate of accuracy could be slightly more _on a safe side_ [@roberts2017cross].
 
 ## Testing mapping accuracy using resampling and blocking
 
@@ -636,9 +649,9 @@ points(edgeroi.sp, pch="+")
 The dataset documentation indicates that from a total of 359 profiles, 210 soil profiles 
 were sampled on a systematic, equilateral triangular grid with a spacing of 2.8 km 
 between sites; the further 131 soil profiles are distributed more irregularly 
-or on transects [@malone2009mapping]. This is hence a hybrid soil sampling design 
+or on transects [@malone2009mapping]. This is hence a **hybrid sampling design** 
 but in general satisfying IID, and hence any subsample of these points should give 
-an unbiased estimate of the accuracy. We first prepare a regression matrix that includes 
+an unbiased estimate of the mapping accuracy. We first prepare a regression matrix that includes 
 all covariates, location IDs and we also add a spatial grid of 500-m size:
 
 
@@ -671,7 +684,8 @@ rmPF <- rmF[complete.cases(rmF[,all.vars(formulaStringPF)]),]
 #str(rmPF[,all.vars(formulaStringPF)])
 ```
 
-We first fit a model ignoring any spatial clustering or similar:
+We first fit a model distribution of soil organic carbon ignoring any spatial 
+clustering, overlap in 3rd dimension (soil depth) or similar:
 
 
 ```r
@@ -715,7 +729,7 @@ emlE = train(initE.m, tskE)
 #> Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.
 #> Exporting objects to slaves for mode socket: .mlr.slave.options
 #> Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.
-#> [21:40:44] WARNING: amalgamation/../src/objective/regression_obj.cu:170: reg:linear is now deprecated in favor of reg:squarederror.
+#> [10:39:09] WARNING: amalgamation/../src/objective/regression_obj.cu:170: reg:linear is now deprecated in favor of reg:squarederror.
 #> Exporting objects to slaves for mode socket: .mlr.slave.options
 #> Mapping in parallel: mode = socket; level = mlr.resample; cpus = 32; elements = 10.
 summary(emlE$learner.model$super.model$learner.model)
@@ -767,9 +781,10 @@ spplot(subE.lst[[1]]$grid, scales=list(draw=TRUE),
 <p class="caption">(\#fig:edgeroi-grid-sample)Resampling original points using `sample.grid` function for the Edgeroi dataset.</p>
 </div>
 
-So in any random pseudo-grid subset we select about 100 profiles from 359. We can next 
-repeatedly fit models using the two approaches and derive prediction errors. First, for 
-simple model ignoring any spatial clustering / soil profile locations:
+So in any random pseudo-grid subset we take out about 100 profiles from 359 and 
+keep for validation only. We can next repeatedly fit models using the two 
+approaches and derive prediction errors. First, for simple model ignoring any 
+spatial clustering / soil profile locations:
 
 
 ```r
@@ -866,7 +881,7 @@ hillands (right part of the study area), so again significant difference in pred
 between the two models. Even though the Ensemble ML with spatial blocking is only 
 slightly better in accuracy (RMSE based on 10-times out-of-bag declustered validation points), 
 these results confirm that it helps produce a more realistic map of RMSPE. 
-This matches the result of @roberts2017cross who suggest that block cross-validation is 
+This matches the result of @roberts2017cross and @meyer2018improving who suggest that block cross-validation is 
 nearly universally more appropriate than random cross-validation if the goal is 
 predicting to new data or predictor space, or for selecting causal predictors.
 
@@ -932,7 +947,7 @@ This is in fact common problem observed with many 3D predictive soil mapping mod
 where soil profiles basically have ALL the same values of covariates and Random 
 Forest thus easier predicts values due to overlap in covariate data. For a 
 discussion on why is thus important to run internal training and Cross-Validation 
-using spatial blocking refer also to @Gasch2015SPASTA and @hengl2019predictive.
+using spatial blocking refer also to @Gasch2015SPASTA and @meyer2018improving.
 
 
 ```r

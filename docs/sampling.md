@@ -13,21 +13,22 @@ study area that you are visiting for the first time and/or no previous samples o
 models are available. We focus on the following spatial sampling methods: 
 
 - Subjective or convenience sampling,
-- Simple Random Sampling (**SRS**) [@Brus2021sampling],
-- Latin Hypercube Sampling (**LHS**) and its variants e.g. Conditioned LHS [@minasny2006conditioned;@Malone2019PeerJ],
+- Simple Random Sampling (**SRS**) [@Bivand2013Springer;@Brus2021sampling],
+- Latin Hypercube Sampling (**LHS**) and its variants e.g. Conditioned LHS [@Malone2019PeerJ;@minasny2006conditioned],
 - Feature Space Coverage Sampling (**FSCS**) [@Goerg2013] and fuzzy k-means clustering [@hastie2009elements],
 - 2nd round sampling [@stumpf2017uncertainty],
 
-Our interest is in producing predictions (maps) of the target variable by employing 
-regression / correlation between the target variable and multitude of features 
-(raster layers), and where various Machine Learning techniques are used for training.
-Hence spatial sampling methods are only reviewing within this context.
+Our interest in this tutorials is in producing predictions (maps) of the target 
+variable by employing regression / correlation between the target variable and 
+multitude of features (raster layers), and where various Machine Learning techniques 
+are used for training and prediction.
 
 Once we collect enough training points in an area we can overlay points and GIS 
 layers to produce a **regression matrix** or **classification matrix**, and 
-which can then be used in a Machine Learning framework to generate spatial predictions 
-i.e. produce maps. For an introduction to Ensemble Machine Learning for 
-Predictive Mapping please refer to [this tutorial](https://gitlab.com/openlandmap/spatial-predictions-using-eml).
+which can then be used to generate spatial predictions i.e. produce maps. As a 
+state-of-the-art we use the mlr framework for Ensemble Machine Learning as the key 
+Machine Learning framework for predictive mapping. For an introduction to Ensemble 
+Machine Learning for Predictive Mapping please refer to [this tutorial](https://gitlab.com/openlandmap/spatial-predictions-using-eml).
 
 ## Ebergotzen dataset
 
@@ -52,8 +53,8 @@ This dataset is described in detail in @Bohner2008Hamburg. It is a soil survey
 dataset with ground observations and measurements of soil properties including soil 
 types. The study area is a perfect square 10×10 km in size.
 
-We have previously derived 2–3 additional DEM parameters directly using SAGA GIS 
-and which we can add to the list of covariates:
+We have previously derived number of additional DEM parameters directly using SAGA GIS 
+[@Conrad2015] and which we can add to the list of covariates:
 
 
 ```r
@@ -65,8 +66,9 @@ names(eberg_grid25)
 #> [13] "PMTZONES"
 ```
 
-so a total of 11 layers from which two layers are factors (`HBTSOLx` and `PMTZONES`). 
-Next, for further analysis, and to reduce data overlap we can convert all 
+so a total of 11 layers at 25-m spatial resolution, from which two layers 
+(`HBTSOLx` and `PMTZONES`) are factors representing soil units and parent material 
+units. Next, for further analysis, and to reduce data overlap, we can convert all 
 primary variables to (numeric) principal components using:
 
 
@@ -76,8 +78,9 @@ eberg_spc = landmap::spc(eberg_grid25[-c(2,3)])
 #> Converting covariates to principal components...
 ```
 
-which gives the a total of 14 PCs. The patterns reflect a combination of terrain 
-variables, lithological discontinuities (`PMTZONES`) and surface vegetation (`NVILANx`):
+which gives the a total of 14 PCs. The patterns in the PC components reflect 
+a complex combination of terrain variables, lithological discontinuities (`PMTZONES`) 
+and surface vegetation (`NVILANx`):
 
 
 ```r
@@ -91,7 +94,7 @@ spplot(eberg_spc@predicted[1:3], col.regions=SAGA_pal[[1]])
 
 ## Simple Random Sampling
 
-To generate a SRS with e.g. 100 points we can simply using the **sp** package:
+To generate a SRS with e.g. 100 points we can use the **sp** package `spsample` method:
 
 
 ```r
@@ -131,13 +134,13 @@ grid.points(ov.rnd[,1], ov.rnd[,2], pch="+")
 </div>
 
 Visually, we do not directly see from Fig. \@ref(fig:eberg-fs) that the generated SRS 
-maybe misses some important feature space, however if we zoom in, then we can see that some 
-parts of feature space with high density (in this specific randomization) are somewhat 
+maybe misses some important feature space, however if we zoom in, then we can notice that some 
+parts of feature space (in this specific randomization) with high density are somewhat 
 under-represented. Imagine if we reduce number of sampling points then we run 
 even higher risk of missing some areas in the feature space by using SRS.
 
-Next we are interested to evaluate what is the occurrence probability of 
-the SRS points based on the PCA components. To derive the occurrence probability we can use 
+Next, we are interested in evaluating the occurrence probability of the SRS points 
+based on the PCA components. To derive the occurrence probability we can use 
 the **maxlike** package method [@Royle2012]:
 
 
@@ -164,17 +167,18 @@ In practice, feature space analysis can be quite computational and we recommend 
 parallelized versions within an High Performance Computing environments to run such analysis.
 
 Fig. \@ref(fig:eberg-maxlike) shows that, by accident, some parts of the feature 
-space might be somewhat under-represented (areas with low probability of occurrence). 
-Note however that occurrence probability for this dataset is overall _very_ low (<0.05), 
-which indicates that distribution of points is not much correlated with the features, 
-hence this specific SRS is probably satisfactory also for feature space analysis. 
-The SRS points do not seem to group (by accident) and hence maxlike gives very low 
-probability of occurrence.
+space might be somewhat under-represented (areas with low probability of occurrence on the map). 
+Note however that occurrence probability for this dataset is overall _very low_ (<0.05), 
+indicating that distribution of points is not much correlated with the features. 
+This specific SRS is thus probably satisfactory also for feature space analysis: 
+the SRS points do not seem to group (which would in this case be by accident) and 
+hence maxlike gives very low probability of occurrence.
 
 We can repeat SRS many times and then see if the clustering of points gets more 
 problematic, but as you can image, in practice for large number of samples it is 
 a good chance that all features would get well represented also in the feature 
-space. 
+space even though we did not include feature space variables in the production of the 
+sampling plan.
 
 We can now also load the actual points collected for the Ebergotzen case study:
 
@@ -192,8 +196,8 @@ eberg.smp = eberg.xy[sel,]
 
 To quickly estimate spread of points in geographical and feature spaces, we can 
 also use the function `spsample.prob` that calls both the kernel density function 
-from the **spatstat** package, and derives the probability of occurrence using the 
-**maxlike** package: 
+from the **[spatstat](https://rdrr.io/cran/spatstat.core/man/density.ppp.html)** package, and derives the probability of occurrence using the 
+**[maxlike](https://rdrr.io/github/rbchan/maxlike/man/maxlike-package.html)** package: 
 
 
 ```r
@@ -203,7 +207,7 @@ iprob <- landmap::spsample.prob(eberg.smp, eberg_spc@predicted[1:4])
 ```
 
 In this specific case, the actual sampling points are much more clustered, so if we plot 
-the two occurrence probability maps next to each other we get:
+the two occurrence probability maps derived using maxlike next to each other we get:
 
 
 ```r
@@ -221,14 +225,15 @@ par(op)
 </div>
 
 The map on the left clearly indicates that most of the sampling points are 
-basically in the plain area and the hills are systematically under-sampled. This 
-we can also cross-check by reading the description of the dataset in @Bohner2008Hamburg:
+basically preferentially located in the plain area, while the hillands are 
+systematically under-sampled. This we can also cross-check by reading the 
+description of the dataset in @Bohner2008Hamburg:
 
 - the Ebergotzen soil survey points focus on agricultural land only,  
 - no objective sampling design has been used, hence some points are clustered,  
 
 This is also clearly visible from the _feature map_ plot where one part of the feature 
-space seem to completely omitted from sampling:
+space seem to be completely omitted from sampling:
 
 
 ```r
@@ -246,15 +251,15 @@ grid.points(ov2.rnd[,1], ov2.rnd[,2], pch="+")
 ## Latin Hypercube Sampling
 
 In the previous example we have shown how to implement SRS and then also evaluate it 
-against feature layers. Often SRS represent very well SRS so it can be directly used for 
-Machine Learning and with a guarantee of not making too much bias in predictions. 
-To avoid, however, risk of missing out some parts of the feature space, and also 
-to try to optimize allocation of points, we can generate a sample using the 
+against feature layers. Often SRS represent very well feature space so it can be 
+directly used for Machine Learning and with a guarantee of not making too much bias  
+in predictions. To avoid, however, risk of missing out some parts of the feature space, 
+and also to try to optimize allocation of points, we can generate a sample using the 
 **[Latin Hypercube Sampling](https://en.wikipedia.org/wiki/Latin_hypercube_sampling)** (LHS) method. In a nutshell, LHS methods are based on 
 dividing the **Cumulative Density Function** (CDF) into _n_ equal partitions, and 
 then choosing a random data point in each partition, consequently:
 
-- CDF of LHS samples matches the CDF of population (unbiased representation),  
+- CDF of LHS samples matches the CDF of population (hence unbiased representation),  
 - Extrapolation in the feature space should be minimized,  
 
 Latin Hypercube and sampling optimization using LHS is explained in detail in @minasny2006conditioned 
@@ -288,7 +293,7 @@ points(rnd.lhs@coords, pch="+")
 
 
 ```r
-p <- plot(hb, colramp = reds, main='PCA Ebergotzen actual')
+p <- plot(hb, colramp = reds, main='PCA Ebergotzen LHS')
 pushHexport(p$plot.vp)
 grid.points(rnd.lhs$PC1, rnd.lhs$PC2, pch="+")
 ```
@@ -301,14 +306,14 @@ grid.points(rnd.lhs$PC1, rnd.lhs$PC2, pch="+")
 Although in principle we might not see any difference in the point pattern between 
 SRS and LHS, the feature space plot clearly shows that LHS covers systematically 
 feature space map, i.e. we would have a relatively low risk of missing out some 
-important features as compared to Fig. \@ref(fig:eberg-fs2).
+important features as compared to Fig. \@ref(fig:eberg-fs2). 
 
 Thus the main advantages of the LHS are:
 
 - it ensures that feature space is represented systematically i.e. it is optimized 
   for Machine Learning using the specific feature layers;  
 - it is an **[Independent Identically Distributed (IID)](https://xzhu0027.gitbook.io/blog/ml-system/sys-ml-index/learning-from-non-iid-data)** sampling design;  
-- thanks to the clhs package, also the survey costs can be integrated to still 
+- thanks to the **clhs** package, also the survey costs raster layer can be integrated to still 
   keep systematic spread, but reduce survey costs as much as possible [@roudier2012conditioned];  
 
 ## Feature Space Coverage Sampling
@@ -352,14 +357,14 @@ h2o.init(nthreads = -1)
 #> H2O is not running yet, starting it now...
 #> 
 #> Note:  In case of errors look at the following log files:
-#>     /tmp/RtmpK1uE9B/file188d6008dd79/h2o_tomislav_started_from_r.out
-#>     /tmp/RtmpK1uE9B/file188d330618a3/h2o_tomislav_started_from_r.err
+#>     /tmp/Rtmpzae60l/file648160d8d182/h2o_tomislav_started_from_r.out
+#>     /tmp/Rtmpzae60l/file64817106ea31/h2o_tomislav_started_from_r.err
 #> 
 #> 
 #> Starting H2O JVM and connecting: .. Connection successful!
 #> 
 #> R is connected to the H2O cluster: 
-#>     H2O cluster uptime:         2 seconds 56 milliseconds 
+#>     H2O cluster uptime:         1 seconds 933 milliseconds 
 #>     H2O cluster timezone:       Europe/Amsterdam 
 #>     H2O data parsing timezone:  UTC 
 #>     H2O cluster version:        3.30.0.1 
@@ -382,12 +387,12 @@ h2o.init(nthreads = -1)
 df.hex <- as.h2o(eberg_spc@predicted@data[,1:4], destination_frame = "df")
 #>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%
 km.nut <- h2o.kmeans(training_frame=df.hex, k=100, keep_cross_validation_predictions = TRUE)
-#>   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |======================================================================| 100%
+#>   |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%
 #km.nut
 ```
 
 Note: in the example above, we have manually set the number of clusters to 100, 
-but the number of clusters could be also derived using some optimization procedure. 
+but the number of clusters could be also derived using [some optimization procedure](https://www.r-bloggers.com/2019/01/10-tips-for-choosing-the-optimal-number-of-clusters/). 
 Next, we predict the clusters and plot the output:
 
 
@@ -404,10 +409,10 @@ class_df.c = as.data.frame(h2o.centers(km.nut))
 names(class_df.c) = names(eberg_spc@predicted@data[,1:4])
 str(class_df.c)
 #> 'data.frame':	100 obs. of  4 variables:
-#>  $ PC1: num  1.924 -1.797 -2.893 -6.655 -0.652 ...
-#>  $ PC2: num  0.426 2.696 -4.387 1.253 -1.986 ...
-#>  $ PC3: num  -0.919 5.743 -3.771 -0.47 2.383 ...
-#>  $ PC4: num  0.0892 4.7985 -2.7772 2.0332 1.0733 ...
+#>  $ PC1: num  1.08 -2.13 -4.35 1.53 -5.11 ...
+#>  $ PC2: num  -0.574 2.311 3.528 2.174 0.275 ...
+#>  $ PC3: num  -2.074 5.543 -0.338 3.195 -3.05 ...
+#>  $ PC4: num  -0.315 4.606 3.091 -2.2 -2.895 ...
 #write.csv(class_df.c, "NCluster_100_class_centers.csv")
 ```
 
@@ -432,11 +437,11 @@ points(rnd.fscs, pch="+")
 </div>
 
 Visually, FSCS seem to add higher spatial density of points in areas where there 
-is higher complexity. So the `h2o.kmeans` algorithm stratifies area into most 
+is higher complexity. The `h2o.kmeans` algorithm stratifies area into most 
 possible homogeneous units (in the example above, large plains in the right 
 part of the study area are relatively homogeneous, hence the sampling intensity 
-in geographical space drops significantly), and the points are then allocated per 
-each strata.
+in there areas drops significantly when visualized in the geographical space), 
+and the points are then allocated per each strata.
 
 
 ```r
@@ -478,8 +483,8 @@ show significant clustering and under-representation of feature space
 - _Bias_ in estimating population parameters of the target variable;  
 
 The first step to deal with these problems is to detect them, second is to try 
-to implement a strategy that prevents from overfitting. Some possible approaches 
-are addressed in the second part of the tutorial.
+to implement a strategy that prevents from model overfitting. Some possible approaches 
+to deal with such problems are addressed in the second part of the tutorial.
 
 LHS and FSCS are recommended sampling methods if the purpose of sampling is to 
 build regression or classification models using multitude of (terrain, 
@@ -490,7 +495,7 @@ their case studies that seem to have helped with producing more accurate predict
 @yang2020evaluation also report that LHS helps improve accuracy only for the large size of points.
 
 The `h2o.kmeans` algorithm is suited for large datasets, but nevertheless to 
-generate >>100 clusters using large number of raster layers could become RAM 
+generate ≫100 clusters using large number of raster layers could become RAM 
 consuming and is maybe not practical for operational sampling. An alternative 
 would be to reduce number of clusters and select multiple points per cluster.
 
@@ -498,8 +503,8 @@ In the case of doubt which method to use LHS or FSCS, we recommend the following
 simple rules of thumb: 
 
 - If your dataset contains relatively smaller-size rasters and the targeted number of sampling 
-   points is relatively small (e.g. <<1000), we recommend using the FSCS algorithm;  
-- If your project requires large number of sampling points (>>100), then you should probably 
+   points is relatively small (e.g. ≪1000), we recommend using the FSCS algorithm;  
+- If your project requires large number of sampling points (≫100), then you should probably 
   consider using the LHS algorithm;  
 
 In general, as the number of sampling points starts growing, differences between 
@@ -518,14 +523,14 @@ one can run multiple diagnostics:
    (b) testing for **Complete Spatial Randomness** [@schabenberger2005statistical] using e.g. [spatstat.core::mad.test](https://rdrr.io/cran/spatstat.core/man/dclf.test.html) and/or [dbmss::Ktest](https://rdrr.io/cran/dbmss/man/Ktest.html);  
 2. In _feature space_: 
    (a) occurrence probability analysis using the [maxlike package](https://rdrr.io/github/rbchan/maxlike/man/maxlike-package.html);
-   (b) unsupervised clustering of the feature space using e.g. `h2o.kmeans`, then determining if 
+   (b) **unsupervised clustering** of the feature space using e.g. `h2o.kmeans`, then determining if 
    any of the clusters are significantly under-represented / under-sampled;  
    (c) estimating **Area of Applicability** based on similarities between training 
    prediction and feature spaces [@meyer2021predicting];  
 
 Plotting generated sampling points both on a map and _feature space map_ helps 
-detect possible extrapolation problems (Fig. \@ref(fig:eberg-fs2)). If you detect 
-problems in feature space representation based on the an existing point sampling set, 
-you can try to reduce those problems by adding additional samples e.g. through 
+detect possible extrapolation problems in a sampling design (Fig. \@ref(fig:eberg-fs2)). 
+If you detect problems in feature space representation based on an existing point 
+sampling set, you can try to reduce those problems by adding additional samples e.g. through 
 **covariate space infill sampling** [@Brus2021sampling] or through 2nd round 
 sampling and then re-analysis. These methods are discussed in further chapters.

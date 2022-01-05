@@ -72,10 +72,10 @@ that they refer to as the <em>“Uncertainty guided sampling”</em>.</p>
 <p>The 2nd round Uncertainty guided sampling can be implemented either by:</p>
 <ul>
 <li>Producing a strata based on the prediction error map (e.g. extrapolation areas / areas with highest uncertainty), then sampling only within that strata,</li>
-<li>Using the probability of exceeding threshold mapping accuracy to generate sampling,</li>
+<li>Using the probability of exceeding threshold mapping accuracy to generate extra sampling points,</li>
 </ul>
 <p>In both cases 2nd round points can be then added to the original training dataset and the
-model for the area can then be refitted (this procedure is also referred to as <em>“re-analysis”</em>).
+model for the area can then be refitted (this procedure in data science is also referred to as <em>“re-analysis”</em>).
 Assuming that our initial model was unbiased, then even few tens of extra points
 could lead to significant reduction in RMSPE. In practice, we might have to also
 organize the 3rd round sampling until we finally reach some maximum possible accuracy <span class="citation">(<a href="references.html#ref-hengl2018random" role="doc-biblioref">Hengl, Nussbaum, Wright, Heuvelink, &amp; Gräler, 2018</a>)</span>.</p>
@@ -83,13 +83,15 @@ organize the 3rd round sampling until we finally reach some maximum possible acc
 of prediction errors exceeding some threshold probability e.g. RMSE=0.2. We first
 load point data and prediction error map produced in the previous example using
 Ensemble Machine Learning:</p>
-<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">edgeroi</span><span class="op">)</span>
 <span class="va">edgeroi.sp</span> <span class="op">&lt;-</span> <span class="va">edgeroi</span><span class="op">$</span><span class="va">sites</span>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/xyFromCell.html">coordinates</a></span><span class="op">(</span><span class="va">edgeroi.sp</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="op">~</span> <span class="va">LONGDA94</span> <span class="op">+</span> <span class="va">LATGDA94</span>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/projection.html">proj4string</a></span><span class="op">(</span><span class="va">edgeroi.sp</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/CRS-class.html">CRS</a></span><span class="op">(</span><span class="st">"+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"</span><span class="op">)</span>
 <span class="va">edgeroi.sp</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/spTransform-methods.html">spTransform</a></span><span class="op">(</span><span class="va">edgeroi.sp</span>, <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/CRS-class.html">CRS</a></span><span class="op">(</span><span class="st">"+init=epsg:28355"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<p>The probability of exceeding some threshold, assuming normal distribution of prediction
+erros can be derived as:</p>
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">t.RMSE</span> <span class="op">=</span> <span class="fl">0.2</span>
 <span class="va">edgeroi.error</span> <span class="op">=</span> <span class="fu"><a href="http://rgdal.r-forge.r-project.org/reference/readGDAL.html">readGDAL</a></span><span class="op">(</span><span class="st">"./output/edgeroi_soc_rmspe.tif"</span><span class="op">)</span>
 <span class="co">#&gt; ./output/edgeroi_soc_rmspe.tif has GDAL driver GTiff </span>
@@ -97,11 +99,11 @@ Ensemble Machine Learning:</p>
 <span class="va">edgeroi.error</span><span class="op">$</span><span class="va">inv.prob</span> <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="fl">2</span><span class="op">*</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="va">edgeroi.error</span><span class="op">$</span><span class="va">band1</span><span class="op">/</span><span class="va">t.RMSE</span><span class="op">)</span><span class="op">-</span><span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
 <p>next, we can generate a sampling plan using the <strong>spatstat</strong> package and the inverse
 probability of the pixels exceeding threshold uncertainty (<code>f</code> argument):</p>
-<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dens.var</span> <span class="op">&lt;-</span> <span class="fu">spatstat.geom</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/spatstat.geom/man/as.im.html">as.im</a></span><span class="op">(</span><span class="fu">sp</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/sp/man/image.html">as.image.SpatialGridDataFrame</a></span><span class="op">(</span><span class="va">edgeroi.error</span><span class="op">[</span><span class="st">"inv.prob"</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
 <span class="va">pnts.new</span> <span class="op">&lt;-</span> <span class="fu">spatstat.core</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/spatstat.core/man/rpoint.html">rpoint</a></span><span class="op">(</span><span class="fl">50</span>, f<span class="op">=</span><span class="va">dens.var</span><span class="op">)</span></code></pre></div>
 <p>So the new sampling plan, assuming adding only 50 new points would thus look like this:</p>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log1p</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">edgeroi.error</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"inv.prob"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">edgeroi.sp</span>, pch<span class="op">=</span><span class="st">"+"</span>, cex<span class="op">=</span><span class="fl">.8</span>, col<span class="op">=</span><span class="st">"blue"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/methods/as.html">as</a></span><span class="op">(</span><span class="va">pnts.new</span>, <span class="st">"SpatialPoints"</span><span class="op">)</span>, pch<span class="op">=</span><span class="fl">19</span>, cex<span class="op">=</span><span class="fl">0.8</span>, col<span class="op">=</span><span class="st">"black"</span><span class="op">)</span></code></pre></div>
@@ -113,7 +115,7 @@ Figure 3.1: Uncertainty guided 2nd round sampling: locations of initial (+) and 
 </div>
 <p>This puts much higher weight at locations where the prediction errors are higher,
 however, technically speaking we finish still sampling points across the whole
-study area and including some randomization.</p>
+study area and, of course, including randomization.</p>
 <div class="figure" style="text-align: center">
 <span id="fig:scheme-resample"></span>
 <img src="img/Fig_sampling_reanalysis.png" alt="General scheme for re-sampling and re-analysis using uncertainty guided sampling principles." width="70%"><p class="caption">
@@ -124,7 +126,8 @@ Figure 3.2: General scheme for re-sampling and re-analysis using uncertainty gui
 would gradually decrease following a decay function (e.g. <code>RMSE = b1 * x ^ -b1</code>) until some
 maximum possible accuracy is achieved. This way soil surveyor can optimize the
 predictions and reduce costs by minimizing number of additional samples i.e. it
-could be considered <em>the shortest path</em> to increasing the mapping accuracy.</p>
+could be considered <em>the shortest path</em> to increasing the mapping accuracy without
+a need to start sampling from scratch.</p>
 
 </div>
 </div>
