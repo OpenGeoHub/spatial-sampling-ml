@@ -15,10 +15,11 @@ such as the SRC, LHS and FSCS. Some general conclusions are:
   using combination of simple and complex base learners and spatial blocking seem to 
   help produce models with less artifacts in extrapolation space and which report 
   a more realistic mapping accuracy than if spatial clustering is ignored;  
-- The **forestError** package seems to provide a complete framework for uncertainty 
-  assessment and can be used to derive the prediction errors (RMSPE) per pixel, 
-  ultimately the average prediction error of the whole area is the mean prediction 
-  error that one can report to the users;  
+- The **[forestError](https://rdrr.io/cran/forestError/)** package seems to provide a complete framework for uncertainty 
+  assessment and can be used to derive the prediction errors (RMSPE) _per-pixel_ 
+  i.e. for each new prediction location; the average prediction error 
+  of the whole area is the mean prediction error that one can report to the users 
+  as the best unbiased estimate of the mean uncertainty;  
 
 Assuming that there is significant spatial and/or feature space clustering in 
 training points, it appears that various blocking / Cross-Validation strategies, 

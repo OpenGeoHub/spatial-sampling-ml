@@ -48,6 +48,8 @@ please refer to @Bivand2013Springer, @BRUS2019464 and @Brus2021sampling.
 The _“Spatial sampling with R”_ book by Dick Brus and R code examples are 
 available via <https://github.com/DickBrus/SpatialSamplingwithR>.
 
+For an introduction to **Predictive Soil Mapping** using R refer to <https://soilmapper.org>.
+
 Machine Learning in **python** with resampling can be best implemented via the [scikit-learn library](https://scikit-learn.org/stable/), 
 which matches in functionality what is available via the mlr package in R.
 
@@ -72,10 +74,12 @@ This work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 Inter
 
 ## Acknowledgements {.unnumbered}
 
-This manual is based on the **[“R for Data Science”](https://r4ds.had.co.nz/)** book by Hadley Wickham and contributors.
+This tutorial is based on the **[“R for Data Science”](https://r4ds.had.co.nz/)** book by Hadley Wickham and contributors.
 
-[OpenLandMap](https://openlandmap.org) is a collaborative effort and many people 
+**[OpenLandMap](https://openlandmap.org)** is a collaborative effort and many people 
 have contributed data, software, fixes and improvements via pull request. [OpenGeoHub](https://opengeohub.org) 
-is an independent not-for-profit research foundation promoting Open Source and Open Data solutions.
+is an independent not-for-profit research foundation promoting Open Source and Open Data solutions. 
+**[EnvirometriX Ltd.](https://envirometrix.nl)** is the commercial branch of the group 
+responsible for designing soil sampling designs for the **[AgriCapture](https://agricaptureco2.eu/)** and similar soil monitoring projects.
 
 [<img src="tex/opengeohub_logo_ml.png" alt="OpenGeoHub logo" width="350"/>](https://opengeohub.org)

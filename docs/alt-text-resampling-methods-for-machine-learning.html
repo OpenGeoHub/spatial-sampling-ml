@@ -171,7 +171,7 @@ top-soil clay content using e.g. random forest <span class="citation">(<a href=
 <span class="co">#&gt; R squared (OOB):                  0.6081801</span></code></pre></div>
 <p>This shows an RMSE of about 7.3% and an R-square of about 0.61. The problem of this
 accuracy measure is that with this Random Forest model we ignore spatial clustering
-of points, hence both the model and the accuracy metric could be over-optimistic <span class="citation">(<a href="references.html#ref-meyer2018improving" role="doc-biblioref">Hanna Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss, 2018</a>; <a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span>.
+of points, hence both the model and the accuracy metric could be over-optimistic <span class="citation">(<a href="references.html#ref-meyer2018improving" role="doc-biblioref">Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss, 2018</a>; <a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span>.
 Because we are typically interested in how does the model perform over the WHOLE
 area of interest, not only in comparison to out-of-bag points, to reduce overfitting
 or any bias in the BUPS we need to apply some adjustments.</p>
@@ -226,7 +226,7 @@ probably more realistic:</p>
 <p>In summary, the actual error is most likely about 20% higher than if we ignore
 clustering and the previous model was likely over-optimistic. The model is too
 much influenced by the clustered point samples and this should be taken into
-account during model fitting <span class="citation">(<a href="references.html#ref-meyer2021predicting" role="doc-biblioref">H. Meyer &amp; Pebesma, 2021</a>; <a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span>. If we
+account during model fitting <span class="citation">(<a href="references.html#ref-meyer2021predicting" role="doc-biblioref">Meyer &amp; Pebesma, 2021</a>; <a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span>. If we
 visually compare the predictions between the original and ensemble models we see:</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cn</span> <span class="op">=</span> <span class="va">rf.cly</span><span class="op">$</span><span class="va">forest</span><span class="op">$</span><span class="va">independent.variable.names</span>
@@ -449,7 +449,7 @@ especially in the extrapolation space.</li>
 <h2>
 <span class="header-section-number">2.5</span> Estimating the Area of Applicability<a class="anchor" aria-label="anchor" href="#estimating-the-area-of-applicability"><i class="fas fa-link"></i></a>
 </h2>
-<p><span class="citation"><a href="references.html#ref-meyer2021predicting" role="doc-biblioref">H. Meyer &amp; Pebesma</a> (<a href="references.html#ref-meyer2021predicting" role="doc-biblioref">2021</a>)</span> have developed a method to estimate so-called <a href="https://cran.r-project.org/web/packages/CAST/vignettes/AOA-tutorial.html">“Area of Applicability”</a>
+<p><span class="citation"><a href="references.html#ref-meyer2021predicting" role="doc-biblioref">Meyer &amp; Pebesma</a> (<a href="references.html#ref-meyer2021predicting" role="doc-biblioref">2021</a>)</span> have developed a method to estimate so-called <a href="https://cran.r-project.org/web/packages/CAST/vignettes/AOA-tutorial.html">“Area of Applicability”</a>
 using a fitted model and feature space analysis. This method can be used for
 post-modeling analysis and helps users realize what are the true extrapolation
 areas and where the predictions are critically poor. The users can then choose to
@@ -569,12 +569,12 @@ Figure 2.8: Example of effects of the size of the spatial blocking (buffer) on m
 <p>Fig. <a href="alt-text-resampling-methods-for-machine-learning.html#fig:example-cv">2.8</a> shows the usual effect of spatial blocking (for varying buffer size) on the
 Cross-Validation accuracy <span class="citation">(<a href="references.html#ref-pohjankukka2017estimating" role="doc-biblioref">Pohjankukka, Pahikkala, Nevalainen, &amp; Heikkonen, 2017</a>)</span>. Note that the accuracy
 tends to stabilize at some distance, although too strict blocking can also lead
-to over-pessimistic estimates of accuracy hence bias in predictions.
+to over-pessimistic estimates of accuracy hence bias in predictions <span class="citation">(@ <a href="references.html#ref-Wadoux2021EM" role="doc-biblioref">Wadoux, Heuvelink, de Bruin, &amp; Brus, 2021</a>)</span>.
 In the Ebergotzen case, prediction error could be over-pessimistic although the
 block size is relatively small considering the size of the study area.
 On the other hand, if the training points are clustered, blocking becomes
 important because otherwise the estimate of error and choice of model parameters
-could get over-optimistic <span class="citation">(<a href="references.html#ref-lovelace2019geocomputation" role="doc-biblioref">Lovelace, Nowosad, &amp; Muenchow, 2019</a>; <a href="references.html#ref-meyer2018improving" role="doc-biblioref">Hanna Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss, 2018</a>)</span>.
+could get over-optimistic <span class="citation">(<a href="references.html#ref-lovelace2019geocomputation" role="doc-biblioref">Lovelace, Nowosad, &amp; Muenchow, 2019</a>; <a href="references.html#ref-meyer2018improving" role="doc-biblioref">Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss, 2018</a>)</span>.
 If in doubt of whether to produce over-optimistic or over-pessimistic estimates of
 uncertainty, it is of course ideal to avoid both, but if necessary consider that
 somewhat over-pessimistic estimate of accuracy could be slightly more <em>on a safe side</em> <span class="citation">(<a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span>.</p>
@@ -583,7 +583,7 @@ somewhat over-pessimistic estimate of accuracy could be slightly more <em>on a s
 <h2>
 <span class="header-section-number">2.7</span> Testing mapping accuracy using resampling and blocking<a class="anchor" aria-label="anchor" href="#testing-mapping-accuracy-using-resampling-and-blocking"><i class="fas fa-link"></i></a>
 </h2>
-<p>We can switch to the Edgeroi dataset <span class="citation">(<a href="#ref-Malone2009Geoderma" role="doc-biblioref"><strong>Malone2009Geoderma?</strong></a>)</span> that is originally
+<p>We can switch to the Edgeroi dataset <span class="citation">(<a href="references.html#ref-malone2009mapping" role="doc-biblioref">Malone, McBratney, Minasny, &amp; Laslett, 2009</a>)</span> that is originally
 based on <em>designed</em> sampling and as such is more interesting for assessing
 effects of various blocking strategies on overall mapping accuracy. We can load
 the dataset and prepare a regression matrix by using <span class="citation">(<a href="references.html#ref-hengl2019predictive" role="doc-biblioref">Hengl &amp; MacMillan, 2019</a>)</span>:</p>
@@ -799,7 +799,7 @@ hillands (right part of the study area), so again significant difference in pred
 between the two models. Even though the Ensemble ML with spatial blocking is only
 slightly better in accuracy (RMSE based on 10-times out-of-bag declustered validation points),
 these results confirm that it helps produce a more realistic map of RMSPE.
-This matches the result of <span class="citation"><a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al.</a> (<a href="references.html#ref-roberts2017cross" role="doc-biblioref">2017</a>)</span> and <span class="citation"><a href="references.html#ref-meyer2018improving" role="doc-biblioref">Hanna Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss</a> (<a href="references.html#ref-meyer2018improving" role="doc-biblioref">2018</a>)</span> who suggest that block cross-validation is
+This matches the result of <span class="citation"><a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al.</a> (<a href="references.html#ref-roberts2017cross" role="doc-biblioref">2017</a>)</span> and <span class="citation"><a href="references.html#ref-meyer2018improving" role="doc-biblioref">Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss</a> (<a href="references.html#ref-meyer2018improving" role="doc-biblioref">2018</a>)</span> who suggest that block cross-validation is
 nearly universally more appropriate than random cross-validation if the goal is
 predicting to new data or predictor space, or for selecting causal predictors.</p>
 <p>We can also map the prediction errors:</p>
@@ -848,7 +848,7 @@ This is in fact common problem observed with many 3D predictive soil mapping mod
 where soil profiles basically have ALL the same values of covariates and Random
 Forest thus easier predicts values due to overlap in covariate data. For a
 discussion on why is thus important to run internal training and Cross-Validation
-using spatial blocking refer also to <span class="citation"><a href="references.html#ref-Gasch2015SPASTA" role="doc-biblioref">Gasch et al.</a> (<a href="references.html#ref-Gasch2015SPASTA" role="doc-biblioref">2015</a>)</span> and <span class="citation"><a href="references.html#ref-meyer2018improving" role="doc-biblioref">Hanna Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss</a> (<a href="references.html#ref-meyer2018improving" role="doc-biblioref">2018</a>)</span>.</p>
+using spatial blocking refer also to <span class="citation"><a href="references.html#ref-Gasch2015SPASTA" role="doc-biblioref">Gasch et al.</a> (<a href="references.html#ref-Gasch2015SPASTA" role="doc-biblioref">2015</a>)</span> and <span class="citation"><a href="references.html#ref-meyer2018improving" role="doc-biblioref">Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss</a> (<a href="references.html#ref-meyer2018improving" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">parallelMap</span><span class="fu">::</span><span class="fu"><a href="https://parallelmap.mlr-org.com/reference/parallelStop.html">parallelStop</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; Stopped parallelization. All cleaned up.</span></code></pre></div>

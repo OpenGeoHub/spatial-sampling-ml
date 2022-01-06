@@ -603,7 +603,7 @@ we have estimated in Fig. \@ref(fig:eberg-var-eml).
 Fig. \@ref(fig:example-cv) shows the usual effect of spatial blocking (for varying buffer size) on the 
 Cross-Validation accuracy [@pohjankukka2017estimating]. Note that the accuracy 
 tends to stabilize at some distance, although too strict blocking can also lead 
-to over-pessimistic estimates of accuracy hence bias in predictions. 
+to over-pessimistic estimates of accuracy hence bias in predictions [@@Wadoux2021EM]. 
 In the Ebergotzen case, prediction error could be over-pessimistic although the 
 block size is relatively small considering the size of the study area. 
 On the other hand, if the training points are clustered, blocking becomes 
@@ -615,7 +615,7 @@ somewhat over-pessimistic estimate of accuracy could be slightly more _on a safe
 
 ## Testing mapping accuracy using resampling and blocking
 
-We can switch to the Edgeroi dataset [@Malone2009Geoderma] that is originally 
+We can switch to the Edgeroi dataset [@malone2009mapping] that is originally 
 based on _designed_ sampling and as such is more interesting for assessing 
 effects of various blocking strategies on overall mapping accuracy. We can load 
 the dataset and prepare a regression matrix by using [@hengl2019predictive]:

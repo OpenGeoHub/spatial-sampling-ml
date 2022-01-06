@@ -23,7 +23,7 @@ models are available. We focus on the following spatial sampling methods:
 
 - Subjective or convenience sampling,
 - Simple Random Sampling (**SRS**) [@Bivand2013Springer;@Brus2021sampling],
-- Latin Hypercube Sampling (**LHS**) and its variants e.g. Conditioned LHS [@Malone2019PeerJ;@minasny2006conditioned],
+- Latin Hypercube Sampling (**LHS**) and its variants e.g. Conditioned LHS [@minasny2006conditioned;@Malone2019PeerJ],
 - Feature Space Coverage Sampling (**FSCS**) [@Goerg2013] and fuzzy k-means clustering [@hastie2009elements],
 - 2nd round sampling [@stumpf2017uncertainty],
 

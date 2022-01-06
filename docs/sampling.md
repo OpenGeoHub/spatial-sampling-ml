@@ -14,7 +14,7 @@ models are available. We focus on the following spatial sampling methods:
 
 - Subjective or convenience sampling,
 - Simple Random Sampling (**SRS**) [@Bivand2013Springer;@Brus2021sampling],
-- Latin Hypercube Sampling (**LHS**) and its variants e.g. Conditioned LHS [@Malone2019PeerJ;@minasny2006conditioned],
+- Latin Hypercube Sampling (**LHS**) and its variants e.g. Conditioned LHS [@minasny2006conditioned;@Malone2019PeerJ],
 - Feature Space Coverage Sampling (**FSCS**) [@Goerg2013] and fuzzy k-means clustering [@hastie2009elements],
 - 2nd round sampling [@stumpf2017uncertainty],
 
@@ -357,18 +357,18 @@ h2o.init(nthreads = -1)
 #> H2O is not running yet, starting it now...
 #> 
 #> Note:  In case of errors look at the following log files:
-#>     /tmp/Rtmpzae60l/file648160d8d182/h2o_tomislav_started_from_r.out
-#>     /tmp/Rtmpzae60l/file64817106ea31/h2o_tomislav_started_from_r.err
+#>     /tmp/RtmpyGxyuW/file132957cf65f3/h2o_tomislav_started_from_r.out
+#>     /tmp/RtmpyGxyuW/file13299c9e16d/h2o_tomislav_started_from_r.err
 #> 
 #> 
 #> Starting H2O JVM and connecting: .. Connection successful!
 #> 
 #> R is connected to the H2O cluster: 
-#>     H2O cluster uptime:         1 seconds 933 milliseconds 
+#>     H2O cluster uptime:         2 seconds 74 milliseconds 
 #>     H2O cluster timezone:       Europe/Amsterdam 
 #>     H2O data parsing timezone:  UTC 
 #>     H2O cluster version:        3.30.0.1 
-#>     H2O cluster version age:    1 year, 9 months and 1 day !!! 
+#>     H2O cluster version age:    1 year, 9 months and 2 days !!! 
 #>     H2O cluster name:           H2O_started_from_R_tomislav_vru837 
 #>     H2O cluster total nodes:    1 
 #>     H2O cluster total memory:   15.71 GB 
@@ -382,12 +382,12 @@ h2o.init(nthreads = -1)
 #>     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 
 #>     R Version:                  R version 4.0.2 (2020-06-22)
 #> Warning in h2o.clusterInfo(): 
-#> Your H2O cluster version is too old (1 year, 9 months and 1 day)!
+#> Your H2O cluster version is too old (1 year, 9 months and 2 days)!
 #> Please download and install the latest version from http://h2o.ai/download/
 df.hex <- as.h2o(eberg_spc@predicted@data[,1:4], destination_frame = "df")
 #>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%
 km.nut <- h2o.kmeans(training_frame=df.hex, k=100, keep_cross_validation_predictions = TRUE)
-#>   |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%
+#>   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |======================================================================| 100%
 #km.nut
 ```
 
@@ -409,10 +409,10 @@ class_df.c = as.data.frame(h2o.centers(km.nut))
 names(class_df.c) = names(eberg_spc@predicted@data[,1:4])
 str(class_df.c)
 #> 'data.frame':	100 obs. of  4 variables:
-#>  $ PC1: num  1.08 -2.13 -4.35 1.53 -5.11 ...
-#>  $ PC2: num  -0.574 2.311 3.528 2.174 0.275 ...
-#>  $ PC3: num  -2.074 5.543 -0.338 3.195 -3.05 ...
-#>  $ PC4: num  -0.315 4.606 3.091 -2.2 -2.895 ...
+#>  $ PC1: num  0.531 -1.821 1.831 -1.88 -4.307 ...
+#>  $ PC2: num  -0.486 2.758 2.374 -4.278 2.899 ...
+#>  $ PC3: num  -1.26 5.38 3.7 -2.37 -1.21 ...
+#>  $ PC4: num  0.26 4.68 -2.09 -2.24 2.27 ...
 #write.csv(class_df.c, "NCluster_100_class_centers.csv")
 ```
 
