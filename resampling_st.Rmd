@@ -1,0 +1,173 @@
+# ![alt text](tex/R_logo.svg.png "Spacetime ML") Resampling for spatiotemporal Machine Learning
+
+```{r, results = "asis", echo = FALSE}
+status("drafting")
+```
+
+```{r, include=FALSE, message=FALSE, results='hide'}
+ls <- c("rgdal", "raster", "plotKML", "spatstat", "ranger", "mlr", "forestError", 
+        "clhs", "xgboost", "glmnet", "matrixStats", "landmap", "LICORS", "h2o", "yardstick", 
+        "hexbin", "parallelMap", "Metrics", "fastSave", "fields", "devtools", "Cubist")
+new.packages <- ls[!(ls %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+lapply(ls, require, character.only = TRUE)
+#load.pigz("sampling_data.RData")
+source("sampling_functions.R")
+```
+
+## Case study: Cookfarm dataset
+
+We next look at the [Cookfarm dataset](https://rdrr.io/cran/landmap/man/cookfarm.html), which is available via the landmap
+package and described in detail in @gasch2015spatio:
+
+```{r}
+library(landmap)
+#?landmap::cookfarm
+data("cookfarm")
+```
+
+This dataset contains spatio-temporal (3D+T) measurements of three soil
+properties and a number of spatial and temporal regression covariates.
+In this example multiple covariates are used to fit a spatiotemporal model to 
+predict soil moisture, soil temperature and electrical conductivity in 3D+T 
+(hence 2 extra dimension beyond spatial dimensions i.e. a 2D model).
+
+We can load the prediction locations and regression-matrix from:
+  
+```{r}
+library(rgdal)
+library(ranger)
+cookfarm.rm = readRDS('extdata/cookfarm_st.rds')
+cookfarm.grid = readRDS('extdata/cookfarm_grid10m.rds')
+```
+
+We are specifically interested in modeling soil moisture (`VW`) as a function of soil
+depth (`altitude`), elevation (`DEM`), Topographic Wetness Index
+(`TWI`), Normalized Difference Red Edge Index (`NDRE.M`), Normalized
+Difference Red Edge Index (`NDRE.sd`), Cumulative precipitation in mm
+(`Precip_cum`), Maximum measured temperature (`MaxT_wrcc`), Minimum
+measured temperature (`MinT_wrcc`) and the transformed cumulative day
+(`cdayt`):
+
+```{r}
+fm <- VW ~ altitude+DEM+TWI+NDRE.M+NDRE.Sd+Precip_cum+MaxT_wrcc+MinT_wrcc+cdayt
+```
+
+We can use the ranger package to fit a random forest model:
+
+```{r}
+m.vw = ranger(fm, cookfarm.rm, num.trees = 100)
+m.vw
+```
+
+which shows that a significant model can be fitting using this data with
+R-square about 0.85. The accuracy plot shows that the [Concordance Correlation Coefficient (CCC)](https://rdrr.io/cran/yardstick/man/ccc.html) 
+is high:
+
+```{r, message=FALSE, echo=TRUE}
+vw.b = quantile(cookfarm.rm$VW, c(0.001, 0.01, 0.999), na.rm=TRUE)
+plot_hexbin(varn="VW_RF", breaks=c(vw.b[1], seq(vw.b[2], vw.b[3], length=25)), 
+      meas=cookfarm.rm$VW, pred=m.vw$predictions, main="VW [RF]")
+```
+
+```{r ac-vw1, echo=FALSE, fig.cap="Accuracy plot for soil moisture content fitted using RF.", out.width="70%"}
+knitr::include_graphics("./img/plot_CV_VW_RF.png")
+```
+
+This model, however, as shown in @gasch2015spatio, ignores the fact that many 
+`VW` measurements have exactly the same location (monitoring station with four 
+depths), hence ranger over-fits data and gives unrealistic R-square.
+We can instead fit an Ensemble ML model, but we will also use a **blocking
+parameter** that should protect from over-fitting: the unique code of
+the station (`SOURCEID`). This means that **complete stations** will be
+either used for training or for validation. This satisfies the
+requirement of @roberts2017cross for predicting to new data or predictor
+space by blocking clustered or overlapping measurements.
+
+We use the same procedure in `mlr` as in the previous example:
+
+```{r}
+library(mlr)
+SL.lst = c("regr.ranger", "regr.gamboost", "regr.cvglmnet")
+lrns.st <- lapply(SL.lst, mlr::makeLearner)
+## subset to 5% to speed up computing
+subs <- runif(nrow(cookfarm.rm))<.05
+tsk.st <- mlr::makeRegrTask(data = cookfarm.rm[subs, all.vars(fm)], target = "VW", 
+                            blocking = as.factor(cookfarm.rm$SOURCEID)[subs])
+tsk.st
+```
+
+The resulting model again used simple linear regression for stacking
+various learners:
+  
+```{r, echo=FALSE}
+init.VW <- mlr::makeStackedLearner(lrns.st, method = "stack.cv", super.learner = "regr.lm", 
+                                   resampling=mlr::makeResampleDesc(method = "CV", blocking.cv=TRUE))
+parallelMap::parallelStartSocket(parallel::detectCores())
+eml.VW = train(init.VW, tsk.st)
+parallelMap::parallelStop()
+```
+
+Note that here we can use full-parallelisation to speed up computing by 
+using the `parallelMap` package. This resulting EML model now shows a 
+more realistic R-square / RMSE:
+
+```{r}
+summary(eml.VW$learner.model$super.model$learner.model)
+```
+
+The accuracy plot also shows the CCC to be almost 40% smaller than if no blocking 
+is used:
+
+```{r, message=FALSE, echo=TRUE}
+plot_hexbin(varn="VW_EML", breaks=c(vw.b[1], seq(vw.b[2], vw.b[3], length=25)), 
+      meas=eml.VW$learner.model$super.model$learner.model$model$VW, 
+      pred=eml.VW$learner.model$super.model$learner.model$fitted.values, 
+      main="VW [EML]")
+```
+
+```{r ac-vw2, echo=FALSE, fig.cap="Accuracy plot for soil moisture content fitted using Ensemble ML with blocking (taking complete stations out).", out.width="70%"}
+knitr::include_graphics("./img/plot_CV_VW_EML.png")
+```
+
+
+The Ensemble ML is now a 3D+T model of `VW`, which means that we can use it to
+predict values of `VW` at any new `x,y,d,t` location. To make prediction
+for a specific spacetime _slice_ we use:
+
+```{r, cache=TRUE}
+cookfarm$weather$Precip_cum <- ave(cookfarm$weather$Precip_wrcc,
+                                   rev(cumsum(rev(cookfarm$weather$Precip_wrcc)==0)), FUN=cumsum)
+date = as.Date("2012-07-30")
+cday = floor(unclass(date)/86400-.5)
+cdayt = cos((cday-min(cookfarm.rm$cday))*pi/180)
+depth = -0.3
+new.st <- data.frame(cookfarm.grid)
+new.st$Date = date
+new.st$cdayt = cdayt
+new.st$altitude = depth
+new.st = plyr::join(new.st, cookfarm$weather, type="left")
+## predict:
+pr.df = predict(eml.VW, newdata = new.st[,all.vars(fm)[-1]])
+```
+
+To plot prediction together with locations of training points we can
+use:
+
+```{r, map-eml.vw, fig.width=6, echo = TRUE, out.width="90%", fig.cap="Predicted soil water content based on spatiotemporal EML."}
+cookfarm.grid$pr.VW = pr.df$data$response
+plot(raster::raster(cookfarm.grid["pr.VW"]), col=rev(bpy.colors()),
+     main="Predicted VW for 2012-07-30 and depth -0.3 m", axes=FALSE, box=FALSE)
+points(cookfarm$profiles[,c("Easting","Northing")], pch="+")
+```
+
+Because this is a spacetime dataset, we could also predict values of `VW` for 
+longer periods (e.g. 100 days) then visualize changes using e.g. the `animation` 
+package or similar.
+
+In summary this study also demonstrate the importance of resampling point data 
+using strict blocking of points that repeat in spacetime (measurement stations) is 
+important to prevent from overfitting. The difference between models fitted using 
+blocking per station and ignoring blocking can be drastic, hence how we 
+define and use resampling is important [@meyer2018improving].
+

@@ -22,6 +22,8 @@ fig:ac-soc1
 fig:ac-soc2
 fig:pred-soc
 fig:edgeroi-var-eml
+fig:ac-vw1
+fig:ac-vw2
 fig:eberg-pnts-eml
 fig:scheme-resample
 alt-text-generating-spatial-sampling
@@ -39,6 +41,8 @@ resampling-using-ensemble-ml
 estimating-the-area-of-applicability
 estimating-per-pixel-mapping-accuracy
 testing-mapping-accuracy-using-resampling-and-blocking
+alt-text-resampling-for-spatiotemporal-machine-learning
+case-study-cookfarm-dataset
 alt-text-generating-2nd-3rd-round-sampling
 uncertainty-guided-sampling
 summary-notes

@@ -357,18 +357,18 @@ h2o.init(nthreads = -1)
 #> H2O is not running yet, starting it now...
 #> 
 #> Note:  In case of errors look at the following log files:
-#>     /tmp/RtmpyGxyuW/file132957cf65f3/h2o_tomislav_started_from_r.out
-#>     /tmp/RtmpyGxyuW/file13299c9e16d/h2o_tomislav_started_from_r.err
+#>     /tmp/RtmpI81S2O/file3f33abd4790/h2o_tomislav_started_from_r.out
+#>     /tmp/RtmpI81S2O/file3f358b04953/h2o_tomislav_started_from_r.err
 #> 
 #> 
 #> Starting H2O JVM and connecting: .. Connection successful!
 #> 
 #> R is connected to the H2O cluster: 
-#>     H2O cluster uptime:         2 seconds 74 milliseconds 
+#>     H2O cluster uptime:         2 seconds 44 milliseconds 
 #>     H2O cluster timezone:       Europe/Amsterdam 
 #>     H2O data parsing timezone:  UTC 
 #>     H2O cluster version:        3.30.0.1 
-#>     H2O cluster version age:    1 year, 9 months and 2 days !!! 
+#>     H2O cluster version age:    1 year, 9 months and 8 days !!! 
 #>     H2O cluster name:           H2O_started_from_R_tomislav_vru837 
 #>     H2O cluster total nodes:    1 
 #>     H2O cluster total memory:   15.71 GB 
@@ -382,7 +382,7 @@ h2o.init(nthreads = -1)
 #>     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 
 #>     R Version:                  R version 4.0.2 (2020-06-22)
 #> Warning in h2o.clusterInfo(): 
-#> Your H2O cluster version is too old (1 year, 9 months and 2 days)!
+#> Your H2O cluster version is too old (1 year, 9 months and 8 days)!
 #> Please download and install the latest version from http://h2o.ai/download/
 df.hex <- as.h2o(eberg_spc@predicted@data[,1:4], destination_frame = "df")
 #>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%
@@ -409,10 +409,10 @@ class_df.c = as.data.frame(h2o.centers(km.nut))
 names(class_df.c) = names(eberg_spc@predicted@data[,1:4])
 str(class_df.c)
 #> 'data.frame':	100 obs. of  4 variables:
-#>  $ PC1: num  0.531 -1.821 1.831 -1.88 -4.307 ...
-#>  $ PC2: num  -0.486 2.758 2.374 -4.278 2.899 ...
-#>  $ PC3: num  -1.26 5.38 3.7 -2.37 -1.21 ...
-#>  $ PC4: num  0.26 4.68 -2.09 -2.24 2.27 ...
+#>  $ PC1: num  0.752 -2.273 -3.036 1.558 -4.193 ...
+#>  $ PC2: num  0.795 2.292 -4.18 2.202 3.206 ...
+#>  $ PC3: num  -1.303 5.395 -3.58 3.327 -0.602 ...
+#>  $ PC4: num  0.329 4.591 -2.645 -2.133 2.733 ...
 #write.csv(class_df.c, "NCluster_100_class_centers.csv")
 ```
 
