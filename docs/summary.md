@@ -33,7 +33,7 @@ higher computing costs.
 In theory, even the most clustered point datasets can be used to fit predictive mapping models, 
 however, it is then important to use modeling methods that account for clustering and 
 prevent doing over-fitting and/or producing not realistic measures of mapping accuracy. 
-Eventually, very biased point samples totally missing >>50% of the feature / geographical 
+Eventually, very biased point samples totally missing ≫50% of the feature / geographical 
 space would be of limited use for producing predictions, but could still be used to 
 get some initial estimates.  
 

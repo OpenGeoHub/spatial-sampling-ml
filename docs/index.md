@@ -82,4 +82,6 @@ is an independent not-for-profit research foundation promoting Open Source and O
 **[EnvirometriX Ltd.](https://envirometrix.nl)** is the commercial branch of the group 
 responsible for designing soil sampling designs for the **[AgriCapture](https://agricaptureco2.eu/)** and similar soil monitoring projects.
 
-[<img src="tex/opengeohub_logo_ml.png" alt="OpenGeoHub logo" width="350"/>](https://opengeohub.org)
+[<img src="tex/envirometrix_logo_ml.png" alt="EnvirometriX logo" width="350"/>](https://envirometrix.nl)
+
+**[AgriCaptureCO2](https://agricaptureco2.eu/)** receives funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement no. (**[101004282](https://cordis.europa.eu/project/id/101004282)**).
