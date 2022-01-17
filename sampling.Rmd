@@ -1,4 +1,4 @@
-# ![alt text](tex/R_logo.svg.png "Generating samples") Generating spatial sampling
+# Generating spatial sampling
 
 ```{r, results = "asis", echo = FALSE}
 status("drafting")

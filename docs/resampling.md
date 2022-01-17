@@ -1,4 +1,4 @@
-# ![alt text](tex/R_logo.svg.png "ML") Resampling methods for Machine Learning
+# Resampling methods for Machine Learning
 
 ::: {.rmdnote}
 You are reading the work-in-progress Spatial Sampling and Resampling for Machine Learning. This chapter is currently currently draft version, a peer-review publication is pending. You can find the polished first edition at <https://opengeohub.github.io/spatial-sampling-ml/>.
@@ -46,7 +46,7 @@ path to BUPS we use includes:
 - Estimating prediction errors using **quantile regression Random Forest** [@lu2021unified],
 
 The reasoning for using Ensemble ML for predictive mapping is explained in detail 
-in [this tutorial](https://gitlab.com/openlandmap/spatial-predictions-using-eml), and it's 
+in [this tutorial](https://opengeohub.github.io/spatial-prediction-eml/), and it's 
 advantages for minimizing extrapolation effects in this [medium post](https://medium.com/nerd-for-tech/extrapolation-is-tough-for-trees-tree-based-learners-combining-learners-of-different-type-makes-659187a6f58d).
 
 ## Resampling training points using declustering

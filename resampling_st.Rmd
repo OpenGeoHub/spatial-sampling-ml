@@ -1,4 +1,4 @@
-# ![alt text](tex/R_logo.svg.png "Spacetime ML") Resampling for spatiotemporal Machine Learning
+# Resampling for spatiotemporal Machine Learning
 
 ```{r, results = "asis", echo = FALSE}
 status("drafting")

@@ -1,4 +1,4 @@
-# ![alt text](tex/R_logo.svg.png "ML") Generating 2nd, 3rd round sampling
+# Generating 2nd, 3rd round sampling
 
 ```{r, results = "asis", echo = FALSE}
 status("drafting")
