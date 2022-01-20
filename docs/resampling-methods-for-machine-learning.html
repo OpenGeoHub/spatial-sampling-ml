@@ -80,7 +80,7 @@ over-selected due to overfitting;<br>
 <em>producing poor extrapolation</em> i.e. generating artifacts or blunders in predictions;<br>
 </li>
 <li>
-<em>over-/under-estimating mapping accuracy</em> i.e. producing a biased estimate of model performance including;</li>
+<em>over-/under-estimating mapping accuracy</em> i.e. producing a biased estimate of model performance;</li>
 </ul>
 <p><strong>Resamping</strong> methods are discussed in detail in <span class="citation"><a href="references.html#ref-hastie2009elements" role="doc-biblioref">Hastie, Tibshirani, &amp; Friedman</a> (<a href="references.html#ref-hastie2009elements" role="doc-biblioref">2009</a>)</span>, <span class="citation"><a href="references.html#ref-kuhn2013applied" role="doc-biblioref">Kuhn &amp; Johnson</a> (<a href="references.html#ref-kuhn2013applied" role="doc-biblioref">2013</a>)</span> and
 <span class="citation"><a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al.</a> (<a href="references.html#ref-roberts2017cross" role="doc-biblioref">2017</a>)</span>, and is also commonly implemented in many statistical and machine
@@ -259,7 +259,7 @@ both could be determined by iterations.</p>
 <span class="header-section-number">2.3</span> Weighted Machine Learning<a class="anchor" aria-label="anchor" href="#weighted-machine-learning"><i class="fas fa-link"></i></a>
 </h2>
 <p>Note that the function <code>grid.sample</code> per definition draws points that are relatively
-isolated (Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs">1.3</a>) with higher probability. Hence, a more generic
+isolated (Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs">1.4</a>) with higher probability. Hence, a more generic
 approach (Strategy #2) from declustering, is to use the <code>case.weights</code> parameter
 to instruct <code>ranger</code> to put more emphasis on isolated points / remove impact of
 clustered points. This weighted estimation of model parameters is common in regression,
@@ -848,8 +848,8 @@ probably over-optimistic and hence ranger has possibly over-fitted the target va
 This is in fact common problem observed with many 3D predictive soil mapping models
 where soil profiles basically have ALL the same values of covariates and Random
 Forest thus easier predicts values due to overlap in covariate data. For a
-discussion on why is thus important to run internal training and Cross-Validation
-using spatial blocking refer also to <span class="citation"><a href="references.html#ref-Gasch2015SPASTA" role="doc-biblioref">C. Gasch et al.</a> (<a href="references.html#ref-Gasch2015SPASTA" role="doc-biblioref">2015</a>)</span> and <span class="citation"><a href="references.html#ref-meyer2018improving" role="doc-biblioref">Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss</a> (<a href="references.html#ref-meyer2018improving" role="doc-biblioref">2018</a>)</span>.</p>
+discussion on why is important to run internal training and Cross-Validation
+using spatial blocking refer also to <span class="citation">(<a href="#ref-Gasch2015SPASTA" role="doc-biblioref"><strong>Gasch2015SPASTA?</strong></a>)</span> and <span class="citation"><a href="references.html#ref-meyer2018improving" role="doc-biblioref">Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss</a> (<a href="references.html#ref-meyer2018improving" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">parallelMap</span><span class="fu">::</span><span class="fu"><a href="https://parallelmap.mlr-org.com/reference/parallelStop.html">parallelStop</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; Stopped parallelization. All cleaned up.</span></code></pre></div>
@@ -895,6 +895,18 @@ using spatial blocking refer also to <span class="citation"><a href="references.
   </div>
 
 </div></div>
-</footer>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 </body>
 </html>

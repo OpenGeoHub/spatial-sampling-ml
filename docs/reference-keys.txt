@@ -1,3 +1,4 @@
+fig:scheme-d1
 fig:plot-spc
 fig:eberg-srs
 fig:eberg-fs
@@ -26,7 +27,10 @@ fig:ac-vw1
 fig:ac-vw2
 fig:eberg-pnts-eml
 fig:scheme-resample
+fig:summary-eberg
 generating-spatial-sampling
+spatial-sampling
+response-surface-designs
 spatial-sampling-algorithms-of-interest
 ebergotzen-dataset
 simple-random-sampling
@@ -46,4 +50,7 @@ case-study-cookfarm-dataset
 generating-2nd-3rd-round-sampling
 uncertainty-guided-sampling
 summary-notes
+which-sampling-algorithm-to-choose
+sampling-in-a-new-area
+ml-on-clustered-point-samples
 references

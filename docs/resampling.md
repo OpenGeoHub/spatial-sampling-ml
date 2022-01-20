@@ -19,7 +19,7 @@ how to use different **resampling** methods i.e.
 - _missing out covariates_ that are important but possibly _shadowed_ by the covariates 
   over-selected due to overfitting;  
 - _producing poor extrapolation_ i.e. generating artifacts or blunders in predictions;  
-- _over-/under-estimating mapping accuracy_ i.e. producing a biased estimate of model performance including;  
+- _over-/under-estimating mapping accuracy_ i.e. producing a biased estimate of model performance;  
 
 **Resamping** methods are discussed in detail in @hastie2009elements, @kuhn2013applied and 
 @roberts2017cross, and is also commonly implemented in many statistical and machine 
@@ -946,7 +946,7 @@ probably over-optimistic and hence ranger has possibly over-fitted the target va
 This is in fact common problem observed with many 3D predictive soil mapping models 
 where soil profiles basically have ALL the same values of covariates and Random 
 Forest thus easier predicts values due to overlap in covariate data. For a 
-discussion on why is thus important to run internal training and Cross-Validation 
+discussion on why is important to run internal training and Cross-Validation 
 using spatial blocking refer also to @Gasch2015SPASTA and @meyer2018improving.
 
 

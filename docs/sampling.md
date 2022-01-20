@@ -6,6 +6,141 @@ You are reading the work-in-progress Spatial Sampling and Resampling for Machine
 
 
 
+## Spatial sampling
+
+Sampling in statistics is done for the purpose of estimating population
+parameters and/or for testing of experiments. If Observations and
+Measurements (O&M) are collected in space i.e. as geographical variables
+this is referred to as **spatial sampling** and is often materialized as
+**a point map** with points representing locations of planned or
+implemented O&M. Preparing a spatial sampling plan is a type of **design
+of experiment** and hence it is important to do it right to avoid any
+potential bias.
+
+Spatial sampling or producing and implementing sampling designs are
+common in various fields including physical geography, soil science,
+geology, vegetation science, ecology and similar. Imagine an area that
+potentially has problems with soil pollution by heavy metals. If we
+collect enough samples, we can overlay points vs covariate layers, then
+train spatial interpolation / spatial prediction models and produce
+predictions of the target variable. For example, to map soil pollution
+by heavy metals or soil organic carbon stock, we can collect soil
+samples on e.g. a few hundred predefined locations, then take the
+samples to the lab, measure individual values and then interpolate them
+to produce a map of concentrations. This is one of the most common
+methods of interest of **geostatics** where e.g. various kriging methods
+are used to produce predictions of the target variable (see e.g.
+@Bivand2013Springer).
+
+There are many sampling design algorithms that can be used to spatial
+sampling locations. In principle, all spatial sampling approaches can be
+grouped based on the following four aspects:
+
+1.  *How objective is it?* Here two groups exist:
+
+    a.  Objective sampling designs which are either [***probability
+        sampling***](https://towardsdatascience.com/an-introduction-to-probability-sampling-methods-7a936e486b5)
+        or some experimental designs from spatial statistics;
+
+    b.  Subjective or **convenience sampling** which means that the
+        inclusion probabilities are unknown and are often based on
+        convenience e.g. distance to roads / accessibility;
+
+2.  *How much identically distributed is it*? Here at least three groups
+    exist:
+
+    a.  **[Independent Identically Distributed (IID)](https://xzhu0027.gitbook.io/blog/ml-system/sys-ml-index/learning-from-non-iid-data)**
+        sampling designs,
+
+    b.  Clustered sampling i.e. non-equal probability sampling,
+
+    c.  Censored sampling,
+
+3.  *Is it based on geographical or feature space?* Here at least three
+    groups exist:
+
+    a.  Geographical sampling i.e. taking into account only geographical dimensions + time;
+
+    b.  **Feature-space sampling** i.e. taking into account only distribution of points in feature space;
+
+    c.  Hybrid sampling i.e. taking both feature and geographical space into account;
+
+4.  *How optimized is it?* Here at least two groups exist:
+
+    a.  **Optimized sampling** so that the target optimization criteria 
+        reaches minimum / maximum i.e. it can be proven as being optimized,
+
+    b.  *Unoptimized sampling*, when either optimization criteria can not be tested or is unknown,
+
+Doing sampling using objective sampling designs is important as it
+allows us to test hypotheses and produce **unbiased estimation** of
+population parameters or similar. Many spatial statisticians argue that
+only previously prepared, strictly followed randomized probability
+sampling can be used to provide an unbiased estimate of the accuracy of
+the spatial predictions [@Brus2021sampling]. In the case
+of probability sampling, calculation of population parameters is derived
+mathematically i.e. that estimation process is unbiased and independent
+of the spatial properties of the target variable (e.g. spatial
+dependence structure and/or statistical distribution). For example, if
+we generate sampling locations using **Simple Random Sampling (SRS)**,
+this sampling design has the following properties:
+
+1.  It is an IID with each spatial location with exactly the same
+    **inclusion probability**,
+2.  It is symmetrical in geographical space meaning that about the same
+    number of points can be found in each quadrant of the study area,
+3.  It can be used to derive population parameters (e.g. mean) and these
+    measures are per definition unbiased,
+4.  Any random subset of the SRS is also a SRS,
+
+SRS is in principle both objective sampling and IID sampling and can be
+easily generated provided some polygon map representing the study area.
+Two other somewhat more complex sampling algorithms with similar
+properties as SRS are for example different versions of tessellated
+sampling. The **generalized random tessellation stratified (GRTS)
+design** was for example used in the USA to produce sampling locations
+for the purpose of [geochemical mapping](https://pubs.usgs.gov/ds/801/); 
+a **multi-stage stratified random sampling** design was used to produce [LUCAS soil monitoring
+network of points](https://esdac.jrc.ec.europa.eu/projects/lucas).
+
+Large point datasets representing observations and/or measurements 
+*in-situ* can be used to generate maps by fitting regression and 
+classification models using e.g. Machine Learning algorithms, then 
+applying those models to predict values at all pixels. This is referred 
+to as [***Predictive Mapping***](https://soilmapper.org). In reality, 
+many point datasets we use in Machine Learning for predictive mapping do 
+not have ideal properties i.e. are neither IID nor are probabilities of 
+inclusion known. Many are in fact purposive, **[convenience sampling](https://methods.sagepub.com/reference/encyclopedia-of-survey-research-methods/n105.xml)**
+and hence potentially over-represent some geographic features, are
+potentially censored and can lead to significant bias in estimation.
+
+## Response surface designs
+
+If the objective of modeling is to build regression models (correlating
+the target variable with a number of spatial layers representing e.g.
+soil forming factors), then we are looking at the problem in statistics
+known as the **[response-surface experimental designs](https://en.wikipedia.org/wiki/Response_surface_methodology)**.
+Consider the following case of one target variable ($Y$) and one
+covariate variable ($X$). Assuming that the two are correlated linearly
+(i.e. $Y = b_0 + b_1 \cdot X$), one can easily prove that the optimal
+experimental design is to (a) determine min and max of $X$, the put half
+of the point at $X_{min}$ and the other half at $X_{max}$ [@Hengl2004AJSR]. This design is called the
+**[D1 optimal design](https://en.wikipedia.org/wiki/Optimal_design#D-optimality)** and
+indeed it looks relatively simple to implement. The problem is that it
+is the optimal design ONLY if the relationship between $Y$ and $X$ is
+perfectly linear. If the relationship is maybe close to quadratic than
+the D1 design is much worse than the D2 design.
+
+<div class="figure" style="text-align: center">
+<img src="./img/Fig_D1_design_scheme.jpg" alt="Example of D1 design: (left) D1 design in 2D feature space, (right) D1 design is optimal only for linear model, if the model is curvilinear, it is in fact the worse design than simple random sampling." width="90%" />
+<p class="caption">(\#fig:scheme-d1)Example of D1 design: (left) D1 design in 2D feature space, (right) D1 design is optimal only for linear model, if the model is curvilinear, it is in fact the worse design than simple random sampling.</p>
+</div>
+
+In practice we may not know what is the nature of the relationship
+between $Y$ and $X$, i.e. we do not wish to take a risk and produce
+biased estimation. Hence we can assume that it could be a curvilinear
+relationship and so we need to sample uniformly in the feature space.
+
 ## Spatial sampling algorithms of interest
 
 This chapter reviews some common approaches for preparing point samples for a 
@@ -357,18 +492,18 @@ h2o.init(nthreads = -1)
 #> H2O is not running yet, starting it now...
 #> 
 #> Note:  In case of errors look at the following log files:
-#>     /tmp/RtmplMvalg/file1e6a70271426/h2o_tomislav_started_from_r.out
-#>     /tmp/RtmplMvalg/file1e6a75bcda22/h2o_tomislav_started_from_r.err
+#>     /tmp/RtmpdeSaRJ/file73314815c0b2/h2o_tomislav_started_from_r.out
+#>     /tmp/RtmpdeSaRJ/file73311d30950a/h2o_tomislav_started_from_r.err
 #> 
 #> 
 #> Starting H2O JVM and connecting: .. Connection successful!
 #> 
 #> R is connected to the H2O cluster: 
-#>     H2O cluster uptime:         2 seconds 44 milliseconds 
+#>     H2O cluster uptime:         2 seconds 121 milliseconds 
 #>     H2O cluster timezone:       Europe/Amsterdam 
 #>     H2O data parsing timezone:  UTC 
 #>     H2O cluster version:        3.30.0.1 
-#>     H2O cluster version age:    1 year, 9 months and 13 days !!! 
+#>     H2O cluster version age:    1 year, 9 months and 16 days !!! 
 #>     H2O cluster name:           H2O_started_from_R_tomislav_vru837 
 #>     H2O cluster total nodes:    1 
 #>     H2O cluster total memory:   15.71 GB 
@@ -382,12 +517,12 @@ h2o.init(nthreads = -1)
 #>     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 
 #>     R Version:                  R version 4.0.2 (2020-06-22)
 #> Warning in h2o.clusterInfo(): 
-#> Your H2O cluster version is too old (1 year, 9 months and 13 days)!
+#> Your H2O cluster version is too old (1 year, 9 months and 16 days)!
 #> Please download and install the latest version from http://h2o.ai/download/
 df.hex <- as.h2o(eberg_spc@predicted@data[,1:4], destination_frame = "df")
 #>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%
 km.nut <- h2o.kmeans(training_frame=df.hex, k=100, keep_cross_validation_predictions = TRUE)
-#>   |                                                                              |                                                                      |   0%  |                                                                              |============================                                          |  40%  |                                                                              |======================================================================| 100%
+#>   |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |======================================================================| 100%
 #km.nut
 ```
 
@@ -409,10 +544,10 @@ class_df.c = as.data.frame(h2o.centers(km.nut))
 names(class_df.c) = names(eberg_spc@predicted@data[,1:4])
 str(class_df.c)
 #> 'data.frame':	100 obs. of  4 variables:
-#>  $ PC1: num  3.58 -1.52 -4.25 -2.37 -2.63 ...
-#>  $ PC2: num  0.231 -1.427 3.156 2.32 -1.925 ...
-#>  $ PC3: num  1.256 -3.799 -0.794 5.351 -0.099 ...
-#>  $ PC4: num  0.3855 -1.5625 2.6125 4.6329 0.0552 ...
+#>  $ PC1: num  2.682 -2.374 -4.932 -2.924 -0.462 ...
+#>  $ PC2: num  0.197 2.217 1.95 -4.019 2.345 ...
+#>  $ PC3: num  -0.378 5.229 -0.752 -3.476 3.481 ...
+#>  $ PC4: num  0.134 4.541 -1.024 -2.518 -0.276 ...
 #write.csv(class_df.c, "NCluster_100_class_centers.csv")
 ```
 
@@ -478,12 +613,12 @@ The Ebergotzen dataset (existing point samples) clearly shows that the _“conve
 show significant clustering and under-representation of feature space 
 (Fig. \@ref(fig:eberg-fs2)). Consequently, these sampling bias could lead to:
 
-- _Bias in estimating regression parameters_ i.e. overfitting;  
+- _Bias in estimating regression parameters_ i.e. over-fitting;  
 - _Extrapolation problems_ due to under-representation of feature space;  
 - _Bias_ in estimating population parameters of the target variable;  
 
 The first step to deal with these problems is to detect them, second is to try 
-to implement a strategy that prevents from model overfitting. Some possible approaches 
+to implement a strategy that prevents from model over-fitting. Some possible approaches 
 to deal with such problems are addressed in the second part of the tutorial.
 
 LHS and FSCS are recommended sampling methods if the purpose of sampling is to 

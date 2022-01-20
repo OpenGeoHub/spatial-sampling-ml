@@ -63,7 +63,7 @@
 <span class="header-section-number">3.1</span> Case study: Cookfarm dataset<a class="anchor" aria-label="anchor" href="#case-study-cookfarm-dataset"><i class="fas fa-link"></i></a>
 </h2>
 <p>We next look at the <a href="https://rdrr.io/cran/landmap/man/cookfarm.html">Cookfarm dataset</a>, which is available via the landmap
-package and described in detail in <span class="citation"><a href="references.html#ref-gasch2015spatio" role="doc-biblioref">C. K. Gasch et al.</a> (<a href="references.html#ref-gasch2015spatio" role="doc-biblioref">2015</a>)</span>:</p>
+package and described in detail in <span class="citation"><a href="references.html#ref-gasch2015spatio" role="doc-biblioref">Gasch et al.</a> (<a href="references.html#ref-gasch2015spatio" role="doc-biblioref">2015</a>)</span>:</p>
 <div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/envirometrix/landmap/">landmap</a></span><span class="op">)</span>
 <span class="co">#?landmap::cookfarm</span>
@@ -120,7 +120,7 @@ is high:</p>
 Figure 3.1: Accuracy plot for soil moisture content fitted using RF.
 </p>
 </div>
-<p>This model, however, as shown in <span class="citation"><a href="references.html#ref-gasch2015spatio" role="doc-biblioref">C. K. Gasch et al.</a> (<a href="references.html#ref-gasch2015spatio" role="doc-biblioref">2015</a>)</span>, ignores the fact that many
+<p>This model, however, as shown in <span class="citation"><a href="references.html#ref-gasch2015spatio" role="doc-biblioref">Gasch et al.</a> (<a href="references.html#ref-gasch2015spatio" role="doc-biblioref">2015</a>)</span>, ignores the fact that many
 <code>VW</code> measurements have exactly the same location (monitoring station with four
 depths), hence ranger over-fits data and gives unrealistic R-square.
 We can instead fit an Ensemble ML model, but we will also use a <strong>blocking
@@ -311,6 +311,18 @@ define and use resampling is important <span class="citation">(<a href="referenc
   </div>
 
 </div></div>
-</footer>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 </body>
 </html>

@@ -58,6 +58,10 @@
 <div class="rmdnote">
 <p>You are reading the work-in-progress Spatial Sampling and Resampling for Machine Learning. This chapter is currently currently draft version, a peer-review publication is pending. You can find the polished first edition at <a href="https://opengeohub.github.io/spatial-sampling-ml/" class="uri">https://opengeohub.github.io/spatial-sampling-ml/</a>.</p>
 </div>
+<div id="which-sampling-algorithm-to-choose" class="section level2" number="5.1">
+<h2>
+<span class="header-section-number">5.1</span> Which sampling algorithm to choose?<a class="anchor" aria-label="anchor" href="#which-sampling-algorithm-to-choose"><i class="fas fa-link"></i></a>
+</h2>
 <p>In this tutorial we have demonstrated some main steps required to analyze
 existing sample designs (point patterns) and compare them with sampling algorithms
 such as the SRC, LHS and FSCS. Some general conclusions are:</p>
@@ -77,6 +81,52 @@ i.e. for each new prediction location; the average prediction error
 of the whole area is the mean prediction error that one can report to the users
 as the best unbiased estimate of the mean uncertainty;</li>
 </ul>
+<p>Figure below shows differences between the above mentioned sampling algorithms
+in both geographical and feature spaces. In this case: actual sampling is
+significantly missing the whole cluster in feature space, while FSCS seems to
+show the highest spread in the feature space and by many authors is recognized
+as the most advantageous sampling design for predictive mapping <span class="citation">(<a href="references.html#ref-ma2020comparison" role="doc-biblioref">Ma, Brus, Zhu, Zhang, &amp; Scholten, 2020</a>)</span>.
+Such sampling diagnostics / comparisons geographical vs feature space help us
+detect any possible problems before we start running ML.</p>
+<div class="figure" style="text-align: center">
+<span id="fig:summary-eberg"></span>
+<img src="img/Fig_summary_comparison_sampling_eberg.jpg" alt="Summary comparison of sampling designs: convenience sampling (actual), Simple Random Sample (SRS), Latin Hypercube Sampling (LHS), and Feature Space Coverage Sampling (FSCS). Points shown in geographical (above) and feature space (below; with first 2 principal components as x, y coordinates)." width="100%"><p class="caption">
+Figure 5.1: Summary comparison of sampling designs: convenience sampling (actual), Simple Random Sample (SRS), Latin Hypercube Sampling (LHS), and Feature Space Coverage Sampling (FSCS). Points shown in geographical (above) and feature space (below; with first 2 principal components as x, y coordinates).
+</p>
+</div>
+</div>
+<div id="sampling-in-a-new-area" class="section level2" number="5.2">
+<h2>
+<span class="header-section-number">5.2</span> Sampling in a new area<a class="anchor" aria-label="anchor" href="#sampling-in-a-new-area"><i class="fas fa-link"></i></a>
+</h2>
+<p>Recommended steps to prepare a sampling plan include:</p>
+<ol style="list-style-type: decimal">
+<li>Prepare all covariate layers (rasters) that you plan to use to fit
+predictive mapping models; import them to R;</li>
+<li>Convert covariate layers to Principal Components using the
+<strong><a href="https://rdrr.io/cran/landmap/man/spc.html">landmap::spc</a></strong>
+function;</li>
+<li>Cluster the feature space using the
+<strong><a href="https://docs.h2o.ai/h2o/latest-stable/h2o-docs/data-science/k-means.html">h2o.kmeans</a></strong>
+function; for smaller number of samples use number of clusters equal
+to number of sampling locations;</li>
+<li>Generate a sampling design and export the points to <strong><a href="https://nl.wikipedia.org/wiki/GPS_Exchange_Format">GPX
+format</a></strong> so they
+can be imported to a hand-held GPS or similar. For fieldwork we
+recommend using the <strong><a href="https://play.google.com/store/apps/details?id=com.augmentra.viewranger.android&amp;hl=en&amp;gl=US">ViewRanger
+app</a></strong>
+which has useful functionality for field work including planning the
+optimal routes.</li>
+</ol>
+<p>If you are collecting more than a few hundred points, then FSCS could
+become cumbersome and we hence recommend using LHS sampling. This
+sampling algorithm spreads points symmetrically in the feature space and
+ensures that the extrapolation (in feature space) is minimized.</p>
+</div>
+<div id="ml-on-clustered-point-samples" class="section level2" number="5.3">
+<h2>
+<span class="header-section-number">5.3</span> ML on clustered point samples<a class="anchor" aria-label="anchor" href="#ml-on-clustered-point-samples"><i class="fas fa-link"></i></a>
+</h2>
 <p>Assuming that there is significant spatial and/or feature space clustering in
 training points, it appears that various blocking / Cross-Validation strategies,
 especially based on Ensemble ML help produce more balanced estimate of regression
@@ -102,14 +152,20 @@ as this ensures unbiased derivation of population parameters. Here the book by
 <span class="citation"><a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus</a> (<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">2021</a>)</span> seems to be a valuable resource as it also provides
 <a href="https://github.com/DickBrus/SpatialSamplingwithR">practical instructions</a> for a diversity of data types.</p>
 <p>If you have a dataset that you have used to test sampling and resampling, please
-share your experiences by posting <a href="https://gitlab.com/openlandmap/spatial-sampling-tutorial">an issue</a> and/or providing a screenshot of your results.</p>
+share your experiences by posting <a href="https://github.com/OpenGeoHub/spatial-sampling-ml/">an issue</a> and/or providing a screenshot of your results.</p>
+</div>
 </div>
   <div class="chapter-nav">
 <div class="prev"><a href="generating-2nd-3rd-round-sampling.html"><span class="header-section-number">4</span> Generating 2nd, 3rd round sampling</a></div>
 <div class="next"><a href="references.html"><span class="header-section-number">6</span> References</a></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
-      <ul class="nav navbar-nav"><li><a class="nav-link" href="#summary-notes"><span class="header-section-number">5</span> Summary notes</a></li></ul>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#summary-notes"><span class="header-section-number">5</span> Summary notes</a></li>
+<li><a class="nav-link" href="#which-sampling-algorithm-to-choose"><span class="header-section-number">5.1</span> Which sampling algorithm to choose?</a></li>
+<li><a class="nav-link" href="#sampling-in-a-new-area"><span class="header-section-number">5.2</span> Sampling in a new area</a></li>
+<li><a class="nav-link" href="#ml-on-clustered-point-samples"><span class="header-section-number">5.3</span> ML on clustered point samples</a></li>
+</ul>
 
       <div class="book-extra">
         <ul class="list-unstyled">
@@ -134,6 +190,18 @@ share your experiences by posting <a href="https://gitlab.com/openlandmap/spatia
   </div>
 
 </div></div>
-</footer>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 </body>
 </html>

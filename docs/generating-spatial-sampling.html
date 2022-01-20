@@ -58,9 +58,148 @@
 <div class="rmdnote">
 <p>You are reading the work-in-progress Spatial Sampling and Resampling for Machine Learning. This chapter is currently currently draft version, a peer-review publication is pending. You can find the polished first edition at <a href="https://opengeohub.github.io/spatial-sampling-ml/" class="uri">https://opengeohub.github.io/spatial-sampling-ml/</a>.</p>
 </div>
-<div id="spatial-sampling-algorithms-of-interest" class="section level2" number="1.1">
+<div id="spatial-sampling" class="section level2" number="1.1">
 <h2>
-<span class="header-section-number">1.1</span> Spatial sampling algorithms of interest<a class="anchor" aria-label="anchor" href="#spatial-sampling-algorithms-of-interest"><i class="fas fa-link"></i></a>
+<span class="header-section-number">1.1</span> Spatial sampling<a class="anchor" aria-label="anchor" href="#spatial-sampling"><i class="fas fa-link"></i></a>
+</h2>
+<p>Sampling in statistics is done for the purpose of estimating population
+parameters and/or for testing of experiments. If Observations and
+Measurements (O&amp;M) are collected in space i.e. as geographical variables
+this is referred to as <strong>spatial sampling</strong> and is often materialized as
+<strong>a point map</strong> with points representing locations of planned or
+implemented O&amp;M. Preparing a spatial sampling plan is a type of <strong>design
+of experiment</strong> and hence it is important to do it right to avoid any
+potential bias.</p>
+<p>Spatial sampling or producing and implementing sampling designs are
+common in various fields including physical geography, soil science,
+geology, vegetation science, ecology and similar. Imagine an area that
+potentially has problems with soil pollution by heavy metals. If we
+collect enough samples, we can overlay points vs covariate layers, then
+train spatial interpolation / spatial prediction models and produce
+predictions of the target variable. For example, to map soil pollution
+by heavy metals or soil organic carbon stock, we can collect soil
+samples on e.g. a few hundred predefined locations, then take the
+samples to the lab, measure individual values and then interpolate them
+to produce a map of concentrations. This is one of the most common
+methods of interest of <strong>geostatics</strong> where e.g. various kriging methods
+are used to produce predictions of the target variable (see e.g.
+<span class="citation"><a href="references.html#ref-Bivand2013Springer" role="doc-biblioref">Bivand, Pebesma, &amp; Rubio</a> (<a href="references.html#ref-Bivand2013Springer" role="doc-biblioref">2013</a>)</span>).</p>
+<p>There are many sampling design algorithms that can be used to spatial
+sampling locations. In principle, all spatial sampling approaches can be
+grouped based on the following four aspects:</p>
+<ol style="list-style-type: decimal">
+<li>
+<p><em>How objective is it?</em> Here two groups exist:</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>Objective sampling designs which are either <a href="https://towardsdatascience.com/an-introduction-to-probability-sampling-methods-7a936e486b5"><strong><em>probability
+sampling</em></strong></a>
+or some experimental designs from spatial statistics;</p></li>
+<li><p>Subjective or <strong>convenience sampling</strong> which means that the
+inclusion probabilities are unknown and are often based on
+convenience e.g. distance to roads / accessibility;</p></li>
+</ol>
+</li>
+<li>
+<p><em>How much identically distributed is it</em>? Here at least three groups
+exist:</p>
+<ol style="list-style-type: lower-alpha">
+<li><p><strong><a href="https://xzhu0027.gitbook.io/blog/ml-system/sys-ml-index/learning-from-non-iid-data">Independent Identically Distributed (IID)</a></strong>
+sampling designs,</p></li>
+<li><p>Clustered sampling i.e. non-equal probability sampling,</p></li>
+<li><p>Censored sampling,</p></li>
+</ol>
+</li>
+<li>
+<p><em>Is it based on geographical or feature space?</em> Here at least three
+groups exist:</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>Geographical sampling i.e. taking into account only geographical dimensions + time;</p></li>
+<li><p><strong>Feature-space sampling</strong> i.e. taking into account only distribution of points in feature space;</p></li>
+<li><p>Hybrid sampling i.e. taking both feature and geographical space into account;</p></li>
+</ol>
+</li>
+<li>
+<p><em>How optimized is it?</em> Here at least two groups exist:</p>
+<ol style="list-style-type: lower-alpha">
+<li><p><strong>Optimized sampling</strong> so that the target optimization criteria
+reaches minimum / maximum i.e. it can be proven as being optimized,</p></li>
+<li><p><em>Unoptimized sampling</em>, when either optimization criteria can not be tested or is unknown,</p></li>
+</ol>
+</li>
+</ol>
+<p>Doing sampling using objective sampling designs is important as it
+allows us to test hypotheses and produce <strong>unbiased estimation</strong> of
+population parameters or similar. Many spatial statisticians argue that
+only previously prepared, strictly followed randomized probability
+sampling can be used to provide an unbiased estimate of the accuracy of
+the spatial predictions <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus, 2021</a>)</span>. In the case
+of probability sampling, calculation of population parameters is derived
+mathematically i.e. that estimation process is unbiased and independent
+of the spatial properties of the target variable (e.g. spatial
+dependence structure and/or statistical distribution). For example, if
+we generate sampling locations using <strong>Simple Random Sampling (SRS)</strong>,
+this sampling design has the following properties:</p>
+<ol style="list-style-type: decimal">
+<li>It is an IID with each spatial location with exactly the same
+<strong>inclusion probability</strong>,</li>
+<li>It is symmetrical in geographical space meaning that about the same
+number of points can be found in each quadrant of the study area,</li>
+<li>It can be used to derive population parameters (e.g. mean) and these
+measures are per definition unbiased,</li>
+<li>Any random subset of the SRS is also a SRS,</li>
+</ol>
+<p>SRS is in principle both objective sampling and IID sampling and can be
+easily generated provided some polygon map representing the study area.
+Two other somewhat more complex sampling algorithms with similar
+properties as SRS are for example different versions of tessellated
+sampling. The <strong>generalized random tessellation stratified (GRTS)
+design</strong> was for example used in the USA to produce sampling locations
+for the purpose of <a href="https://pubs.usgs.gov/ds/801/">geochemical mapping</a>;
+a <strong>multi-stage stratified random sampling</strong> design was used to produce <a href="https://esdac.jrc.ec.europa.eu/projects/lucas">LUCAS soil monitoring
+network of points</a>.</p>
+<p>Large point datasets representing observations and/or measurements
+<em>in-situ</em> can be used to generate maps by fitting regression and
+classification models using e.g. Machine Learning algorithms, then
+applying those models to predict values at all pixels. This is referred
+to as <a href="https://soilmapper.org"><strong><em>Predictive Mapping</em></strong></a>. In reality,
+many point datasets we use in Machine Learning for predictive mapping do
+not have ideal properties i.e. are neither IID nor are probabilities of
+inclusion known. Many are in fact purposive, <strong><a href="https://methods.sagepub.com/reference/encyclopedia-of-survey-research-methods/n105.xml">convenience sampling</a></strong>
+and hence potentially over-represent some geographic features, are
+potentially censored and can lead to significant bias in estimation.</p>
+</div>
+<div id="response-surface-designs" class="section level2" number="1.2">
+<h2>
+<span class="header-section-number">1.2</span> Response surface designs<a class="anchor" aria-label="anchor" href="#response-surface-designs"><i class="fas fa-link"></i></a>
+</h2>
+<p>If the objective of modeling is to build regression models (correlating
+the target variable with a number of spatial layers representing e.g.
+soil forming factors), then we are looking at the problem in statistics
+known as the <strong><a href="https://en.wikipedia.org/wiki/Response_surface_methodology">response-surface experimental designs</a></strong>.
+Consider the following case of one target variable (<span class="math inline">\(Y\)</span>) and one
+covariate variable (<span class="math inline">\(X\)</span>). Assuming that the two are correlated linearly
+(i.e. <span class="math inline">\(Y = b_0 + b_1 \cdot X\)</span>), one can easily prove that the optimal
+experimental design is to (a) determine min and max of <span class="math inline">\(X\)</span>, the put half
+of the point at <span class="math inline">\(X_{min}\)</span> and the other half at <span class="math inline">\(X_{max}\)</span> <span class="citation">(<a href="references.html#ref-Hengl2004AJSR" role="doc-biblioref">Hengl, Rossiter, &amp; Stein, 2004</a>)</span>. This design is called the
+<strong><a href="https://en.wikipedia.org/wiki/Optimal_design#D-optimality">D1 optimal design</a></strong> and
+indeed it looks relatively simple to implement. The problem is that it
+is the optimal design ONLY if the relationship between <span class="math inline">\(Y\)</span> and <span class="math inline">\(X\)</span> is
+perfectly linear. If the relationship is maybe close to quadratic than
+the D1 design is much worse than the D2 design.</p>
+<div class="figure" style="text-align: center">
+<span id="fig:scheme-d1"></span>
+<img src="img/Fig_D1_design_scheme.jpg" alt="Example of D1 design: (left) D1 design in 2D feature space, (right) D1 design is optimal only for linear model, if the model is curvilinear, it is in fact the worse design than simple random sampling." width="90%"><p class="caption">
+Figure 1.1: Example of D1 design: (left) D1 design in 2D feature space, (right) D1 design is optimal only for linear model, if the model is curvilinear, it is in fact the worse design than simple random sampling.
+</p>
+</div>
+<p>In practice we may not know what is the nature of the relationship
+between <span class="math inline">\(Y\)</span> and <span class="math inline">\(X\)</span>, i.e. we do not wish to take a risk and produce
+biased estimation. Hence we can assume that it could be a curvilinear
+relationship and so we need to sample uniformly in the feature space.</p>
+</div>
+<div id="spatial-sampling-algorithms-of-interest" class="section level2" number="1.3">
+<h2>
+<span class="header-section-number">1.3</span> Spatial sampling algorithms of interest<a class="anchor" aria-label="anchor" href="#spatial-sampling-algorithms-of-interest"><i class="fas fa-link"></i></a>
 </h2>
 <p>This chapter reviews some common approaches for preparing point samples for a
 study area that you are visiting for the first time and/or no previous samples or
@@ -83,9 +222,9 @@ state-of-the-art we use the mlr framework for Ensemble Machine Learning as the k
 Machine Learning framework for predictive mapping. For an introduction to Ensemble
 Machine Learning for Predictive Mapping please refer to <a href="https://gitlab.com/openlandmap/spatial-predictions-using-eml">this tutorial</a>.</p>
 </div>
-<div id="ebergotzen-dataset" class="section level2" number="1.2">
+<div id="ebergotzen-dataset" class="section level2" number="1.4">
 <h2>
-<span class="header-section-number">1.2</span> Ebergotzen dataset<a class="anchor" aria-label="anchor" href="#ebergotzen-dataset"><i class="fas fa-link"></i></a>
+<span class="header-section-number">1.4</span> Ebergotzen dataset<a class="anchor" aria-label="anchor" href="#ebergotzen-dataset"><i class="fas fa-link"></i></a>
 </h2>
 <p>To test various sampling and mapping algorithms, we can use the Ebergotzen
 dataset available also via the <strong>plotKML</strong> package <span class="citation">(<a href="references.html#ref-hengl2015plotkml" role="doc-biblioref">Hengl, Roudier, Beaudette, &amp; Pebesma, 2015</a>)</span>:</p>
@@ -128,13 +267,13 @@ and surface vegetation (<code>NVILANx</code>):</p>
 <div class="figure" style="text-align: center">
 <span id="fig:plot-spc"></span>
 <img src="img/Fig_PCA_components_Ebergotzen.png" alt="Principal Components derived using Ebergotzen dataset." width="100%"><p class="caption">
-Figure 1.1: Principal Components derived using Ebergotzen dataset.
+Figure 1.2: Principal Components derived using Ebergotzen dataset.
 </p>
 </div>
 </div>
-<div id="simple-random-sampling" class="section level2" number="1.3">
+<div id="simple-random-sampling" class="section level2" number="1.5">
 <h2>
-<span class="header-section-number">1.3</span> Simple Random Sampling<a class="anchor" aria-label="anchor" href="#simple-random-sampling"><i class="fas fa-link"></i></a>
+<span class="header-section-number">1.5</span> Simple Random Sampling<a class="anchor" aria-label="anchor" href="#simple-random-sampling"><i class="fas fa-link"></i></a>
 </h2>
 <p>To generate a SRS with e.g. 100 points we can use the <strong>sp</strong> package <code>spsample</code> method:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -145,7 +284,7 @@ Figure 1.1: Principal Components derived using Ebergotzen dataset.
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-srs"></span>
 <img src="sampling_files/figure-html/eberg-srs-1.png" alt="An example of a Simple Random Sample (SRS)." width="80%"><p class="caption">
-Figure 1.2: An example of a Simple Random Sample (SRS).
+Figure 1.3: An example of a Simple Random Sample (SRS).
 </p>
 </div>
 <p>This sample is generated purely based on the spatial domain, the feature space
@@ -163,10 +302,10 @@ these points represent the feature space using a density plot:</p>
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-fs"></span>
 <img src="sampling_files/figure-html/eberg-fs-1.png" alt="Distribution of the SRS points from the previous example in the feature space." width="80%"><p class="caption">
-Figure 1.3: Distribution of the SRS points from the previous example in the feature space.
+Figure 1.4: Distribution of the SRS points from the previous example in the feature space.
 </p>
 </div>
-<p>Visually, we do not directly see from Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs">1.3</a> that the generated SRS
+<p>Visually, we do not directly see from Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs">1.4</a> that the generated SRS
 maybe misses some important feature space, however if we zoom in, then we can notice that some
 parts of feature space (in this specific randomization) with high density are somewhat
 under-represented. Imagine if we reduce number of sampling points then we run
@@ -185,13 +324,13 @@ the <strong>maxlike</strong> package method <span class="citation">(<a href="ref
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-maxlike"></span>
 <img src="sampling_files/figure-html/eberg-maxlike-1.png" alt="Occurrence probability for SRS derived using the maxlike package." width="80%"><p class="caption">
-Figure 1.4: Occurrence probability for SRS derived using the maxlike package.
+Figure 1.5: Occurrence probability for SRS derived using the maxlike package.
 </p>
 </div>
 <p>Note: for the sake of reducing the computing intensity we focus on the first four PCs.
 In practice, feature space analysis can be quite computational and we recommend using
 parallelized versions within an High Performance Computing environments to run such analysis.</p>
-<p>Fig. <a href="generating-spatial-sampling.html#fig:eberg-maxlike">1.4</a> shows that, by accident, some parts of the feature
+<p>Fig. <a href="generating-spatial-sampling.html#fig:eberg-maxlike">1.5</a> shows that, by accident, some parts of the feature
 space might be somewhat under-represented (areas with low probability of occurrence on the map).
 Note however that occurrence probability for this dataset is overall <em>very low</em> (&lt;0.05),
 indicating that distribution of points is not much correlated with the features.
@@ -233,7 +372,7 @@ the two occurrence probability maps derived using maxlike next to each other we 
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-maxlike2"></span>
 <img src="sampling_files/figure-html/eberg-maxlike2-1.png" alt="Comparison occurrence probability for actual and SRS samples derived using the maxlike package." width="100%"><p class="caption">
-Figure 1.5: Comparison occurrence probability for actual and SRS samples derived using the maxlike package.
+Figure 1.6: Comparison occurrence probability for actual and SRS samples derived using the maxlike package.
 </p>
 </div>
 <p>The map on the left clearly indicates that most of the sampling points are
@@ -255,13 +394,13 @@ space seem to be completely omitted from sampling:</p>
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-fs2"></span>
 <img src="sampling_files/figure-html/eberg-fs2-1.png" alt="Distribution of the actual survey points from the previous example displayed in the feature space." width="80%"><p class="caption">
-Figure 1.6: Distribution of the actual survey points from the previous example displayed in the feature space.
+Figure 1.7: Distribution of the actual survey points from the previous example displayed in the feature space.
 </p>
 </div>
 </div>
-<div id="latin-hypercube-sampling" class="section level2" number="1.4">
+<div id="latin-hypercube-sampling" class="section level2" number="1.6">
 <h2>
-<span class="header-section-number">1.4</span> Latin Hypercube Sampling<a class="anchor" aria-label="anchor" href="#latin-hypercube-sampling"><i class="fas fa-link"></i></a>
+<span class="header-section-number">1.6</span> Latin Hypercube Sampling<a class="anchor" aria-label="anchor" href="#latin-hypercube-sampling"><i class="fas fa-link"></i></a>
 </h2>
 <p>In the previous example we have shown how to implement SRS and then also evaluate it
 against feature layers. Often SRS represent very well feature space so it can be
@@ -293,7 +432,7 @@ number of iterations to 100.</p>
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-clhs"></span>
 <img src="sampling_files/figure-html/eberg-clhs-1.png" alt="An example of a Latin Hypercube Sample (LHS)." width="80%"><p class="caption">
-Figure 1.7: An example of a Latin Hypercube Sample (LHS).
+Figure 1.8: An example of a Latin Hypercube Sample (LHS).
 </p>
 </div>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
@@ -303,13 +442,13 @@ Figure 1.7: An example of a Latin Hypercube Sample (LHS).
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-lhs2"></span>
 <img src="sampling_files/figure-html/eberg-lhs2-1.png" alt="Distribution of the LHS points from the previous example displayed in the feature space." width="80%"><p class="caption">
-Figure 1.8: Distribution of the LHS points from the previous example displayed in the feature space.
+Figure 1.9: Distribution of the LHS points from the previous example displayed in the feature space.
 </p>
 </div>
 <p>Although in principle we might not see any difference in the point pattern between
 SRS and LHS, the feature space plot clearly shows that LHS covers systematically
 feature space map, i.e. we would have a relatively low risk of missing out some
-important features as compared to Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs2">1.6</a>.</p>
+important features as compared to Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs2">1.7</a>.</p>
 <p>Thus the main advantages of the LHS are:</p>
 <ul>
 <li>it ensures that feature space is represented systematically i.e. it is optimized
@@ -321,9 +460,9 @@ for Machine Learning using the specific feature layers;<br>
 keep systematic spread, but reduce survey costs as much as possible <span class="citation">(<a href="references.html#ref-roudier2012conditioned" role="doc-biblioref">Pierre Roudier, Beaudette, &amp; Hewitt, 2012</a>)</span>;</li>
 </ul>
 </div>
-<div id="feature-space-coverage-sampling" class="section level2" number="1.5">
+<div id="feature-space-coverage-sampling" class="section level2" number="1.7">
 <h2>
-<span class="header-section-number">1.5</span> Feature Space Coverage Sampling<a class="anchor" aria-label="anchor" href="#feature-space-coverage-sampling"><i class="fas fa-link"></i></a>
+<span class="header-section-number">1.7</span> Feature Space Coverage Sampling<a class="anchor" aria-label="anchor" href="#feature-space-coverage-sampling"><i class="fas fa-link"></i></a>
 </h2>
 <p>The <strong>Feature Space Coverage Sampling</strong> (FSCS) is described in detail in <span class="citation"><a href="references.html#ref-BRUS2019464" role="doc-biblioref">Brus</a> (<a href="references.html#ref-BRUS2019464" role="doc-biblioref">2019</a>)</span>.
 In a nutshell, FSCS aims at optimal coverage of the feature space which is achieved
@@ -356,18 +495,18 @@ which is also suitable for larger datasets with computing running in parallel:</
 <span id="cb19-4"><a href="generating-spatial-sampling.html#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; H2O is not running yet, starting it now...</span></span>
 <span id="cb19-5"><a href="generating-spatial-sampling.html#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb19-6"><a href="generating-spatial-sampling.html#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Note:  In case of errors look at the following log files:</span></span>
-<span id="cb19-7"><a href="generating-spatial-sampling.html#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmplMvalg/file1e6a70271426/h2o_tomislav_started_from_r.out</span></span>
-<span id="cb19-8"><a href="generating-spatial-sampling.html#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmplMvalg/file1e6a75bcda22/h2o_tomislav_started_from_r.err</span></span>
+<span id="cb19-7"><a href="generating-spatial-sampling.html#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmpdeSaRJ/file73314815c0b2/h2o_tomislav_started_from_r.out</span></span>
+<span id="cb19-8"><a href="generating-spatial-sampling.html#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmpdeSaRJ/file73311d30950a/h2o_tomislav_started_from_r.err</span></span>
 <span id="cb19-9"><a href="generating-spatial-sampling.html#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb19-10"><a href="generating-spatial-sampling.html#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb19-11"><a href="generating-spatial-sampling.html#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Starting H2O JVM and connecting: .. Connection successful!</span></span>
 <span id="cb19-12"><a href="generating-spatial-sampling.html#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb19-13"><a href="generating-spatial-sampling.html#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; R is connected to the H2O cluster: </span></span>
-<span id="cb19-14"><a href="generating-spatial-sampling.html#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster uptime:         2 seconds 44 milliseconds </span></span>
+<span id="cb19-14"><a href="generating-spatial-sampling.html#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster uptime:         2 seconds 121 milliseconds </span></span>
 <span id="cb19-15"><a href="generating-spatial-sampling.html#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster timezone:       Europe/Amsterdam </span></span>
 <span id="cb19-16"><a href="generating-spatial-sampling.html#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O data parsing timezone:  UTC </span></span>
 <span id="cb19-17"><a href="generating-spatial-sampling.html#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster version:        3.30.0.1 </span></span>
-<span id="cb19-18"><a href="generating-spatial-sampling.html#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster version age:    1 year, 9 months and 13 days !!! </span></span>
+<span id="cb19-18"><a href="generating-spatial-sampling.html#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster version age:    1 year, 9 months and 16 days !!! </span></span>
 <span id="cb19-19"><a href="generating-spatial-sampling.html#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster name:           H2O_started_from_R_tomislav_vru837 </span></span>
 <span id="cb19-20"><a href="generating-spatial-sampling.html#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster total nodes:    1 </span></span>
 <span id="cb19-21"><a href="generating-spatial-sampling.html#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster total memory:   15.71 GB </span></span>
@@ -381,7 +520,7 @@ which is also suitable for larger datasets with computing running in parallel:</
 <span id="cb19-29"><a href="generating-spatial-sampling.html#cb19-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 </span></span>
 <span id="cb19-30"><a href="generating-spatial-sampling.html#cb19-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     R Version:                  R version 4.0.2 (2020-06-22)</span></span>
 <span id="cb19-31"><a href="generating-spatial-sampling.html#cb19-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in h2o.clusterInfo(): </span></span>
-<span id="cb19-32"><a href="generating-spatial-sampling.html#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Your H2O cluster version is too old (1 year, 9 months and 13 days)!</span></span>
+<span id="cb19-32"><a href="generating-spatial-sampling.html#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Your H2O cluster version is too old (1 year, 9 months and 16 days)!</span></span>
 <span id="cb19-33"><a href="generating-spatial-sampling.html#cb19-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Please download and install the latest version from http://h2o.ai/download/</span></span>
 <span id="cb19-34"><a href="generating-spatial-sampling.html#cb19-34" aria-hidden="true" tabindex="-1"></a>df.hex <span class="ot">&lt;-</span> <span class="fu">as.h2o</span>(eberg_spc<span class="sc">@</span>predicted<span class="sc">@</span>data[,<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="at">destination_frame =</span> <span class="st">"df"</span>)</span>
 <span id="cb19-35"><a href="generating-spatial-sampling.html#cb19-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
@@ -394,7 +533,7 @@ which is also suitable for larger datasets with computing running in parallel:</
 <span id="cb19-42"><a href="generating-spatial-sampling.html#cb19-42" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
 <span id="cb19-43"><a href="generating-spatial-sampling.html#cb19-43" aria-hidden="true" tabindex="-1"></a>  <span class="er">|</span>                                                                      <span class="er">|</span>   <span class="dv">0</span>%</span>
 <span id="cb19-44"><a href="generating-spatial-sampling.html#cb19-44" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
-<span id="cb19-45"><a href="generating-spatial-sampling.html#cb19-45" aria-hidden="true" tabindex="-1"></a>  <span class="er">|============================</span>                                          <span class="er">|</span>  <span class="dv">40</span>%</span>
+<span id="cb19-45"><a href="generating-spatial-sampling.html#cb19-45" aria-hidden="true" tabindex="-1"></a>  <span class="er">|==============</span>                                                        <span class="er">|</span>  <span class="dv">20</span>%</span>
 <span id="cb19-46"><a href="generating-spatial-sampling.html#cb19-46" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
 <span id="cb19-47"><a href="generating-spatial-sampling.html#cb19-47" aria-hidden="true" tabindex="-1"></a>  <span class="er">|======================================================================|</span> <span class="dv">100</span>%</span>
 <span id="cb19-48"><a href="generating-spatial-sampling.html#cb19-48" aria-hidden="true" tabindex="-1"></a><span class="co">#km.nut</span></span></code></pre></div>
@@ -413,10 +552,10 @@ Next, we predict the clusters and plot the output:</p>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">class_df.c</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">class_df.c</span><span class="op">)</span>
 <span class="co">#&gt; 'data.frame':    100 obs. of  4 variables:</span>
-<span class="co">#&gt;  $ PC1: num  3.58 -1.52 -4.25 -2.37 -2.63 ...</span>
-<span class="co">#&gt;  $ PC2: num  0.231 -1.427 3.156 2.32 -1.925 ...</span>
-<span class="co">#&gt;  $ PC3: num  1.256 -3.799 -0.794 5.351 -0.099 ...</span>
-<span class="co">#&gt;  $ PC4: num  0.3855 -1.5625 2.6125 4.6329 0.0552 ...</span>
+<span class="co">#&gt;  $ PC1: num  2.682 -2.374 -4.932 -2.924 -0.462 ...</span>
+<span class="co">#&gt;  $ PC2: num  0.197 2.217 1.95 -4.019 2.345 ...</span>
+<span class="co">#&gt;  $ PC3: num  -0.378 5.229 -0.752 -3.476 3.481 ...</span>
+<span class="co">#&gt;  $ PC4: num  0.134 4.541 -1.024 -2.518 -0.276 ...</span>
 <span class="co">#write.csv(class_df.c, "NCluster_100_class_centers.csv")</span></code></pre></div>
 <p>To select sampling points we use the minimum distance to class centers <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus, 2021</a>)</span>:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
@@ -429,7 +568,7 @@ Next, we predict the clusters and plot the output:</p>
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-fscs"></span>
 <img src="sampling_files/figure-html/eberg-fscs-1.png" alt="An example of a Feature Space Coverage Sampling (FSCS)." width="80%"><p class="caption">
-Figure 1.9: An example of a Feature Space Coverage Sampling (FSCS).
+Figure 1.10: An example of a Feature Space Coverage Sampling (FSCS).
 </p>
 </div>
 <p>Visually, FSCS seem to add higher spatial density of points in areas where there
@@ -445,7 +584,7 @@ and the points are then allocated per each strata.</p>
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-fscs-pnts"></span>
 <img src="sampling_files/figure-html/eberg-fscs-pnts-1.png" alt="Distribution of the FSCS points from the previous example displayed in the feature space." width="80%"><p class="caption">
-Figure 1.10: Distribution of the FSCS points from the previous example displayed in the feature space.
+Figure 1.11: Distribution of the FSCS points from the previous example displayed in the feature space.
 </p>
 </div>
 <p>The FSCS sampling pattern in feature space looks almost as grid sampling in feature
@@ -455,9 +594,9 @@ surface designs such as <a href="https://en.wikipedia.org/wiki/Optimal_design">D
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">h2o.shutdown</span><span class="op">(</span>prompt <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="summary-points" class="section level2" number="1.6">
+<div id="summary-points" class="section level2" number="1.8">
 <h2>
-<span class="header-section-number">1.6</span> Summary points<a class="anchor" aria-label="anchor" href="#summary-points"><i class="fas fa-link"></i></a>
+<span class="header-section-number">1.8</span> Summary points<a class="anchor" aria-label="anchor" href="#summary-points"><i class="fas fa-link"></i></a>
 </h2>
 <p>In the previous examples we have shown differences between SRS, LHS and FSCS.
 SRS and LHS are IID sampling methods and as long as the number of samples is large
@@ -467,10 +606,10 @@ higher spatial spreading especially if a study area consists of a combination
 of a relatively homogeneous and complex terrain units.</p>
 <p>The Ebergotzen dataset (existing point samples) clearly shows that the <em>“convenience surveys”</em> can
 show significant clustering and under-representation of feature space
-(Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs2">1.6</a>). Consequently, these sampling bias could lead to:</p>
+(Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs2">1.7</a>). Consequently, these sampling bias could lead to:</p>
 <ul>
 <li>
-<em>Bias in estimating regression parameters</em> i.e. overfitting;<br>
+<em>Bias in estimating regression parameters</em> i.e. over-fitting;<br>
 </li>
 <li>
 <em>Extrapolation problems</em> due to under-representation of feature space;<br>
@@ -479,7 +618,7 @@ show significant clustering and under-representation of feature space
 <em>Bias</em> in estimating population parameters of the target variable;</li>
 </ul>
 <p>The first step to deal with these problems is to detect them, second is to try
-to implement a strategy that prevents from model overfitting. Some possible approaches
+to implement a strategy that prevents from model over-fitting. Some possible approaches
 to deal with such problems are addressed in the second part of the tutorial.</p>
 <p>LHS and FSCS are recommended sampling methods if the purpose of sampling is to
 build regression or classification models using multitude of (terrain,
@@ -533,7 +672,7 @@ prediction and feature spaces <span class="citation">(<a href="references.html#r
 </li>
 </ol>
 <p>Plotting generated sampling points both on a map and <em>feature space map</em> helps
-detect possible extrapolation problems in a sampling design (Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs2">1.6</a>).
+detect possible extrapolation problems in a sampling design (Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs2">1.7</a>).
 If you detect problems in feature space representation based on an existing point
 sampling set, you can try to reduce those problems by adding additional samples e.g. through
 <strong>covariate space infill sampling</strong> <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus, 2021</a>)</span> or through 2nd round
@@ -548,12 +687,14 @@ sampling and then re-analysis. These methods are discussed in further chapters.<
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
 <li><a class="nav-link" href="#generating-spatial-sampling"><span class="header-section-number">1</span> Generating spatial sampling</a></li>
-<li><a class="nav-link" href="#spatial-sampling-algorithms-of-interest"><span class="header-section-number">1.1</span> Spatial sampling algorithms of interest</a></li>
-<li><a class="nav-link" href="#ebergotzen-dataset"><span class="header-section-number">1.2</span> Ebergotzen dataset</a></li>
-<li><a class="nav-link" href="#simple-random-sampling"><span class="header-section-number">1.3</span> Simple Random Sampling</a></li>
-<li><a class="nav-link" href="#latin-hypercube-sampling"><span class="header-section-number">1.4</span> Latin Hypercube Sampling</a></li>
-<li><a class="nav-link" href="#feature-space-coverage-sampling"><span class="header-section-number">1.5</span> Feature Space Coverage Sampling</a></li>
-<li><a class="nav-link" href="#summary-points"><span class="header-section-number">1.6</span> Summary points</a></li>
+<li><a class="nav-link" href="#spatial-sampling"><span class="header-section-number">1.1</span> Spatial sampling</a></li>
+<li><a class="nav-link" href="#response-surface-designs"><span class="header-section-number">1.2</span> Response surface designs</a></li>
+<li><a class="nav-link" href="#spatial-sampling-algorithms-of-interest"><span class="header-section-number">1.3</span> Spatial sampling algorithms of interest</a></li>
+<li><a class="nav-link" href="#ebergotzen-dataset"><span class="header-section-number">1.4</span> Ebergotzen dataset</a></li>
+<li><a class="nav-link" href="#simple-random-sampling"><span class="header-section-number">1.5</span> Simple Random Sampling</a></li>
+<li><a class="nav-link" href="#latin-hypercube-sampling"><span class="header-section-number">1.6</span> Latin Hypercube Sampling</a></li>
+<li><a class="nav-link" href="#feature-space-coverage-sampling"><span class="header-section-number">1.7</span> Feature Space Coverage Sampling</a></li>
+<li><a class="nav-link" href="#summary-points"><span class="header-section-number">1.8</span> Summary points</a></li>
 </ul>
 
       <div class="book-extra">
@@ -579,6 +720,18 @@ sampling and then re-analysis. These methods are discussed in further chapters.<
   </div>
 
 </div></div>
-</footer>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 </body>
 </html>
