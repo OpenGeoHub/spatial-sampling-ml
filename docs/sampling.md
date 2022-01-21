@@ -28,7 +28,7 @@ by heavy metals or soil organic carbon stock, we can collect soil
 samples on e.g. a few hundred predefined locations, then take the
 samples to the lab, measure individual values and then interpolate them
 to produce a map of concentrations. This is one of the most common
-methods of interest of **geostatics** where e.g. various kriging methods
+methods of interest of **geostatistics** where e.g. various [kriging methods](http://www.leg.ufpr.br/geor/)
 are used to produce predictions of the target variable (see e.g.
 @Bivand2013Springer).
 
@@ -494,14 +494,14 @@ h2o.init(nthreads = -1)
 #> H2O is not running yet, starting it now...
 #> 
 #> Note:  In case of errors look at the following log files:
-#>     /tmp/Rtmp7hfLOE/file445a7eecd881/h2o_tomislav_started_from_r.out
-#>     /tmp/Rtmp7hfLOE/file445a717b8b10/h2o_tomislav_started_from_r.err
+#>     /tmp/RtmpJi5Csw/file52ef4b12809c/h2o_tomislav_started_from_r.out
+#>     /tmp/RtmpJi5Csw/file52ef3589a9d5/h2o_tomislav_started_from_r.err
 #> 
 #> 
 #> Starting H2O JVM and connecting: .. Connection successful!
 #> 
 #> R is connected to the H2O cluster: 
-#>     H2O cluster uptime:         2 seconds 80 milliseconds 
+#>     H2O cluster uptime:         2 seconds 68 milliseconds 
 #>     H2O cluster timezone:       Europe/Amsterdam 
 #>     H2O data parsing timezone:  UTC 
 #>     H2O cluster version:        3.30.0.1 
@@ -524,7 +524,7 @@ h2o.init(nthreads = -1)
 df.hex <- as.h2o(eberg_spc@predicted@data[,1:4], destination_frame = "df")
 #>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%
 km.nut <- h2o.kmeans(training_frame=df.hex, k=100, keep_cross_validation_predictions = TRUE)
-#>   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |======================================================================| 100%
+#>   |                                                                              |                                                                      |   0%  |                                                                              |=================================================                     |  70%  |                                                                              |======================================================================| 100%
 #km.nut
 ```
 
@@ -546,10 +546,10 @@ class_df.c = as.data.frame(h2o.centers(km.nut))
 names(class_df.c) = names(eberg_spc@predicted@data[,1:4])
 str(class_df.c)
 #> 'data.frame':	100 obs. of  4 variables:
-#>  $ PC1: num  -2.38 -2.53 1.74 -4.3 -1.82 ...
-#>  $ PC2: num  -2.619 2.37 2.304 3.208 -0.335 ...
-#>  $ PC3: num  -0.855 5.261 3.621 -0.769 2.652 ...
-#>  $ PC4: num  -0.772 4.672 -2.069 2.627 1.977 ...
+#>  $ PC1: num  1.77 -1.88 -2.16 1.48 -6.14 ...
+#>  $ PC2: num  -0.0139 2.5271 -4.9895 2.2981 0.6775 ...
+#>  $ PC3: num  -1.332 5.526 -3.361 3.143 -0.605 ...
+#>  $ PC4: num  0.0427 4.5728 -2.9965 -2.2581 1.5728 ...
 #write.csv(class_df.c, "NCluster_100_class_centers.csv")
 ```
 

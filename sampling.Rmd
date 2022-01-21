@@ -37,7 +37,7 @@ by heavy metals or soil organic carbon stock, we can collect soil
 samples on e.g. a few hundred predefined locations, then take the
 samples to the lab, measure individual values and then interpolate them
 to produce a map of concentrations. This is one of the most common
-methods of interest of **geostatics** where e.g. various kriging methods
+methods of interest of **geostatistics** where e.g. various [kriging methods](http://www.leg.ufpr.br/geor/)
 are used to produce predictions of the target variable (see e.g.
 @Bivand2013Springer).
 
