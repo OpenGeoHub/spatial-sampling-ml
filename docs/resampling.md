@@ -469,7 +469,7 @@ AOA <- CAST::aoa(train=train.df, predictors=eberg_spc@predicted@data[,eml1$featu
 ```
 
 This method can be computational so it is probably not recommended for larger datasets. 
-Some example of the Area of Applicability can be found in the [CAST package tutorial](https://cran.r-project.org/web/packages/CAST/vignettes/AOA-tutorial.html). 
+Some examples of the Area of Applicability can be found in the [CAST package tutorial](https://cran.r-project.org/web/packages/CAST/vignettes/AOA-tutorial.html). 
 
 ## Estimating per-pixel mapping accuracy
 
@@ -947,7 +947,7 @@ This is in fact common problem observed with many 3D predictive soil mapping mod
 where soil profiles basically have ALL the same values of covariates and Random 
 Forest thus easier predicts values due to overlap in covariate data. For a 
 discussion on why is important to run internal training and Cross-Validation 
-using spatial blocking refer also to @Gasch2015SPASTA and @meyer2018improving.
+using spatial blocking refer also to @gasch2015spatio and @meyer2018improving.
 
 
 ```r

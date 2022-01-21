@@ -398,8 +398,10 @@ then choosing a random data point in each partition, consequently:
 - Extrapolation in the feature space should be minimized,  
 
 Latin Hypercube and sampling optimization using LHS is explained in detail in @minasny2006conditioned 
-and @shields2016generalization. The [lhs package](https://github.com/bertcarnell/lhs) 
-also contains numerous examples of how to implement for (non-spatial) data.
+and @shields2016generalization. For @brus2015balanced, LHS is just a special case 
+of **[balanced sampling](http://www.antongrafstrom.se/balancedsampling/)** i.e. sampling based on allocation in feature space. 
+The [lhs package](https://github.com/bertcarnell/lhs) also contains numerous examples of 
+how to implement LHS for (non-spatial) data.
 
 Here we use an implementation of the LHS available in the **clhs** package [@Roudier2011]:
 
@@ -492,18 +494,18 @@ h2o.init(nthreads = -1)
 #> H2O is not running yet, starting it now...
 #> 
 #> Note:  In case of errors look at the following log files:
-#>     /tmp/RtmpdeSaRJ/file73314815c0b2/h2o_tomislav_started_from_r.out
-#>     /tmp/RtmpdeSaRJ/file73311d30950a/h2o_tomislav_started_from_r.err
+#>     /tmp/RtmplICUlB/file71f141a21a0/h2o_tomislav_started_from_r.out
+#>     /tmp/RtmplICUlB/file71faff88f/h2o_tomislav_started_from_r.err
 #> 
 #> 
 #> Starting H2O JVM and connecting: .. Connection successful!
 #> 
 #> R is connected to the H2O cluster: 
-#>     H2O cluster uptime:         2 seconds 121 milliseconds 
+#>     H2O cluster uptime:         2 seconds 42 milliseconds 
 #>     H2O cluster timezone:       Europe/Amsterdam 
 #>     H2O data parsing timezone:  UTC 
 #>     H2O cluster version:        3.30.0.1 
-#>     H2O cluster version age:    1 year, 9 months and 16 days !!! 
+#>     H2O cluster version age:    1 year, 9 months and 17 days !!! 
 #>     H2O cluster name:           H2O_started_from_R_tomislav_vru837 
 #>     H2O cluster total nodes:    1 
 #>     H2O cluster total memory:   15.71 GB 
@@ -517,12 +519,12 @@ h2o.init(nthreads = -1)
 #>     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 
 #>     R Version:                  R version 4.0.2 (2020-06-22)
 #> Warning in h2o.clusterInfo(): 
-#> Your H2O cluster version is too old (1 year, 9 months and 16 days)!
+#> Your H2O cluster version is too old (1 year, 9 months and 17 days)!
 #> Please download and install the latest version from http://h2o.ai/download/
 df.hex <- as.h2o(eberg_spc@predicted@data[,1:4], destination_frame = "df")
 #>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%
 km.nut <- h2o.kmeans(training_frame=df.hex, k=100, keep_cross_validation_predictions = TRUE)
-#>   |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |======================================================================| 100%
+#>   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |======================================================================| 100%
 #km.nut
 ```
 
@@ -544,10 +546,10 @@ class_df.c = as.data.frame(h2o.centers(km.nut))
 names(class_df.c) = names(eberg_spc@predicted@data[,1:4])
 str(class_df.c)
 #> 'data.frame':	100 obs. of  4 variables:
-#>  $ PC1: num  2.682 -2.374 -4.932 -2.924 -0.462 ...
-#>  $ PC2: num  0.197 2.217 1.95 -4.019 2.345 ...
-#>  $ PC3: num  -0.378 5.229 -0.752 -3.476 3.481 ...
-#>  $ PC4: num  0.134 4.541 -1.024 -2.518 -0.276 ...
+#>  $ PC1: num  2.71 -2.34 -4.16 -4.37 -3.88 ...
+#>  $ PC2: num  0.367 2.371 -3.012 3.001 0.944 ...
+#>  $ PC3: num  -0.0574 5.4052 -3.5746 -1.1493 -0.9227 ...
+#>  $ PC4: num  0.163 4.626 -2.007 2.33 -1.766 ...
 #write.csv(class_df.c, "NCluster_100_class_centers.csv")
 ```
 
@@ -623,7 +625,10 @@ to deal with such problems are addressed in the second part of the tutorial.
 
 LHS and FSCS are recommended sampling methods if the purpose of sampling is to 
 build regression or classification models using multitude of (terrain, 
-climate, land cover etc) covariate layers. @ma2020comparison compared LHS to FSCS 
+climate, land cover etc) covariate layers. A generalization of LHS is the balanced 
+sampling where users can select even variable inclusion probabilities [@grafstrom2014efficient; @brus2015balanced].
+
+@ma2020comparison compared LHS to FSCS 
 for mapping soil types and concluded that FSCS results in better mapping accuracy, 
 most likely because FSCS spreads points better in feature space and hence in 
 their case studies that seem to have helped with producing more accurate predictions.
@@ -668,4 +673,4 @@ detect possible extrapolation problems in a sampling design (Fig. \@ref(fig:eber
 If you detect problems in feature space representation based on an existing point 
 sampling set, you can try to reduce those problems by adding additional samples e.g. through 
 **covariate space infill sampling** [@Brus2021sampling] or through 2nd round 
-sampling and then re-analysis. These methods are discussed in further chapters.
+sampling and then re-analysis. Such methods are discussed in further chapters.

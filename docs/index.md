@@ -36,8 +36,15 @@ We use several key R packages and existing tutorials including:
 - [ranger](https://github.com/imbs-hl/ranger/) package,
 - [forestError](https://github.com/benjilu/forestError) package,
 
+Other packages of interest for producing spatial sampling:
+
+- [SamplingBigData](https://github.com/jlisic/SamplingBigData) package,
+- [sf](https://keen-swartz-3146c4.netlify.app/pointpatterns.html#spatial-sampling-and-simulating-a-point-process) package,
+- [spatstat](https://spatstat.org/) package(s),
+
 For an introduction to Spatial Data Science and Machine Learning with R we recommend studying first:
 
+- Baddeley, A., Rubak, E. and Turner, R.: **[“Spatial Point Patterns: Methodology and Applications with R”](https://spatstat.org/)**;  
 - Becker, M. et al.: **[“mlr3 book”](https://mlr3book.mlr-org.com/)**;  
 - Irizarry, R.A.: **[“Introduction to Data Science: Data Analysis and Prediction Algorithms with R”](https://rafalab.github.io/dsbook/)**;  
 - Molnar, C.: **[“Interpretable Machine Learning: A Guide for Making Black Box Models Explainable”](https://christophm.github.io/interpretable-ml-book/)**;  
@@ -45,7 +52,7 @@ For an introduction to Spatial Data Science and Machine Learning with R we recom
 - Pebesma, E. and Bivand, R: **[“Spatial Data Science: with applications in R”](https://keen-swartz-3146c4.netlify.app/)**;  
 
 If you are looking for a more gentle introduction to spatial sampling methods in R 
-please refer to @Bivand2013Springer, @BRUS2019464 and @Brus2021sampling. 
+please refer to @Bivand2013Springer, @baddeley2015spatial, @BRUS2019464 and @Brus2021sampling. 
 The _“Spatial sampling with R”_ book by Dick Brus and R code examples are 
 available via <https://github.com/DickBrus/SpatialSamplingwithR>.
 

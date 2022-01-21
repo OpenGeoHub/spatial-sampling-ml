@@ -132,7 +132,7 @@ allows us to test hypotheses and produce <strong>unbiased estimation</strong> of
 population parameters or similar. Many spatial statisticians argue that
 only previously prepared, strictly followed randomized probability
 sampling can be used to provide an unbiased estimate of the accuracy of
-the spatial predictions <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus, 2021</a>)</span>. In the case
+the spatial predictions <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">D. J. Brus, 2021</a>)</span>. In the case
 of probability sampling, calculation of population parameters is derived
 mathematically i.e. that estimation process is unbiased and independent
 of the spatial properties of the target variable (e.g. spatial
@@ -206,7 +206,7 @@ study area that you are visiting for the first time and/or no previous samples o
 models are available. We focus on the following spatial sampling methods:</p>
 <ul>
 <li>Subjective or convenience sampling,</li>
-<li>Simple Random Sampling (<strong>SRS</strong>) <span class="citation">(<a href="references.html#ref-Bivand2013Springer" role="doc-biblioref">Bivand, Pebesma, &amp; Rubio, 2013</a>; <a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus, 2021</a>)</span>,</li>
+<li>Simple Random Sampling (<strong>SRS</strong>) <span class="citation">(<a href="references.html#ref-Bivand2013Springer" role="doc-biblioref">Bivand, Pebesma, &amp; Rubio, 2013</a>; <a href="references.html#ref-Brus2021sampling" role="doc-biblioref">D. J. Brus, 2021</a>)</span>,</li>
 <li>Latin Hypercube Sampling (<strong>LHS</strong>) and its variants e.g. Conditioned LHS <span class="citation">(<a href="references.html#ref-Malone2019PeerJ" role="doc-biblioref">Malone, Minansy, &amp; Brungard, 2019</a>; <a href="references.html#ref-minasny2006conditioned" role="doc-biblioref">Minasny &amp; McBratney, 2006</a>)</span>,</li>
 <li>Feature Space Coverage Sampling (<strong>FSCS</strong>) <span class="citation">(<a href="references.html#ref-Goerg2013" role="doc-biblioref">Goerg, 2013</a>)</span> and fuzzy k-means clustering <span class="citation">(<a href="references.html#ref-hastie2009elements" role="doc-biblioref">Hastie, Tibshirani, &amp; Friedman, 2009</a>)</span>,</li>
 <li>2nd round sampling <span class="citation">(<a href="references.html#ref-stumpf2017uncertainty" role="doc-biblioref">Stumpf et al., 2017</a>)</span>,</li>
@@ -416,8 +416,10 @@ then choosing a random data point in each partition, consequently:</p>
 <li>Extrapolation in the feature space should be minimized,</li>
 </ul>
 <p>Latin Hypercube and sampling optimization using LHS is explained in detail in <span class="citation"><a href="references.html#ref-minasny2006conditioned" role="doc-biblioref">Minasny &amp; McBratney</a> (<a href="references.html#ref-minasny2006conditioned" role="doc-biblioref">2006</a>)</span>
-and <span class="citation"><a href="references.html#ref-shields2016generalization" role="doc-biblioref">Shields &amp; Zhang</a> (<a href="references.html#ref-shields2016generalization" role="doc-biblioref">2016</a>)</span>. The <a href="https://github.com/bertcarnell/lhs">lhs package</a>
-also contains numerous examples of how to implement for (non-spatial) data.</p>
+and <span class="citation"><a href="references.html#ref-shields2016generalization" role="doc-biblioref">Shields &amp; Zhang</a> (<a href="references.html#ref-shields2016generalization" role="doc-biblioref">2016</a>)</span>. For <span class="citation"><a href="references.html#ref-brus2015balanced" role="doc-biblioref">Dick J. Brus</a> (<a href="references.html#ref-brus2015balanced" role="doc-biblioref">2015</a>)</span>, LHS is just a special case
+of <strong><a href="http://www.antongrafstrom.se/balancedsampling/">balanced sampling</a></strong> i.e. sampling based on allocation in feature space.
+The <a href="https://github.com/bertcarnell/lhs">lhs package</a> also contains numerous examples of
+how to implement LHS for (non-spatial) data.</p>
 <p>Here we use an implementation of the LHS available in the <strong>clhs</strong> package <span class="citation">(<a href="references.html#ref-Roudier2011" role="doc-biblioref">P. Roudier, 2021</a>)</span>:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pierreroudier/clhs/">clhs</a></span><span class="op">)</span>
@@ -464,7 +466,7 @@ keep systematic spread, but reduce survey costs as much as possible <span class=
 <h2>
 <span class="header-section-number">1.7</span> Feature Space Coverage Sampling<a class="anchor" aria-label="anchor" href="#feature-space-coverage-sampling"><i class="fas fa-link"></i></a>
 </h2>
-<p>The <strong>Feature Space Coverage Sampling</strong> (FSCS) is described in detail in <span class="citation"><a href="references.html#ref-BRUS2019464" role="doc-biblioref">Brus</a> (<a href="references.html#ref-BRUS2019464" role="doc-biblioref">2019</a>)</span>.
+<p>The <strong>Feature Space Coverage Sampling</strong> (FSCS) is described in detail in <span class="citation"><a href="references.html#ref-BRUS2019464" role="doc-biblioref">D. J. Brus</a> (<a href="references.html#ref-BRUS2019464" role="doc-biblioref">2019</a>)</span>.
 In a nutshell, FSCS aims at optimal coverage of the feature space which is achieved
 by minimizing the average distance of the population units (raster cells) to the
 nearest sampling units in the feature space represented by the raster layers <span class="citation">(<a href="references.html#ref-ma2020comparison" role="doc-biblioref">Ma, Brus, Zhu, Zhang, &amp; Scholten, 2020</a>)</span>.</p>
@@ -482,7 +484,7 @@ the clusters as the sampling units:</p>
 <p>Note: the k-means++ algorithm is of most interest for small sample sizes: <em>“for large
 sample sizes the extra time needed for computing the initial centres can become
 substantial and may not outweigh the larger number of starts that can be afforded
-with the usual k-means algorithm for the same computing time”</em> <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus, 2021</a>)</span>.
+with the usual k-means algorithm for the same computing time”</em> <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">D. J. Brus, 2021</a>)</span>.
 The <code>kmeanspp</code> algorithm from the LICORS package is unfortunately quite computational
 and is in principle not recommended for large grids / to generate large number of
 samples. Instead, we recommend clustering feature space using the <code>h2o.kmeans</code> function
@@ -495,18 +497,18 @@ which is also suitable for larger datasets with computing running in parallel:</
 <span id="cb19-4"><a href="generating-spatial-sampling.html#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; H2O is not running yet, starting it now...</span></span>
 <span id="cb19-5"><a href="generating-spatial-sampling.html#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb19-6"><a href="generating-spatial-sampling.html#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Note:  In case of errors look at the following log files:</span></span>
-<span id="cb19-7"><a href="generating-spatial-sampling.html#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmpdeSaRJ/file73314815c0b2/h2o_tomislav_started_from_r.out</span></span>
-<span id="cb19-8"><a href="generating-spatial-sampling.html#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmpdeSaRJ/file73311d30950a/h2o_tomislav_started_from_r.err</span></span>
+<span id="cb19-7"><a href="generating-spatial-sampling.html#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmplICUlB/file71f141a21a0/h2o_tomislav_started_from_r.out</span></span>
+<span id="cb19-8"><a href="generating-spatial-sampling.html#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmplICUlB/file71faff88f/h2o_tomislav_started_from_r.err</span></span>
 <span id="cb19-9"><a href="generating-spatial-sampling.html#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb19-10"><a href="generating-spatial-sampling.html#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb19-11"><a href="generating-spatial-sampling.html#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Starting H2O JVM and connecting: .. Connection successful!</span></span>
 <span id="cb19-12"><a href="generating-spatial-sampling.html#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb19-13"><a href="generating-spatial-sampling.html#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; R is connected to the H2O cluster: </span></span>
-<span id="cb19-14"><a href="generating-spatial-sampling.html#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster uptime:         2 seconds 121 milliseconds </span></span>
+<span id="cb19-14"><a href="generating-spatial-sampling.html#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster uptime:         2 seconds 42 milliseconds </span></span>
 <span id="cb19-15"><a href="generating-spatial-sampling.html#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster timezone:       Europe/Amsterdam </span></span>
 <span id="cb19-16"><a href="generating-spatial-sampling.html#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O data parsing timezone:  UTC </span></span>
 <span id="cb19-17"><a href="generating-spatial-sampling.html#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster version:        3.30.0.1 </span></span>
-<span id="cb19-18"><a href="generating-spatial-sampling.html#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster version age:    1 year, 9 months and 16 days !!! </span></span>
+<span id="cb19-18"><a href="generating-spatial-sampling.html#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster version age:    1 year, 9 months and 17 days !!! </span></span>
 <span id="cb19-19"><a href="generating-spatial-sampling.html#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster name:           H2O_started_from_R_tomislav_vru837 </span></span>
 <span id="cb19-20"><a href="generating-spatial-sampling.html#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster total nodes:    1 </span></span>
 <span id="cb19-21"><a href="generating-spatial-sampling.html#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster total memory:   15.71 GB </span></span>
@@ -520,7 +522,7 @@ which is also suitable for larger datasets with computing running in parallel:</
 <span id="cb19-29"><a href="generating-spatial-sampling.html#cb19-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 </span></span>
 <span id="cb19-30"><a href="generating-spatial-sampling.html#cb19-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     R Version:                  R version 4.0.2 (2020-06-22)</span></span>
 <span id="cb19-31"><a href="generating-spatial-sampling.html#cb19-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in h2o.clusterInfo(): </span></span>
-<span id="cb19-32"><a href="generating-spatial-sampling.html#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Your H2O cluster version is too old (1 year, 9 months and 16 days)!</span></span>
+<span id="cb19-32"><a href="generating-spatial-sampling.html#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Your H2O cluster version is too old (1 year, 9 months and 17 days)!</span></span>
 <span id="cb19-33"><a href="generating-spatial-sampling.html#cb19-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Please download and install the latest version from http://h2o.ai/download/</span></span>
 <span id="cb19-34"><a href="generating-spatial-sampling.html#cb19-34" aria-hidden="true" tabindex="-1"></a>df.hex <span class="ot">&lt;-</span> <span class="fu">as.h2o</span>(eberg_spc<span class="sc">@</span>predicted<span class="sc">@</span>data[,<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="at">destination_frame =</span> <span class="st">"df"</span>)</span>
 <span id="cb19-35"><a href="generating-spatial-sampling.html#cb19-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
@@ -533,7 +535,7 @@ which is also suitable for larger datasets with computing running in parallel:</
 <span id="cb19-42"><a href="generating-spatial-sampling.html#cb19-42" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
 <span id="cb19-43"><a href="generating-spatial-sampling.html#cb19-43" aria-hidden="true" tabindex="-1"></a>  <span class="er">|</span>                                                                      <span class="er">|</span>   <span class="dv">0</span>%</span>
 <span id="cb19-44"><a href="generating-spatial-sampling.html#cb19-44" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
-<span id="cb19-45"><a href="generating-spatial-sampling.html#cb19-45" aria-hidden="true" tabindex="-1"></a>  <span class="er">|==============</span>                                                        <span class="er">|</span>  <span class="dv">20</span>%</span>
+<span id="cb19-45"><a href="generating-spatial-sampling.html#cb19-45" aria-hidden="true" tabindex="-1"></a>  <span class="er">|=======</span>                                                               <span class="er">|</span>  <span class="dv">10</span>%</span>
 <span id="cb19-46"><a href="generating-spatial-sampling.html#cb19-46" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
 <span id="cb19-47"><a href="generating-spatial-sampling.html#cb19-47" aria-hidden="true" tabindex="-1"></a>  <span class="er">|======================================================================|</span> <span class="dv">100</span>%</span>
 <span id="cb19-48"><a href="generating-spatial-sampling.html#cb19-48" aria-hidden="true" tabindex="-1"></a><span class="co">#km.nut</span></span></code></pre></div>
@@ -552,12 +554,12 @@ Next, we predict the clusters and plot the output:</p>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">class_df.c</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">class_df.c</span><span class="op">)</span>
 <span class="co">#&gt; 'data.frame':    100 obs. of  4 variables:</span>
-<span class="co">#&gt;  $ PC1: num  2.682 -2.374 -4.932 -2.924 -0.462 ...</span>
-<span class="co">#&gt;  $ PC2: num  0.197 2.217 1.95 -4.019 2.345 ...</span>
-<span class="co">#&gt;  $ PC3: num  -0.378 5.229 -0.752 -3.476 3.481 ...</span>
-<span class="co">#&gt;  $ PC4: num  0.134 4.541 -1.024 -2.518 -0.276 ...</span>
+<span class="co">#&gt;  $ PC1: num  2.71 -2.34 -4.16 -4.37 -3.88 ...</span>
+<span class="co">#&gt;  $ PC2: num  0.367 2.371 -3.012 3.001 0.944 ...</span>
+<span class="co">#&gt;  $ PC3: num  -0.0574 5.4052 -3.5746 -1.1493 -0.9227 ...</span>
+<span class="co">#&gt;  $ PC4: num  0.163 4.626 -2.007 2.33 -1.766 ...</span>
 <span class="co">#write.csv(class_df.c, "NCluster_100_class_centers.csv")</span></code></pre></div>
-<p>To select sampling points we use the minimum distance to class centers <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus, 2021</a>)</span>:</p>
+<p>To select sampling points we use the minimum distance to class centers <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">D. J. Brus, 2021</a>)</span>:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">D</span> <span class="op">&lt;-</span> <span class="fu">fields</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/fields/man/rdist.html">rdist</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="va">class_df.c</span>, x2 <span class="op">=</span> <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>
 <span class="va">units</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">D</span>, MARGIN <span class="op">=</span> <span class="fl">1</span>, FUN <span class="op">=</span> <span class="va">which.min</span><span class="op">)</span>
@@ -622,7 +624,9 @@ to implement a strategy that prevents from model over-fitting. Some possible app
 to deal with such problems are addressed in the second part of the tutorial.</p>
 <p>LHS and FSCS are recommended sampling methods if the purpose of sampling is to
 build regression or classification models using multitude of (terrain,
-climate, land cover etc) covariate layers. <span class="citation"><a href="references.html#ref-ma2020comparison" role="doc-biblioref">Ma, Brus, Zhu, Zhang, &amp; Scholten</a> (<a href="references.html#ref-ma2020comparison" role="doc-biblioref">2020</a>)</span> compared LHS to FSCS
+climate, land cover etc) covariate layers. A generalization of LHS is the balanced
+sampling where users can select even variable inclusion probabilities <span class="citation">(<a href="references.html#ref-brus2015balanced" role="doc-biblioref">Dick J. Brus, 2015</a>; <a href="references.html#ref-grafstrom2014efficient" role="doc-biblioref">Grafström, Saarela, &amp; Ene, 2014</a>)</span>.</p>
+<p><span class="citation"><a href="references.html#ref-ma2020comparison" role="doc-biblioref">Ma, Brus, Zhu, Zhang, &amp; Scholten</a> (<a href="references.html#ref-ma2020comparison" role="doc-biblioref">2020</a>)</span> compared LHS to FSCS
 for mapping soil types and concluded that FSCS results in better mapping accuracy,
 most likely because FSCS spreads points better in feature space and hence in
 their case studies that seem to have helped with producing more accurate predictions.
@@ -675,8 +679,8 @@ prediction and feature spaces <span class="citation">(<a href="references.html#r
 detect possible extrapolation problems in a sampling design (Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs2">1.7</a>).
 If you detect problems in feature space representation based on an existing point
 sampling set, you can try to reduce those problems by adding additional samples e.g. through
-<strong>covariate space infill sampling</strong> <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">Brus, 2021</a>)</span> or through 2nd round
-sampling and then re-analysis. These methods are discussed in further chapters.</p>
+<strong>covariate space infill sampling</strong> <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">D. J. Brus, 2021</a>)</span> or through 2nd round
+sampling and then re-analysis. Such methods are discussed in further chapters.</p>
 
 </div>
 </div>
