@@ -494,14 +494,14 @@ h2o.init(nthreads = -1)
 #> H2O is not running yet, starting it now...
 #> 
 #> Note:  In case of errors look at the following log files:
-#>     /tmp/RtmplICUlB/file71f141a21a0/h2o_tomislav_started_from_r.out
-#>     /tmp/RtmplICUlB/file71faff88f/h2o_tomislav_started_from_r.err
+#>     /tmp/Rtmp7hfLOE/file445a7eecd881/h2o_tomislav_started_from_r.out
+#>     /tmp/Rtmp7hfLOE/file445a717b8b10/h2o_tomislav_started_from_r.err
 #> 
 #> 
 #> Starting H2O JVM and connecting: .. Connection successful!
 #> 
 #> R is connected to the H2O cluster: 
-#>     H2O cluster uptime:         2 seconds 42 milliseconds 
+#>     H2O cluster uptime:         2 seconds 80 milliseconds 
 #>     H2O cluster timezone:       Europe/Amsterdam 
 #>     H2O data parsing timezone:  UTC 
 #>     H2O cluster version:        3.30.0.1 
@@ -546,10 +546,10 @@ class_df.c = as.data.frame(h2o.centers(km.nut))
 names(class_df.c) = names(eberg_spc@predicted@data[,1:4])
 str(class_df.c)
 #> 'data.frame':	100 obs. of  4 variables:
-#>  $ PC1: num  2.71 -2.34 -4.16 -4.37 -3.88 ...
-#>  $ PC2: num  0.367 2.371 -3.012 3.001 0.944 ...
-#>  $ PC3: num  -0.0574 5.4052 -3.5746 -1.1493 -0.9227 ...
-#>  $ PC4: num  0.163 4.626 -2.007 2.33 -1.766 ...
+#>  $ PC1: num  -2.38 -2.53 1.74 -4.3 -1.82 ...
+#>  $ PC2: num  -2.619 2.37 2.304 3.208 -0.335 ...
+#>  $ PC3: num  -0.855 5.261 3.621 -0.769 2.652 ...
+#>  $ PC4: num  -0.772 4.672 -2.069 2.627 1.977 ...
 #write.csv(class_df.c, "NCluster_100_class_centers.csv")
 ```
 

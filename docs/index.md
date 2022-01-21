@@ -21,6 +21,8 @@ documentclass: book
 
 ## Overview {.unnumbered}
 
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.5886677.svg)](https://doi.org/10.5281/zenodo.5886677)
+
 [![Access source code](cover.png){.cover width="250"}](https://opengeohub.github.io/spatial-sampling-ml/) This [Rmarkdown tutorial](https://opengeohub.github.io/spatial-sampling-ml/) provides practical instructions, illustrated with sample 
 dataset, on how to generate and evaluate sampling plans using your own data. 
 The specific focus is put on preparing sampling designs for predictive mapping, 
