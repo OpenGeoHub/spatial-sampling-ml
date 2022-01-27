@@ -154,11 +154,11 @@ pr.df = predict(eml.VW, newdata = new.st[,all.vars(fm)[-1]])
 To plot prediction together with locations of training points we can
 use:
 
-```{r, map-eml.vw, fig.width=6, echo = TRUE, out.width="90%", fig.cap="Predicted soil water content based on spatiotemporal EML."}
+```{r, map-eml-vw, fig.width=6, echo=TRUE, out.width="90%", fig.cap="Predicted soil water content based on spatiotemporal EML."}
 cookfarm.grid$pr.VW = pr.df$data$response
 plot(raster::raster(cookfarm.grid["pr.VW"]), col=rev(bpy.colors()),
      main="Predicted VW for 2012-07-30 and depth -0.3 m", axes=FALSE, box=FALSE)
-points(cookfarm$profiles[,c("Easting","Northing")], pch="+")
+points(cookfarm$profiles[,c("Easting","Northing")], pch="+", cex=.8)
 ```
 
 Because this is a spacetime dataset, we could also predict values of `VW` for 

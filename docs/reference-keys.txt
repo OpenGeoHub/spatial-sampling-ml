@@ -25,6 +25,7 @@ fig:pred-soc
 fig:edgeroi-var-eml
 fig:ac-vw1
 fig:ac-vw2
+fig:map-eml-vw
 fig:eberg-pnts-eml
 fig:scheme-resample
 fig:summary-eberg

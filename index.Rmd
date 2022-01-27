@@ -6,13 +6,18 @@ description: "This R tutorial contains instructions on how to organize spatial s
 url: 'https\://opengeohub.github.io/spatial-sampling-ml/'
 bibliography: ./tex/refs.bib
 csl: ./tex/apa.csl  
+documentclass: svmono
+classoption: graybox,natbib,nospthms
+geometry: "paperwidth=18.90cm, paperheight=24.58cm, top=2.1cm, bottom=2.1cm, inner=2cm, outer=2cm"
+monofont: "Source Code Pro"
+monofontoptions: "Scale=0.7"
+biblio-style: spbasic
 fig_caption: yes
 link-citations: yes
 gihub-repo: OpenGeoHub/spatial-sampling-ml/
 twitter-handle: opengeohub
 cover-image: cover.png
 site: bookdown::bookdown_site
-documentclass: book
 ---
 
 ```{r setup, include=FALSE}

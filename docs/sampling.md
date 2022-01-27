@@ -110,7 +110,7 @@ applying those models to predict values at all pixels. This is referred
 to as [***Predictive Mapping***](https://soilmapper.org). In reality, 
 many point datasets we use in Machine Learning for predictive mapping do 
 not have ideal properties i.e. are neither IID nor are probabilities of 
-inclusion known. Many are in fact purposive, **[convenience sampling](https://methods.sagepub.com/reference/encyclopedia-of-survey-research-methods/n105.xml)**
+inclusion known. Many are in fact **purposive** and/or **[convenience sampling](https://methods.sagepub.com/reference/encyclopedia-of-survey-research-methods/n105.xml)**
 and hence potentially over-represent some geographic features, are
 potentially censored and can lead to significant bias in estimation.
 
@@ -123,13 +123,13 @@ known as the **[response-surface experimental designs](https://en.wikipedia.org/
 Consider the following case of one target variable ($Y$) and one
 covariate variable ($X$). Assuming that the two are correlated linearly
 (i.e. $Y = b_0 + b_1 \cdot X$), one can easily prove that the optimal
-experimental design is to (a) determine min and max of $X$, the put half
+experimental design is to: (a) determine min and max of $X$, then put half
 of the point at $X_{min}$ and the other half at $X_{max}$ [@Hengl2004AJSR]. This design is called the
 **[D1 optimal design](https://en.wikipedia.org/wiki/Optimal_design#D-optimality)** and
 indeed it looks relatively simple to implement. The problem is that it
 is the optimal design ONLY if the relationship between $Y$ and $X$ is
 perfectly linear. If the relationship is maybe close to quadratic than
-the D1 design is much worse than the D2 design.
+the D1 design is much worse than for example the D2 design [@Hengl2004AJSR].
 
 <div class="figure" style="text-align: center">
 <img src="./img/Fig_D1_design_scheme.jpg" alt="Example of D1 design: (left) D1 design in 2D feature space, (right) D1 design is optimal only for linear model, if the model is curvilinear, it is in fact the worse design than simple random sampling." width="90%" />
@@ -411,7 +411,7 @@ library(clhs)
 rnd.lhs = clhs::clhs(eberg_spc@predicted[1:4], size=100, iter=100, progress=FALSE)
 ```
 
-This actually implements the so-called _“Conditional LHS"_ [@minasny2006conditioned], 
+This actually implements the so-called _“Conditional LHS”_ [@minasny2006conditioned], 
 and can get quite computational for large stack of rasters, hence we manually limit the 
 number of iterations to 100.
 
@@ -462,7 +462,7 @@ nearest sampling units in the feature space represented by the raster layers [@m
 
 To produce FSCS point sample we can use function `kmeanspp` of package **LICORS** [@Goerg2013].
 First we partition the feature space cube to e.g. 100 clusters. We then select raster cells 
-with the shortest scaled Euclidean distance in covariate-space to the centres of 
+with the shortest scaled Euclidean distance in covariate-space to the centers of 
 the clusters as the sampling units:
 
 
@@ -476,7 +476,7 @@ rnd.fscs <- eberg_spc@predicted@coords[units,]
 ```
 
 Note: the k-means++ algorithm is of most interest for small sample sizes: _“for large 
-sample sizes the extra time needed for computing the initial centres can become 
+sample sizes the extra time needed for computing the initial centers can become 
 substantial and may not outweigh the larger number of starts that can be afforded 
 with the usual k-means algorithm for the same computing time”_ [@Brus2021sampling].
 The `kmeanspp` algorithm from the LICORS package is unfortunately quite computational 
@@ -494,18 +494,18 @@ h2o.init(nthreads = -1)
 #> H2O is not running yet, starting it now...
 #> 
 #> Note:  In case of errors look at the following log files:
-#>     /tmp/RtmpMfyNVN/file525216bad313/h2o_tomislav_started_from_r.out
-#>     /tmp/RtmpMfyNVN/file525218152b27/h2o_tomislav_started_from_r.err
+#>     /tmp/RtmpKvsIAu/file25f5fc66d45/h2o_tomislav_started_from_r.out
+#>     /tmp/RtmpKvsIAu/file25f57444e440/h2o_tomislav_started_from_r.err
 #> 
 #> 
 #> Starting H2O JVM and connecting: .. Connection successful!
 #> 
 #> R is connected to the H2O cluster: 
-#>     H2O cluster uptime:         1 seconds 957 milliseconds 
+#>     H2O cluster uptime:         2 seconds 96 milliseconds 
 #>     H2O cluster timezone:       Europe/Amsterdam 
 #>     H2O data parsing timezone:  UTC 
 #>     H2O cluster version:        3.30.0.1 
-#>     H2O cluster version age:    1 year, 9 months and 17 days !!! 
+#>     H2O cluster version age:    1 year, 9 months and 22 days !!! 
 #>     H2O cluster name:           H2O_started_from_R_tomislav_vru837 
 #>     H2O cluster total nodes:    1 
 #>     H2O cluster total memory:   15.71 GB 
@@ -519,12 +519,12 @@ h2o.init(nthreads = -1)
 #>     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 
 #>     R Version:                  R version 4.0.2 (2020-06-22)
 #> Warning in h2o.clusterInfo(): 
-#> Your H2O cluster version is too old (1 year, 9 months and 17 days)!
+#> Your H2O cluster version is too old (1 year, 9 months and 22 days)!
 #> Please download and install the latest version from http://h2o.ai/download/
 df.hex <- as.h2o(eberg_spc@predicted@data[,1:4], destination_frame = "df")
 #>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%
 km.nut <- h2o.kmeans(training_frame=df.hex, k=100, keep_cross_validation_predictions = TRUE)
-#>   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |======================================================================| 100%
+#>   |                                                                              |                                                                      |   0%  |                                                                              |=====================                                                 |  30%  |                                                                              |======================================================================| 100%
 #km.nut
 ```
 
@@ -546,10 +546,10 @@ class_df.c = as.data.frame(h2o.centers(km.nut))
 names(class_df.c) = names(eberg_spc@predicted@data[,1:4])
 str(class_df.c)
 #> 'data.frame':	100 obs. of  4 variables:
-#>  $ PC1: num  -0.272 -1.22 -2.455 -3.951 1.636 ...
-#>  $ PC2: num  -3.25 -1.47 2.33 2.03 2.25 ...
-#>  $ PC3: num  1.56 -3.6 5.25 -2.12 3.38 ...
-#>  $ PC4: num  0.16 -1.49 4.58 1.22 -2.16 ...
+#>  $ PC1: num  0.619 -2.117 1.527 -4.153 -4.45 ...
+#>  $ PC2: num  -0.37 2.34 2.15 3.37 -2.67 ...
+#>  $ PC3: num  -0.766 5.638 3.231 -0.319 -3.29 ...
+#>  $ PC4: num  0.367 4.684 -2.163 3.034 -1.624 ...
 #write.csv(class_df.c, "NCluster_100_class_centers.csv")
 ```
 
@@ -628,11 +628,11 @@ build regression or classification models using multitude of (terrain,
 climate, land cover etc) covariate layers. A generalization of LHS is the balanced 
 sampling where users can select even variable inclusion probabilities [@grafstrom2014efficient; @brus2015balanced].
 
-@ma2020comparison compared LHS to FSCS 
-for mapping soil types and concluded that FSCS results in better mapping accuracy, 
-most likely because FSCS spreads points better in feature space and hence in 
-their case studies that seem to have helped with producing more accurate predictions.
-@yang2020evaluation also report that LHS helps improve accuracy only for the large size of points.
+@ma2020comparison compared LHS to FSCS for mapping soil types and concluded that 
+FSCS results in better mapping accuracy, most likely because FSCS spreads points 
+better in feature space and hence in their case studies that seem to have helped 
+with producing more accurate predictions. @yang2020evaluation also report that 
+LHS helps improve accuracy only for the large size of points.
 
 The `h2o.kmeans` algorithm is suited for large datasets, but nevertheless to 
 generate ≫100 clusters using large number of raster layers could become RAM 

@@ -172,10 +172,10 @@ top-soil clay content using e.g. random forest <span class="citation">(<a href=
 <span class="co">#&gt; R squared (OOB):                  0.6081801</span></code></pre></div>
 <p>This shows an RMSE of about 7.3% and an R-square of about 0.61. The problem of this
 accuracy measure is that with this Random Forest model we ignore spatial clustering
-of points, hence both the model and the accuracy metric could be over-optimistic <span class="citation">(<a href="references.html#ref-meyer2018improving" role="doc-biblioref">Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss, 2018</a>; <a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span>.
-Because we are typically interested in how does the model perform over the WHOLE
-area of interest, not only in comparison to out-of-bag points, to reduce overfitting
-or any bias in the BUPS we need to apply some adjustments.</p>
+of points, hence both the model and the accuracy metric could be over-optimistic <span class="citation">(<a href="references.html#ref-meyer2018improving" role="doc-biblioref">Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss, 2018</a>; <a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span>. Because we are typically interested in
+how does the model perform over the WHOLE area of interest, not only in comparison
+to out-of-bag points, to reduce overfitting or any bias in the BUPS we need to
+apply some adjustments.</p>
 <p>Strategy #1 for producing more objective estimate of model parameters is to
 resample sampling points by forcing as much as possible equal sampling intensity
 (hence mimicking the SRS), then observe performance of the model accuracy.
@@ -262,7 +262,7 @@ both could be determined by iterations.</p>
 isolated (Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs">1.4</a>) with higher probability. Hence, a more generic
 approach (Strategy #2) from declustering, is to use the <code>case.weights</code> parameter
 to instruct <code>ranger</code> to put more emphasis on isolated points / remove impact of
-clustered points. This weighted estimation of model parameters is common in regression,
+clustered points. The weighted estimation of model parameters is common in regression,
 and also in spatial statistics (see e.g. the <a href="https://stat.ethz.ch/R-manual/R-devel/library/nlme/html/gls.html">nlme::gls</a> Generalized Least Square (GLS) function).
 Theoretical basis for GLS / weighted regression is that the points that are clustered
 might also be spatially correlated, and that means that they would introduce bias in

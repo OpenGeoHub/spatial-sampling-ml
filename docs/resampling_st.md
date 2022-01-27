@@ -251,12 +251,12 @@ use:
 cookfarm.grid$pr.VW = pr.df$data$response
 plot(raster::raster(cookfarm.grid["pr.VW"]), col=rev(bpy.colors()),
      main="Predicted VW for 2012-07-30 and depth -0.3 m", axes=FALSE, box=FALSE)
-points(cookfarm$profiles[,c("Easting","Northing")], pch="+")
+points(cookfarm$profiles[,c("Easting","Northing")], pch="+", cex=.8)
 ```
 
 <div class="figure" style="text-align: center">
-<img src="resampling_st_files/figure-html/map-eml.vw-1.png" alt="Predicted soil water content based on spatiotemporal EML." width="90%" />
-<p class="caption">(\#fig:map-eml.vw)Predicted soil water content based on spatiotemporal EML.</p>
+<img src="resampling_st_files/figure-html/map-eml-vw-1.png" alt="Predicted soil water content based on spatiotemporal EML." width="90%" />
+<p class="caption">(\#fig:map-eml-vw)Predicted soil water content based on spatiotemporal EML.</p>
 </div>
 
 Because this is a spacetime dataset, we could also predict values of `VW` for 

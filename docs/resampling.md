@@ -120,10 +120,10 @@ rf.cly
 
 This shows an RMSE of about 7.3% and an R-square of about 0.61. The problem of this 
 accuracy measure is that with this Random Forest model we ignore spatial clustering 
-of points, hence both the model and the accuracy metric could be over-optimistic [@roberts2017cross;@meyer2018improving]. 
-Because we are typically interested in how does the model perform over the WHOLE 
-area of interest, not only in comparison to out-of-bag points, to reduce overfitting 
-or any bias in the BUPS we need to apply some adjustments.
+of points, hence both the model and the accuracy metric could be over-optimistic [@roberts2017cross;@meyer2018improving]. Because we are typically interested in 
+how does the model perform over the WHOLE area of interest, not only in comparison 
+to out-of-bag points, to reduce overfitting or any bias in the BUPS we need to 
+apply some adjustments.
 
 Strategy #1 for producing more objective estimate of model parameters is to 
 resample sampling points by forcing as much as possible equal sampling intensity 
@@ -232,7 +232,7 @@ Note that the function `grid.sample` per definition draws points that are relati
 isolated (Fig. \@ref(fig:eberg-fs)) with higher probability. Hence, a more generic 
 approach (Strategy #2) from declustering, is to use the `case.weights` parameter 
 to instruct `ranger` to put more emphasis on isolated points / remove impact of 
-clustered points. This weighted estimation of model parameters is common in regression, 
+clustered points. The weighted estimation of model parameters is common in regression, 
 and also in spatial statistics (see e.g. the [nlme::gls](https://stat.ethz.ch/R-manual/R-devel/library/nlme/html/gls.html) Generalized Least Square (GLS) function). 
 Theoretical basis for GLS / weighted regression is that the points that are clustered 
 might also be spatially correlated, and that means that they would introduce bias in 
