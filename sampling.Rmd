@@ -1,10 +1,10 @@
 # Generating spatial sampling
 
-```{r, results = "asis", echo = FALSE}
+```{r doc status, echo=, results="asis"}
 status("drafting")
 ```
 
-```{r, include=FALSE, message=FALSE, results='hide'}
+```{r packages loading, message=FALSE, include=FALSE, results='hide'}
 ls <- c("rgdal", "raster", "plotKML", "spatstat", "ranger", "mlr", "forestError", 
         "clhs", "xgboost", "glmnet", "matrixStats", "landmap", "LICORS", "h2o", "yardstick", 
         "hexbin", "parallelMap", "Metrics", "fastSave", "fields", "devtools", "Cubist")
@@ -185,6 +185,8 @@ library(sp)
 library(viridis)
 library(raster)
 library(ggplot2)
+library(dplyr)
+library(tidyr)
 data("eberg_grid25")
 gridded(eberg_grid25) <- ~x+y
 proj4string(eberg_grid25) <- CRS("+init=epsg:31467")
@@ -215,9 +217,27 @@ which gives the a total of 14 PCs. The patterns in the PC components reflect
 a complex combination of terrain variables, lithological discontinuities (`PMTZONES`) 
 and surface vegetation (`NVILANx`):
 
-```{r, eval=FALSE}
-spplot(eberg_spc@predicted[1:3], col.regions=SAGA_pal[[1]])
+```{r Fig_PCA_components_Ebergotzen, eval=FALSE}
+#spplot(eberg_spc@predicted[1:3], col.regions=SAGA_pal[[1]])
+
+
+eberg_spc_pred <- stack(eberg_spc@predicted[1:3]) %>%
+  as.data.frame(xy=T) %>%
+  gather(key=PCA, value = value, -x, -y)
+
+ggplot() +
+  geom_raster(data = eberg_spc_pred , aes(x = x, y = y, fill = value)) + 
+  scale_fill_gradientn(colours  =SAGA_pal[[1]], name="") + 
+  facet_wrap(PCA~.)+
+  coord_quickmap()+
+  ggtitle("PCA components Ebergotzen") +
+  theme_void()
+
 ```
+
+
+
+
 
 ```{r plot-spc, echo = FALSE, out.width = "100%", fig.cap = "Principal Components derived using Ebergotzen dataset."}
 knitr::include_graphics("./img/Fig_PCA_components_Ebergotzen.png")
@@ -232,8 +252,22 @@ rnd <- spsample(eberg_grid25[1], type="random", n=100)
 ```
 
 ```{r eberg-srs, echo = TRUE, out.width = "80%", fig.cap = "An example of a Simple Random Sample (SRS)."}
-plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
-points(rnd, pch="+")
+# plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
+# points(rnd, pch="+")
+
+eberg_spc_pred <- raster(eberg_spc@predicted[1]) %>%
+  as.data.frame(xy=T)
+rnd_pred <- as.data.frame(rnd,xy=T)
+
+ggplot() +
+  geom_raster(data = eberg_spc_pred , aes(x = x, y = y, fill = PC1)) + 
+  geom_point(data = rnd_pred, aes(x=x,y=y), shape="+", size=4)+
+  scale_fill_gradientn(colours  =SAGA_pal[[1]], name="") + 
+  coord_quickmap()+
+  ggtitle("An example of a Simple Random Sample (SRS)") +
+  theme_minimal()+  xlab("Westing")+ ylab("Northing")
+
+
 ```
 
 This sample is generated purely based on the spatial domain, the feature space 
@@ -269,8 +303,21 @@ ml.prob <- predict(ml)
 ```
 
 ```{r eberg-maxlike, echo = TRUE, out.width = "80%", fig.cap = "Occurrence probability for SRS derived using the maxlike package."}
-plot(ml.prob)
-points(rnd@coords, pch="+")
+# plot(ml.prob)
+# points(rnd@coords, pch="+")
+
+ml.prob_gg <- ml.prob %>%  as.data.frame(xy=T)
+
+ggplot() +
+  geom_raster(data = ml.prob_gg , aes(x = x, y = y, fill = layer)) + 
+  geom_point(data = rnd_pred, aes(x=x,y=y), shape="+", size=4)+
+  scale_fill_gradientn(colours  =terrain.colors(10), name="") + 
+  coord_quickmap()+
+  ggtitle("An example of a Simple Random Sample (SRS)") +
+  theme_minimal()+  xlab("Westing")+ ylab("Northing")
+
+
+
 ```
 
 Note: for the sake of reducing the computing intensity we focus on the first four PCs. 
@@ -317,12 +364,29 @@ In this specific case, the actual sampling points are much more clustered, so if
 the two occurrence probability maps derived using maxlike next to each other we get:
 
 ```{r eberg-maxlike2, echo = TRUE, out.width = "100%", fig.cap = "Comparison occurrence probability for actual and SRS samples derived using the maxlike package."}
-op <- par(mfrow=c(1,2))
-plot(raster(iprob$maxlike), zlim=c(0,1))
-points(eberg.smp@coords, pch="+")
-plot(ml.prob, zlim=c(0,1))
-points(rnd@coords, pch="+")
-par(op)
+# op <- par(mfrow=c(1,2))
+# plot(raster(iprob$maxlike), zlim=c(0,1))
+# points(eberg.smp@coords, pch="+")
+# plot(ml.prob, zlim=c(0,1))
+# points(rnd@coords, pch="+")
+# par(op)
+
+
+occ_prob <- stack(raster(iprob$maxlike),ml.prob) 
+names(occ_prob) <- c("maxlike","ml.prob")
+occ_prob <- occ_prob %>%
+  as.data.frame(xy=T) %>% gather(key=layer, value = value, -x, -y)
+
+ggplot() +
+  geom_raster(data = occ_prob , aes(x = x, y = y, fill = value)) + 
+  geom_point(data = rnd_pred, aes(x=x,y=y), shape="+", size=4)+
+  scale_fill_gradientn(colours  =terrain.colors(5), name="") + 
+  facet_wrap(layer~.)+
+  coord_quickmap()+
+  ggtitle("Comparison occurrence probability") +
+  theme_minimal()+  xlab("Westing")+ ylab("Northing")+
+  theme(panel.spacing = unit(2, "lines"))
+
 ```
 
 The map on the left clearly indicates that most of the sampling points are 
@@ -377,8 +441,22 @@ number of iterations to 100.
 We can plot the LHS sampling plan:
 
 ```{r eberg-clhs, echo = TRUE, out.width = "80%", fig.cap = "An example of a Latin Hypercube Sample (LHS)."}
-plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
-points(rnd.lhs@coords, pch="+")
+# plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
+# points(rnd.lhs@coords, pch="+")
+
+
+eberg_spc_pred <- raster(eberg_spc@predicted[1]) %>%  as.data.frame(xy=T)
+rnd.lhs_coords <- eberg_spc_pred[rnd.lhs,]
+
+ggplot() +
+  geom_raster(data = eberg_spc_pred , aes(x = x, y = y, fill = PC1)) + 
+  geom_point(data = rnd.lhs_coords, aes(x=x,y=y), shape="+", size=4)+
+  scale_fill_gradientn(colours  =SAGA_pal[[1]], name="") + 
+  coord_quickmap()+
+  ggtitle("An example of a Latin Hypercube Sample (LHS)") +
+  theme_minimal()+  xlab("Westing")+ ylab("Northing")
+
+
 ```
 
 ```{r eberg-lhs2, echo = TRUE, out.width = "80%", fig.cap = "Distribution of the LHS points from the previous example displayed in the feature space."}
@@ -466,8 +544,23 @@ rnd.fscs <- eberg_spc@predicted@coords[units,]
 ```
 
 ```{r eberg-fscs, echo = TRUE, out.width = "80%", fig.cap = "An example of a Feature Space Coverage Sampling (FSCS)."}
-plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
-points(rnd.fscs, pch="+")
+# plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
+# points(rnd.fscs, pch="+")
+
+
+
+eberg_spc_pred <- raster(eberg_spc@predicted[1]) %>%  as.data.frame(xy=T)
+rnd.fscs <- as.data.frame(rnd.fscs)
+
+ggplot() +
+  geom_raster(data = eberg_spc_pred , aes(x = x, y = y, fill = PC1)) + 
+  geom_point(data = rnd.fscs, aes(x=x,y=y), shape="+", size=4)+
+  scale_fill_gradientn(colours  =SAGA_pal[[1]], name="") + 
+  coord_quickmap()+
+  ggtitle("An example of a Feature Space Coverage Sampling (FSCS)") +
+  theme_minimal()+  xlab("Westing")+ ylab("Northing")
+
+
 ```
 
 Visually, FSCS seem to add higher spatial density of points in areas where there 
