@@ -179,6 +179,36 @@ library(viridis)
 #> Loading required package: viridisLite
 library(raster)
 library(ggplot2)
+library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following object is masked from 'package:matrixStats':
+#> 
+#>     count
+#> The following object is masked from 'package:xgboost':
+#> 
+#>     slice
+#> The following object is masked from 'package:nlme':
+#> 
+#>     collapse
+#> The following objects are masked from 'package:raster':
+#> 
+#>     intersect, select, union
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
+library(tidyr)
+#> 
+#> Attaching package: 'tidyr'
+#> The following objects are masked from 'package:Matrix':
+#> 
+#>     expand, pack, unpack
+#> The following object is masked from 'package:raster':
+#> 
+#>     extract
 data("eberg_grid25")
 gridded(eberg_grid25) <- ~x+y
 proj4string(eberg_grid25) <- CRS("+init=epsg:31467")
@@ -219,8 +249,20 @@ and surface vegetation (`NVILANx`):
 
 
 ```r
-spplot(eberg_spc@predicted[1:3], col.regions=SAGA_pal[[1]])
+#spplot(eberg_spc@predicted[1:3], col.regions=SAGA_pal[[1]])
+eberg_spc_pred <- stack(eberg_spc@predicted[1:3]) %>%
+  as.data.frame(xy=T) %>%
+  gather(key=PCA, value = value, -x, -y)
+
+ggplot() +
+  geom_raster(data = eberg_spc_pred , aes(x = x, y = y, fill = value)) + 
+  scale_fill_gradientn(colours  =SAGA_pal[[1]], name="") + 
+  facet_wrap(PCA~.)+
+  coord_quickmap()+
+  ggtitle("PCA components Ebergotzen") +
+  theme_void()
 ```
+
 
 <div class="figure" style="text-align: center">
 <img src="./img/Fig_PCA_components_Ebergotzen.png" alt="Principal Components derived using Ebergotzen dataset." width="100%" />
@@ -238,8 +280,19 @@ rnd <- spsample(eberg_grid25[1], type="random", n=100)
 
 
 ```r
-plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
-points(rnd, pch="+")
+# plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
+# points(rnd, pch="+")
+eberg_spc_pred <- raster(eberg_spc@predicted[1]) %>%
+  as.data.frame(xy=T)
+rnd_pred <- as.data.frame(rnd,xy=T)
+
+ggplot() +
+  geom_raster(data = eberg_spc_pred , aes(x = x, y = y, fill = PC1)) + 
+  geom_point(data = rnd_pred, aes(x=x,y=y), shape="+", size=4)+
+  scale_fill_gradientn(colours  =SAGA_pal[[1]], name="") + 
+  coord_quickmap()+
+  ggtitle("An example of a Simple Random Sample (SRS)") +
+  theme_minimal()+  xlab("Westing")+ ylab("Northing")
 ```
 
 <div class="figure" style="text-align: center">
@@ -288,8 +341,16 @@ ml.prob <- predict(ml)
 
 
 ```r
-plot(ml.prob)
-points(rnd@coords, pch="+")
+# plot(ml.prob)
+# points(rnd@coords, pch="+")
+ml.prob_gg <- ml.prob %>%  as.data.frame(xy=TRUE)
+ggplot() +
+  geom_raster(data = ml.prob_gg , aes(x = x, y = y, fill = layer)) + 
+  geom_point(data = rnd_pred, aes(x=x,y=y), shape="+", size=4)+
+  scale_fill_gradientn(colours  =terrain.colors(10), name="") + 
+  coord_quickmap()+
+  ggtitle("An example of a Simple Random Sample (SRS)") +
+  theme_minimal()+  xlab("Westing")+ ylab("Northing")
 ```
 
 <div class="figure" style="text-align: center">
@@ -342,16 +403,29 @@ iprob <- landmap::spsample.prob(eberg.smp, eberg_spc@predicted[1:4])
 ```
 
 In this specific case, the actual sampling points are much more clustered, so if we plot 
-the two occurrence probability maps derived using maxlike next to each other we get:
+the two occurrence probability maps derived using maxlike next to each other (actual vs SRS) we get:
 
 
 ```r
-op <- par(mfrow=c(1,2))
-plot(raster(iprob$maxlike), zlim=c(0,1))
-points(eberg.smp@coords, pch="+")
-plot(ml.prob, zlim=c(0,1))
-points(rnd@coords, pch="+")
-par(op)
+# op <- par(mfrow=c(1,2))
+# plot(raster(iprob$maxlike), zlim=c(0,1))
+# points(eberg.smp@coords, pch="+")
+# plot(ml.prob, zlim=c(0,1))
+# points(rnd@coords, pch="+")
+# par(op)
+occ_prob <- stack(raster(iprob$maxlike),ml.prob) 
+names(occ_prob) <- c("maxlike","ml.prob")
+occ_prob <- occ_prob %>%
+  as.data.frame(xy=T) %>% gather(key=layer, value = value, -x, -y)
+ggplot() +
+  geom_raster(data = occ_prob , aes(x = x, y = y, fill = value)) + 
+  geom_point(data = rnd_pred, aes(x=x,y=y), shape="+", size=4)+
+  scale_fill_gradientn(colours  =terrain.colors(5), name="") + 
+  facet_wrap(layer~.)+
+  coord_quickmap()+
+  ggtitle("Comparison occurrence probability") +
+  theme_minimal()+  xlab("Westing")+ ylab("Northing")+
+  theme(panel.spacing = unit(2, "lines"))
 ```
 
 <div class="figure" style="text-align: center">
@@ -419,8 +493,17 @@ We can plot the LHS sampling plan:
 
 
 ```r
-plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
-points(rnd.lhs@coords, pch="+")
+# plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
+# points(rnd.lhs@coords, pch="+")
+eberg_spc_pred <- raster(eberg_spc@predicted[1]) %>%  as.data.frame(xy=TRUE)
+rnd.lhs_coords <- data.frame(rnd.lhs@coords)
+ggplot() +
+  geom_raster(data = eberg_spc_pred, aes(x = x, y = y, fill = PC1)) + 
+  geom_point(data = rnd.lhs_coords, aes(x=x,y=y), shape="+", size=4)+
+  scale_fill_gradientn(colours  =SAGA_pal[[1]], name="") + 
+  coord_quickmap() +
+  ggtitle("An example of a Latin Hypercube Sample (LHS)") +
+  theme_minimal() +  xlab("Westing")+ ylab("Northing")
 ```
 
 <div class="figure" style="text-align: center">
@@ -494,8 +577,8 @@ h2o.init(nthreads = -1)
 #> H2O is not running yet, starting it now...
 #> 
 #> Note:  In case of errors look at the following log files:
-#>     /tmp/RtmpKvsIAu/file25f5fc66d45/h2o_tomislav_started_from_r.out
-#>     /tmp/RtmpKvsIAu/file25f57444e440/h2o_tomislav_started_from_r.err
+#>     /tmp/RtmpUZO4zW/file5442ca5b7dd/h2o_tomislav_started_from_r.out
+#>     /tmp/RtmpUZO4zW/file544524f047/h2o_tomislav_started_from_r.err
 #> 
 #> 
 #> Starting H2O JVM and connecting: .. Connection successful!
@@ -505,7 +588,7 @@ h2o.init(nthreads = -1)
 #>     H2O cluster timezone:       Europe/Amsterdam 
 #>     H2O data parsing timezone:  UTC 
 #>     H2O cluster version:        3.30.0.1 
-#>     H2O cluster version age:    1 year, 9 months and 22 days !!! 
+#>     H2O cluster version age:    1 year, 9 months and 24 days !!! 
 #>     H2O cluster name:           H2O_started_from_R_tomislav_vru837 
 #>     H2O cluster total nodes:    1 
 #>     H2O cluster total memory:   15.71 GB 
@@ -519,12 +602,12 @@ h2o.init(nthreads = -1)
 #>     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 
 #>     R Version:                  R version 4.0.2 (2020-06-22)
 #> Warning in h2o.clusterInfo(): 
-#> Your H2O cluster version is too old (1 year, 9 months and 22 days)!
+#> Your H2O cluster version is too old (1 year, 9 months and 24 days)!
 #> Please download and install the latest version from http://h2o.ai/download/
 df.hex <- as.h2o(eberg_spc@predicted@data[,1:4], destination_frame = "df")
 #>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%
 km.nut <- h2o.kmeans(training_frame=df.hex, k=100, keep_cross_validation_predictions = TRUE)
-#>   |                                                                              |                                                                      |   0%  |                                                                              |=====================                                                 |  30%  |                                                                              |======================================================================| 100%
+#>   |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |======================================================================| 100%
 #km.nut
 ```
 
@@ -546,10 +629,10 @@ class_df.c = as.data.frame(h2o.centers(km.nut))
 names(class_df.c) = names(eberg_spc@predicted@data[,1:4])
 str(class_df.c)
 #> 'data.frame':	100 obs. of  4 variables:
-#>  $ PC1: num  0.619 -2.117 1.527 -4.153 -4.45 ...
-#>  $ PC2: num  -0.37 2.34 2.15 3.37 -2.67 ...
-#>  $ PC3: num  -0.766 5.638 3.231 -0.319 -3.29 ...
-#>  $ PC4: num  0.367 4.684 -2.163 3.034 -1.624 ...
+#>  $ PC1: num  0.0276 -2.3565 -4.1214 -0.2878 0.6763 ...
+#>  $ PC2: num  2.51 -4.38 0.93 -3.24 2.08 ...
+#>  $ PC3: num  2.65 -3.1 -1.15 1.55 1.74 ...
+#>  $ PC4: num  2.87 -2.536 -1.781 0.156 -2.74 ...
 #write.csv(class_df.c, "NCluster_100_class_centers.csv")
 ```
 
@@ -564,8 +647,17 @@ rnd.fscs <- eberg_spc@predicted@coords[units,]
 
 
 ```r
-plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
-points(rnd.fscs, pch="+")
+# plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
+# points(rnd.fscs, pch="+")
+eberg_spc_pred <- raster(eberg_spc@predicted[1]) %>%  as.data.frame(xy=T)
+rnd.fscs <- as.data.frame(rnd.fscs)
+ggplot() +
+  geom_raster(data = eberg_spc_pred , aes(x = x, y = y, fill = PC1)) + 
+  geom_point(data = rnd.fscs, aes(x=x,y=y), shape="+", size=4)+
+  scale_fill_gradientn(colours  =SAGA_pal[[1]], name="") + 
+  coord_quickmap()+
+  ggtitle("An example of a Feature Space Coverage Sampling (FSCS)") +
+  theme_minimal()+  xlab("Westing")+ ylab("Northing")
 ```
 
 <div class="figure" style="text-align: center">
@@ -673,4 +765,4 @@ detect possible extrapolation problems in a sampling design (Fig. \@ref(fig:eber
 If you detect problems in feature space representation based on an existing point 
 sampling set, you can try to reduce those problems by adding additional samples e.g. through 
 **covariate space infill sampling** [@Brus2021sampling] or through 2nd round 
-sampling and then re-analysis. Such methods are discussed in further chapters.
+sampling and then re-analysis. These methods are discussed in further chapters.

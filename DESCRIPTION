@@ -3,7 +3,8 @@ Title: Spatial Sampling and Resampling for Machine Learning.
 Version: 0.1
 Authors@R: c(
     person("Tomislav", "Hengl", , "tom.hengl@opengeohub.org", role = c("aut", "cre")),
-    person("Leandro", "Parente", , "leandro.parente@opengeohub.org", role = "aut")
+    person("Leandro", "Parente", , "leandro.parente@opengeohub.org", role = "aut"),
+    person("Abdelkrim", "Bouasria", , "bouasria.a@ucd.ac.ma", role = "aut")
   )
 URL: https://github.com/OpenGeoHub/spatial-sampling-ml/
 Depends: 

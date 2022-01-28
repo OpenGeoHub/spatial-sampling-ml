@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>1 Generating spatial sampling | Spatial sampling and resampling for Machine Learning</title>
-<meta name="author" content="Tom Hengl, Leandro Parente and Ichsani Wheeler">
+<meta name="author" content="Tom Hengl, Leandro Parente, Abdelkrim Bousria and Ichsani Wheeler">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/header-attrs-2.8.1/header-attrs.js"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -236,6 +236,36 @@ dataset available also via the <strong>plotKML</strong> package <span class="cit
 <span class="co">#&gt; Loading required package: viridisLite</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster">raster</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Attaching package: 'dplyr'</span>
+<span class="co">#&gt; The following object is masked from 'package:matrixStats':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     count</span>
+<span class="co">#&gt; The following object is masked from 'package:xgboost':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     slice</span>
+<span class="co">#&gt; The following object is masked from 'package:nlme':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     collapse</span>
+<span class="co">#&gt; The following objects are masked from 'package:raster':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     intersect, select, union</span>
+<span class="co">#&gt; The following objects are masked from 'package:stats':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     filter, lag</span>
+<span class="co">#&gt; The following objects are masked from 'package:base':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     intersect, setdiff, setequal, union</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org">tidyr</a></span><span class="op">)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Attaching package: 'tidyr'</span>
+<span class="co">#&gt; The following objects are masked from 'package:Matrix':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     expand, pack, unpack</span>
+<span class="co">#&gt; The following object is masked from 'package:raster':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     extract</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"eberg_grid25"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/sp/man/gridded-methods.html">gridded</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="op">~</span><span class="va">x</span><span class="op">+</span><span class="va">y</span>
 <span class="fu"><a href="https://rdrr.io/pkg/sp/man/is.projected.html">proj4string</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/sp/man/CRS-class.html">CRS</a></span><span class="op">(</span><span class="st">"+init=epsg:31467"</span><span class="op">)</span></code></pre></div>
@@ -263,7 +293,18 @@ primary variables to (numeric) principal components using:</p>
 a complex combination of terrain variables, lithological discontinuities (<code>PMTZONES</code>)
 and surface vegetation (<code>NVILANx</code>):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/sp/man/spplot.html">spplot</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, col.regions<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="co">#spplot(eberg_spc@predicted[1:3], col.regions=SAGA_pal[[1]])</span>
+<span class="va">eberg_spc_pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/stack.html">stack</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/magrittr/man/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span>xy<span class="op">=</span><span class="cn">T</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/magrittr/man/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/gather.html">gather</a></span><span class="op">(</span>key<span class="op">=</span><span class="va">PCA</span>, value <span class="op">=</span> <span class="va">value</span>, <span class="op">-</span><span class="va">x</span>, <span class="op">-</span><span class="va">y</span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/geom_tile.html">geom_raster</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">eberg_spc_pred</span> , <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/scale_gradient.html">scale_fill_gradientn</a></span><span class="op">(</span>colours  <span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, name<span class="op">=</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="va">PCA</span><span class="op">~</span><span class="va">.</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/coord_map.html">coord_quickmap</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"PCA components Ebergotzen"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/ggtheme.html">theme_void</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <span id="fig:plot-spc"></span>
 <img src="img/Fig_PCA_components_Ebergotzen.png" alt="Principal Components derived using Ebergotzen dataset." width="100%"><p class="caption">
@@ -279,8 +320,19 @@ Figure 1.2: Principal Components derived using Ebergotzen dataset.
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">rnd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/sp/man/spsample.html">spsample</a></span><span class="op">(</span><span class="va">eberg_grid25</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, type<span class="op">=</span><span class="st">"random"</span>, n<span class="op">=</span><span class="fl">100</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">rnd</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="co"># plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])</span>
+<span class="co"># points(rnd, pch="+")</span>
+<span class="va">eberg_spc_pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/magrittr/man/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span>xy<span class="op">=</span><span class="cn">T</span><span class="op">)</span>
+<span class="va">rnd_pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">rnd</span>,xy<span class="op">=</span><span class="cn">T</span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/geom_tile.html">geom_raster</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">eberg_spc_pred</span> , <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">PC1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/geom_point.html">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">rnd_pred</span>, <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,y<span class="op">=</span><span class="va">y</span><span class="op">)</span>, shape<span class="op">=</span><span class="st">"+"</span>, size<span class="op">=</span><span class="fl">4</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/scale_gradient.html">scale_fill_gradientn</a></span><span class="op">(</span>colours  <span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, name<span class="op">=</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/coord_map.html">coord_quickmap</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"An example of a Simple Random Sample (SRS)"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/ggtheme.html">theme_minimal</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">xlab</a></span><span class="op">(</span><span class="st">"Westing"</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">ylab</a></span><span class="op">(</span><span class="st">"Northing"</span><span class="op">)</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-srs"></span>
 <img src="sampling_files/figure-html/eberg-srs-1.png" alt="An example of a Simple Random Sample (SRS)." width="80%"><p class="caption">
@@ -319,8 +371,16 @@ the <strong>maxlike</strong> package method <span class="citation">(<a href="ref
                        points<span class="op">=</span><span class="va">rnd</span><span class="op">@</span><span class="va">coords</span>, method<span class="op">=</span><span class="st">"BFGS"</span>, removeDuplicates<span class="op">=</span><span class="cn">TRUE</span>, savedata<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
 <span class="va">ml.prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/predict.html">predict</a></span><span class="op">(</span><span class="va">ml</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">ml.prob</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">rnd</span><span class="op">@</span><span class="va">coords</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="co"># plot(ml.prob)</span>
+<span class="co"># points(rnd@coords, pch="+")</span>
+<span class="va">ml.prob_gg</span> <span class="op">&lt;-</span> <span class="va">ml.prob</span> <span class="op"><a href="https://rdrr.io/pkg/magrittr/man/pipe.html">%&gt;%</a></span>  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span>xy<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/geom_tile.html">geom_raster</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">ml.prob_gg</span> , <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">layer</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/geom_point.html">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">rnd_pred</span>, <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,y<span class="op">=</span><span class="va">y</span><span class="op">)</span>, shape<span class="op">=</span><span class="st">"+"</span>, size<span class="op">=</span><span class="fl">4</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/scale_gradient.html">scale_fill_gradientn</a></span><span class="op">(</span>colours  <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html">terrain.colors</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span>, name<span class="op">=</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/coord_map.html">coord_quickmap</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"An example of a Simple Random Sample (SRS)"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/ggtheme.html">theme_minimal</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">xlab</a></span><span class="op">(</span><span class="st">"Westing"</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">ylab</a></span><span class="op">(</span><span class="st">"Northing"</span><span class="op">)</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-maxlike"></span>
 <img src="sampling_files/figure-html/eberg-maxlike-1.png" alt="Occurrence probability for SRS derived using the maxlike package." width="80%"><p class="caption">
@@ -361,14 +421,27 @@ from the <strong><a href="https://rdrr.io/cran/spatstat.core/man/density.ppp.htm
 <span class="co">#&gt; Deriving kernel density map using sigma 1010 ...</span>
 <span class="co">#&gt; Deriving inclusion probabilities using MaxLike analysis...</span></code></pre></div>
 <p>In this specific case, the actual sampling points are much more clustered, so if we plot
-the two occurrence probability maps derived using maxlike next to each other we get:</p>
+the two occurrence probability maps derived using maxlike next to each other (actual vs SRS) we get:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">iprob</span><span class="op">$</span><span class="va">maxlike</span><span class="op">)</span>, zlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">eberg.smp</span><span class="op">@</span><span class="va">coords</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">ml.prob</span>, zlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">rnd</span><span class="op">@</span><span class="va">coords</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="co"># op &lt;- par(mfrow=c(1,2))</span>
+<span class="co"># plot(raster(iprob$maxlike), zlim=c(0,1))</span>
+<span class="co"># points(eberg.smp@coords, pch="+")</span>
+<span class="co"># plot(ml.prob, zlim=c(0,1))</span>
+<span class="co"># points(rnd@coords, pch="+")</span>
+<span class="co"># par(op)</span>
+<span class="va">occ_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/stack.html">stack</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">iprob</span><span class="op">$</span><span class="va">maxlike</span><span class="op">)</span>,<span class="va">ml.prob</span><span class="op">)</span> 
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">occ_prob</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"maxlike"</span>,<span class="st">"ml.prob"</span><span class="op">)</span>
+<span class="va">occ_prob</span> <span class="op">&lt;-</span> <span class="va">occ_prob</span> <span class="op"><a href="https://rdrr.io/pkg/magrittr/man/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span>xy<span class="op">=</span><span class="cn">T</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/magrittr/man/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/gather.html">gather</a></span><span class="op">(</span>key<span class="op">=</span><span class="va">layer</span>, value <span class="op">=</span> <span class="va">value</span>, <span class="op">-</span><span class="va">x</span>, <span class="op">-</span><span class="va">y</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/geom_tile.html">geom_raster</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">occ_prob</span> , <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/geom_point.html">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">rnd_pred</span>, <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,y<span class="op">=</span><span class="va">y</span><span class="op">)</span>, shape<span class="op">=</span><span class="st">"+"</span>, size<span class="op">=</span><span class="fl">4</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/scale_gradient.html">scale_fill_gradientn</a></span><span class="op">(</span>colours  <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html">terrain.colors</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>, name<span class="op">=</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="va">layer</span><span class="op">~</span><span class="va">.</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/coord_map.html">coord_quickmap</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"Comparison occurrence probability"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/ggtheme.html">theme_minimal</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">xlab</a></span><span class="op">(</span><span class="st">"Westing"</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">ylab</a></span><span class="op">(</span><span class="st">"Northing"</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/theme.html">theme</a></span><span class="op">(</span>panel.spacing <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html">unit</a></span><span class="op">(</span><span class="fl">2</span>, <span class="st">"lines"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-maxlike2"></span>
 <img src="sampling_files/figure-html/eberg-maxlike2-1.png" alt="Comparison occurrence probability for actual and SRS samples derived using the maxlike package." width="100%"><p class="caption">
@@ -429,8 +502,17 @@ and can get quite computational for large stack of rasters, hence we manually li
 number of iterations to 100.</p>
 <p>We can plot the LHS sampling plan:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">rnd.lhs</span><span class="op">@</span><span class="va">coords</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="co"># plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])</span>
+<span class="co"># points(rnd.lhs@coords, pch="+")</span>
+<span class="va">eberg_spc_pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/magrittr/man/pipe.html">%&gt;%</a></span>  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span>xy<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">rnd.lhs_coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">rnd.lhs</span><span class="op">@</span><span class="va">coords</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/geom_tile.html">geom_raster</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">eberg_spc_pred</span>, <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">PC1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/geom_point.html">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">rnd.lhs_coords</span>, <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,y<span class="op">=</span><span class="va">y</span><span class="op">)</span>, shape<span class="op">=</span><span class="st">"+"</span>, size<span class="op">=</span><span class="fl">4</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/scale_gradient.html">scale_fill_gradientn</a></span><span class="op">(</span>colours  <span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, name<span class="op">=</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/coord_map.html">coord_quickmap</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"An example of a Latin Hypercube Sample (LHS)"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/ggtheme.html">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">xlab</a></span><span class="op">(</span><span class="st">"Westing"</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">ylab</a></span><span class="op">(</span><span class="st">"Northing"</span><span class="op">)</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-clhs"></span>
 <img src="sampling_files/figure-html/eberg-clhs-1.png" alt="An example of a Latin Hypercube Sample (LHS)." width="80%"><p class="caption">
@@ -497,8 +579,8 @@ which is also suitable for larger datasets with computing running in parallel:</
 <span id="cb19-4"><a href="generating-spatial-sampling.html#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; H2O is not running yet, starting it now...</span></span>
 <span id="cb19-5"><a href="generating-spatial-sampling.html#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb19-6"><a href="generating-spatial-sampling.html#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Note:  In case of errors look at the following log files:</span></span>
-<span id="cb19-7"><a href="generating-spatial-sampling.html#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmpKvsIAu/file25f5fc66d45/h2o_tomislav_started_from_r.out</span></span>
-<span id="cb19-8"><a href="generating-spatial-sampling.html#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmpKvsIAu/file25f57444e440/h2o_tomislav_started_from_r.err</span></span>
+<span id="cb19-7"><a href="generating-spatial-sampling.html#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmpUZO4zW/file5442ca5b7dd/h2o_tomislav_started_from_r.out</span></span>
+<span id="cb19-8"><a href="generating-spatial-sampling.html#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     /tmp/RtmpUZO4zW/file544524f047/h2o_tomislav_started_from_r.err</span></span>
 <span id="cb19-9"><a href="generating-spatial-sampling.html#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb19-10"><a href="generating-spatial-sampling.html#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb19-11"><a href="generating-spatial-sampling.html#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Starting H2O JVM and connecting: .. Connection successful!</span></span>
@@ -508,7 +590,7 @@ which is also suitable for larger datasets with computing running in parallel:</
 <span id="cb19-15"><a href="generating-spatial-sampling.html#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster timezone:       Europe/Amsterdam </span></span>
 <span id="cb19-16"><a href="generating-spatial-sampling.html#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O data parsing timezone:  UTC </span></span>
 <span id="cb19-17"><a href="generating-spatial-sampling.html#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster version:        3.30.0.1 </span></span>
-<span id="cb19-18"><a href="generating-spatial-sampling.html#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster version age:    1 year, 9 months and 22 days !!! </span></span>
+<span id="cb19-18"><a href="generating-spatial-sampling.html#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster version age:    1 year, 9 months and 24 days !!! </span></span>
 <span id="cb19-19"><a href="generating-spatial-sampling.html#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster name:           H2O_started_from_R_tomislav_vru837 </span></span>
 <span id="cb19-20"><a href="generating-spatial-sampling.html#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster total nodes:    1 </span></span>
 <span id="cb19-21"><a href="generating-spatial-sampling.html#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O cluster total memory:   15.71 GB </span></span>
@@ -522,7 +604,7 @@ which is also suitable for larger datasets with computing running in parallel:</
 <span id="cb19-29"><a href="generating-spatial-sampling.html#cb19-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     H2O API Extensions:         Amazon S3, XGBoost, Algos, AutoML, Core V3, TargetEncoder, Core V4 </span></span>
 <span id="cb19-30"><a href="generating-spatial-sampling.html#cb19-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     R Version:                  R version 4.0.2 (2020-06-22)</span></span>
 <span id="cb19-31"><a href="generating-spatial-sampling.html#cb19-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in h2o.clusterInfo(): </span></span>
-<span id="cb19-32"><a href="generating-spatial-sampling.html#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Your H2O cluster version is too old (1 year, 9 months and 22 days)!</span></span>
+<span id="cb19-32"><a href="generating-spatial-sampling.html#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Your H2O cluster version is too old (1 year, 9 months and 24 days)!</span></span>
 <span id="cb19-33"><a href="generating-spatial-sampling.html#cb19-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Please download and install the latest version from http://h2o.ai/download/</span></span>
 <span id="cb19-34"><a href="generating-spatial-sampling.html#cb19-34" aria-hidden="true" tabindex="-1"></a>df.hex <span class="ot">&lt;-</span> <span class="fu">as.h2o</span>(eberg_spc<span class="sc">@</span>predicted<span class="sc">@</span>data[,<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="at">destination_frame =</span> <span class="st">"df"</span>)</span>
 <span id="cb19-35"><a href="generating-spatial-sampling.html#cb19-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
@@ -535,7 +617,7 @@ which is also suitable for larger datasets with computing running in parallel:</
 <span id="cb19-42"><a href="generating-spatial-sampling.html#cb19-42" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
 <span id="cb19-43"><a href="generating-spatial-sampling.html#cb19-43" aria-hidden="true" tabindex="-1"></a>  <span class="er">|</span>                                                                      <span class="er">|</span>   <span class="dv">0</span>%</span>
 <span id="cb19-44"><a href="generating-spatial-sampling.html#cb19-44" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
-<span id="cb19-45"><a href="generating-spatial-sampling.html#cb19-45" aria-hidden="true" tabindex="-1"></a>  <span class="er">|=====================</span>                                                 <span class="er">|</span>  <span class="dv">30</span>%</span>
+<span id="cb19-45"><a href="generating-spatial-sampling.html#cb19-45" aria-hidden="true" tabindex="-1"></a>  <span class="er">|==============</span>                                                        <span class="er">|</span>  <span class="dv">20</span>%</span>
 <span id="cb19-46"><a href="generating-spatial-sampling.html#cb19-46" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>                                                                            </span>
 <span id="cb19-47"><a href="generating-spatial-sampling.html#cb19-47" aria-hidden="true" tabindex="-1"></a>  <span class="er">|======================================================================|</span> <span class="dv">100</span>%</span>
 <span id="cb19-48"><a href="generating-spatial-sampling.html#cb19-48" aria-hidden="true" tabindex="-1"></a><span class="co">#km.nut</span></span></code></pre></div>
@@ -554,10 +636,10 @@ Next, we predict the clusters and plot the output:</p>
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">class_df.c</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/names.html">names</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">data</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">class_df.c</span><span class="op">)</span>
 <span class="co">#&gt; 'data.frame':    100 obs. of  4 variables:</span>
-<span class="co">#&gt;  $ PC1: num  0.619 -2.117 1.527 -4.153 -4.45 ...</span>
-<span class="co">#&gt;  $ PC2: num  -0.37 2.34 2.15 3.37 -2.67 ...</span>
-<span class="co">#&gt;  $ PC3: num  -0.766 5.638 3.231 -0.319 -3.29 ...</span>
-<span class="co">#&gt;  $ PC4: num  0.367 4.684 -2.163 3.034 -1.624 ...</span>
+<span class="co">#&gt;  $ PC1: num  0.0276 -2.3565 -4.1214 -0.2878 0.6763 ...</span>
+<span class="co">#&gt;  $ PC2: num  2.51 -4.38 0.93 -3.24 2.08 ...</span>
+<span class="co">#&gt;  $ PC3: num  2.65 -3.1 -1.15 1.55 1.74 ...</span>
+<span class="co">#&gt;  $ PC4: num  2.87 -2.536 -1.781 0.156 -2.74 ...</span>
 <span class="co">#write.csv(class_df.c, "NCluster_100_class_centers.csv")</span></code></pre></div>
 <p>To select sampling points we use the minimum distance to class centers <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">D. J. Brus, 2021</a>)</span>:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
@@ -565,8 +647,17 @@ Next, we predict the clusters and plot the output:</p>
 <span class="va">units</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">D</span>, MARGIN <span class="op">=</span> <span class="fl">1</span>, FUN <span class="op">=</span> <span class="va">which.min</span><span class="op">)</span>
 <span class="va">rnd.fscs</span> <span class="op">&lt;-</span> <span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">@</span><span class="va">coords</span><span class="op">[</span><span class="va">units</span>,<span class="op">]</span></code></pre></div>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">rnd.fscs</span>, pch<span class="op">=</span><span class="st">"+"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="co"># plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])</span>
+<span class="co"># points(rnd.fscs, pch="+")</span>
+<span class="va">eberg_spc_pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">eberg_spc</span><span class="op">@</span><span class="va">predicted</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/magrittr/man/pipe.html">%&gt;%</a></span>  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span>xy<span class="op">=</span><span class="cn">T</span><span class="op">)</span>
+<span class="va">rnd.fscs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">rnd.fscs</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/geom_tile.html">geom_raster</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">eberg_spc_pred</span> , <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">PC1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/geom_point.html">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">rnd.fscs</span>, <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,y<span class="op">=</span><span class="va">y</span><span class="op">)</span>, shape<span class="op">=</span><span class="st">"+"</span>, size<span class="op">=</span><span class="fl">4</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/scale_gradient.html">scale_fill_gradientn</a></span><span class="op">(</span>colours  <span class="op">=</span><span class="va">SAGA_pal</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, name<span class="op">=</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/coord_map.html">coord_quickmap</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"An example of a Feature Space Coverage Sampling (FSCS)"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/ggtheme.html">theme_minimal</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span>  <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">xlab</a></span><span class="op">(</span><span class="st">"Westing"</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://rdrr.io/pkg/ggplot2/man/labs.html">ylab</a></span><span class="op">(</span><span class="st">"Northing"</span><span class="op">)</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <span id="fig:eberg-fscs"></span>
 <img src="sampling_files/figure-html/eberg-fscs-1.png" alt="An example of a Feature Space Coverage Sampling (FSCS)." width="80%"><p class="caption">
@@ -680,7 +771,7 @@ detect possible extrapolation problems in a sampling design (Fig. <a href="gener
 If you detect problems in feature space representation based on an existing point
 sampling set, you can try to reduce those problems by adding additional samples e.g. through
 <strong>covariate space infill sampling</strong> <span class="citation">(<a href="references.html#ref-Brus2021sampling" role="doc-biblioref">D. J. Brus, 2021</a>)</span> or through 2nd round
-sampling and then re-analysis. Such methods are discussed in further chapters.</p>
+sampling and then re-analysis. These methods are discussed in further chapters.</p>
 
 </div>
 </div>
@@ -716,7 +807,7 @@ sampling and then re-analysis. Such methods are discussed in further chapters.</
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Spatial sampling and resampling for Machine Learning</strong>" was written by Tom Hengl, Leandro Parente and Ichsani Wheeler. </p>
+    <p>"<strong>Spatial sampling and resampling for Machine Learning</strong>" was written by Tom Hengl, Leandro Parente, Abdelkrim Bousria and Ichsani Wheeler. </p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021) (preloaded format=xelatex 2022.1.26)  26 JAN 2022 13:30
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021) (preloaded format=xelatex 2022.1.28)  28 JAN 2022 16:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -694,7 +694,7 @@ Package: makeidx 2021/10/04 v1.0m Standard LaTeX package
 \openout5 = `_main.idx'.
 
 Writing index file _main.idx
-No file _main.aux.
+(./_main.aux)
 \openout1 = `_main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 253.
@@ -995,11 +995,9 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 253.
 LaTeX Info: Redefining \pageref on input line 253.
 LaTeX Info: Redefining \nameref on input line 253.
+(./_main.out) (./_main.out)
 \@outlinefile=\write6
 \openout6 = `_main.out'.
-
-
-Package hyperref Warning: Rerun to get /PageLabels entry.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
@@ -1068,608 +1066,211 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 269
 .
 (/home/tomislav/.TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
+) (./_main.toc [3
+
+
+])
 \tf@toc=\write7
 \openout7 = `_main.toc'.
 
-[3
-
-
-] [4
-
-
-]
-LaTeX Font Info:    Font shape `TU/SourceCodePro(0)/m/n' will be
-(Font)              scaled to size 6.99997pt on input line 280.
-LaTeX Font Info:    Font shape `TU/SourceCodePro(0)/b/n' will be
-(Font)              scaled to size 6.99997pt on input line 281.
+[4]
 File: cover.png Graphic file (type bmp)
 <cover.png>
-LaTeX Font Info:    Calculating math sizes for size <8.5> on input line 287.
+LaTeX Font Info:    Calculating math sizes for size <8.5> on input line 279.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 8.5pt on input line 287.
+(Font)              scaled to size 8.5pt on input line 279.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 5.94997pt on input line 287.
+(Font)              scaled to size 5.94997pt on input line 279.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 4.25pt on input line 287.
+(Font)              scaled to size 4.25pt on input line 279.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 8.50078pt on input line 287.
+(Font)              scaled to size 8.50078pt on input line 279.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 5.9505pt on input line 287.
+(Font)              scaled to size 5.9505pt on input line 279.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 4.25038pt on input line 287.
+(Font)              scaled to size 4.25038pt on input line 279.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 8.49908pt on input line 287.
+(Font)              scaled to size 8.49908pt on input line 279.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 5.94933pt on input line 287.
+(Font)              scaled to size 5.94933pt on input line 279.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 4.24954pt on input line 287.
-[5] [6]
-
-Package natbib Warning: Citation `Bivand2013Springer' on page 7 undefined on in
-put line 341.
-
-
-Package natbib Warning: Citation `baddeley2015spatial' on page 7 undefined on i
-nput line 341.
-
-
-Package natbib Warning: Citation `BRUS2019464' on page 7 undefined on input lin
-e 341.
-
-
-Package natbib Warning: Citation `Brus2021sampling' on page 7 undefined on inpu
-t line 341.
-
-[7]
-File: tex/R_logo.svg.png Graphic file (type bmp)
-<tex/R_logo.svg.png>
-[8]
-Chapter 1.
-
-Package natbib Warning: Citation `Bivand2013Springer' on page 9 undefined on in
-put line 416.
-
-[9
+(Font)              scaled to size 4.24954pt on input line 279.
+[5
 
 
 ]
+Overfull \vbox (10.44675pt too high) has occurred while \output is active []
 
-Package natbib Warning: Citation `Brus2021sampling' on page 10 undefined on inp
-ut line 483.
+[6] [7]
+LaTeX Font Info:    Font shape `TU/SourceCodePro(0)/m/n' will be
+(Font)              scaled to size 6.99997pt on input line 345.
+File: tex/R_logo.svg.png Graphic file (type bmp)
+<tex/R_logo.svg.png>
+[8] [9] [10
 
-[10]
 
-Package natbib Warning: Citation `Hengl2004AJSR' on page 11 undefined on input 
-line 539.
-
-
-Package natbib Warning: Citation `Hengl2004AJSR' on page 11 undefined on input 
-line 544.
-
+]
+Chapter 1.
+[11] [12]
 File: ./img/Fig_D1_design_scheme.jpg Graphic file (type bmp)
 <./img/Fig_D1_design_scheme.jpg>
-[11]
-
-Package natbib Warning: Citation `Bivand2013Springer' on page 12 undefined on i
-nput line 572.
-
-
-Package natbib Warning: Citation `Brus2021sampling' on page 12 undefined on inp
-ut line 572.
-
-
-Package natbib Warning: Citation `minasny2006conditioned' on page 12 undefined 
-on input line 574.
-
-
-Package natbib Warning: Citation `Malone2019PeerJ' on page 12 undefined on inpu
-t line 574.
-
-
-Package natbib Warning: Citation `Goerg2013' on page 12 undefined on input line
- 576.
-
-
-Package natbib Warning: Citation `hastie2009elements' on page 12 undefined on i
-nput line 576.
-
-
-Package natbib Warning: Citation `stumpf2017uncertainty' on page 12 undefined o
-n input line 578.
-
-
-Package natbib Warning: Citation `hengl2015plotkml' on page 12 undefined on inp
-ut line 597.
-
-[12]
+[13] [14]
 
 LaTeX Font Warning: Font shape `TU/SourceCodePro(0)/m/it' undefined
-(Font)              using `TU/SourceCodePro(0)/m/n' instead on input line 605.
+(Font)              using `TU/SourceCodePro(0)/m/n' instead on input line 597.
 
-
-Package natbib Warning: Citation `Bohner2008Hamburg' on page 13 undefined on in
-put line 614.
-
-
-Package natbib Warning: Citation `Conrad2015' on page 13 undefined on input lin
-e 619.
-
+LaTeX Font Info:    Font shape `TU/SourceCodePro(0)/b/n' will be
+(Font)              scaled to size 6.99997pt on input line 601.
 LaTeX Font Info:    Font shape `TU/SourceCodePro(0)/m/it' will be
-(Font)              scaled to size 6.99997pt on input line 625.
+(Font)              scaled to size 6.99997pt on input line 617.
 File: ./img/Fig_PCA_components_Ebergotzen.png Graphic file (type bmp)
 <./img/Fig_PCA_components_Ebergotzen.png>
-[13]
+[15]
 File: sampling_files/figure-latex/eberg-srs-1.pdf Graphic file (type pdf)
 <use sampling_files/figure-latex/eberg-srs-1.pdf>
-[14]
+[16]
 File: sampling_files/figure-latex/eberg-fs-1.pdf Graphic file (type pdf)
 <use sampling_files/figure-latex/eberg-fs-1.pdf>
-
-LaTeX Warning: Reference `fig:eberg-fs' on page 15 undefined on input line 717.
-
-
-
-Package natbib Warning: Citation `Royle2012' on page 15 undefined on input line
- 725.
-
+[17]
 File: sampling_files/figure-latex/eberg-maxlike-1.pdf Graphic file (type pdf)
 <use sampling_files/figure-latex/eberg-maxlike-1.pdf>
-[15]
-
-LaTeX Warning: Reference `fig:eberg-maxlike' on page 16 undefined on input line
- 756.
-
-[16]
+[18]
 File: sampling_files/figure-latex/eberg-maxlike2-1.pdf Graphic file (type pdf)
 <use sampling_files/figure-latex/eberg-maxlike2-1.pdf>
-
-Package natbib Warning: Citation `Bohner2008Hamburg' on page 17 undefined on in
-put line 824.
-
-[17]
 File: sampling_files/figure-latex/eberg-fs2-1.pdf Graphic file (type pdf)
 <use sampling_files/figure-latex/eberg-fs2-1.pdf>
-[18]
-
-Package natbib Warning: Citation `minasny2006conditioned' on page 19 undefined 
-on input line 875.
-
-
-Package natbib Warning: Citation `shields2016generalization' on page 19 undefin
-ed on input line 876.
-
-
-Package natbib Warning: Citation `brus2015balanced' on page 19 undefined on inp
-ut line 876.
-
-
-Package natbib Warning: Citation `Roudier2011' on page 19 undefined on input li
-ne 881.
-
-
-Package natbib Warning: Citation `minasny2006conditioned' on page 19 undefined 
-on input line 890.
-
+[19] [20]
 File: sampling_files/figure-latex/eberg-clhs-1.pdf Graphic file (type pdf)
 <use sampling_files/figure-latex/eberg-clhs-1.pdf>
 File: sampling_files/figure-latex/eberg-lhs2-1.pdf Graphic file (type pdf)
 <use sampling_files/figure-latex/eberg-lhs2-1.pdf>
-
-LaTeX Warning: Reference `fig:eberg-fs2' on page 19 undefined on input line 932
-.
-
-
-Package natbib Warning: Citation `roudier2012conditioned' on page 19 undefined 
-on input line 945.
-
-[19] [20]
-
-Package natbib Warning: Citation `BRUS2019464' on page 21 undefined on input li
-ne 951.
-
-
-Package natbib Warning: Citation `ma2020comparison' on page 21 undefined on inp
-ut line 954.
-
-
-Package natbib Warning: Citation `Goerg2013' on page 21 undefined on input line
- 956.
-
-
-Package natbib Warning: Citation `Brus2021sampling' on page 21 undefined on inp
-ut line 975.
-
-[21] [22]
-
-Package natbib Warning: Citation `Brus2021sampling' on page 23 undefined on inp
-ut line 1067.
-
+[21] [22] [23] [24]
 File: sampling_files/figure-latex/eberg-fscs-1.pdf Graphic file (type pdf)
 <use sampling_files/figure-latex/eberg-fscs-1.pdf>
 File: sampling_files/figure-latex/eberg-fscs-pnts-1.pdf Graphic file (type pdf)
 
 <use sampling_files/figure-latex/eberg-fscs-pnts-1.pdf>
-
-Package natbib Warning: Citation `Hengl2004AJSR' on page 23 undefined on input 
-line 1120.
-
-[23] [24]
-
-LaTeX Warning: Reference `fig:eberg-fs2' on page 25 undefined on input line 114
-0.
-
-
-Package natbib Warning: Citation `grafstrom2014efficient' on page 25 undefined 
-on input line 1159.
-
-
-Package natbib Warning: Citation `brus2015balanced' on page 25 undefined on inp
-ut line 1159.
-
-
-Package natbib Warning: Citation `ma2020comparison' on page 25 undefined on inp
-ut line 1161.
-
-
-Package natbib Warning: Citation `yang2020evaluation' on page 25 undefined on i
-nput line 1164.
-
+[25] [26]
 Missing character: There is no ≫ (U+226B) in font [lmroman10-regular]:mapping=t
 ex-text;!
+[27]
 Missing character: There is no ≪ (U+226A) in font [lmroman10-regular]:mapping=t
 ex-text;!
-[25]
 Missing character: There is no ≫ (U+226B) in font [lmroman10-regular]:mapping=t
 ex-text;!
-
-Package natbib Warning: Citation `schabenberger2005statistical' on page 26 unde
-fined on input line 1208.
-
-
-Package natbib Warning: Citation `meyer2021predicting' on page 26 undefined on 
-input line 1223.
-
-
-LaTeX Warning: Reference `fig:eberg-fs2' on page 26 undefined on input line 122
-8.
-
-
-Package natbib Warning: Citation `Brus2021sampling' on page 26 undefined on inp
-ut line 1231.
-
-[26]
-Chapter 2.
-
-Package natbib Warning: Citation `roberts2017cross' on page 27 undefined on inp
-ut line 1247.
-
-
-Package natbib Warning: Citation `hastie2009elements' on page 27 undefined on i
-nput line 1262.
-
-
-Package natbib Warning: Citation `kuhn2013applied' on page 27 undefined on inpu
-t line 1262.
-
-
-Package natbib Warning: Citation `roberts2017cross' on page 27 undefined on inp
-ut line 1263.
-
-
-Package natbib Warning: Citation `lovelace2019geocomputation' on page 27 undefi
-ned on input line 1265.
-
-[27
-
-
-]
-
-Package natbib Warning: Citation `Venables2002Springer' on page 28 undefined on
- input line 1275.
-
-
-Package natbib Warning: Citation `polley2010super' on page 28 undefined on inpu
-t line 1286.
-
-
-Package natbib Warning: Citation `bischl2016mlr' on page 28 undefined on input 
-line 1286.
-
-
-Package natbib Warning: Citation `lu2021unified' on page 28 undefined on input 
-line 1288.
-
 [28]
+Chapter 2.
+[29
+
+
+] [30]
 File: resampling_files/figure-latex/eberg-allpnts-1.pdf Graphic file (type pdf)
 
 <use resampling_files/figure-latex/eberg-allpnts-1.pdf>
-
-Package natbib Warning: Citation `wright2017ranger' on page 29 undefined on inp
-ut line 1343.
-
-[29]
-
-Package natbib Warning: Citation `roberts2017cross' on page 30 undefined on inp
-ut line 1374.
-
-
-Package natbib Warning: Citation `meyer2018improving' on page 30 undefined on i
-nput line 1374.
-
+[31] [32]
 File: resampling_files/figure-latex/eberg-grid-sample-1.pdf Graphic file (type 
 pdf)
 <use resampling_files/figure-latex/eberg-grid-sample-1.pdf>
-[30]
-
-Package natbib Warning: Citation `wright2017ranger' on page 31 undefined on inp
-ut line 1438.
-
-
-Package natbib Warning: Citation `roberts2017cross' on page 31 undefined on inp
-ut line 1455.
-
-
-Package natbib Warning: Citation `meyer2021predicting' on page 31 undefined on 
-input line 1455.
-
-[31]
+[33]
 File: resampling_files/figure-latex/eberg-pred-erf-1.pdf Graphic file (type pdf
 )
 <use resampling_files/figure-latex/eberg-pred-erf-1.pdf>
-[32]
-
-LaTeX Warning: Reference `fig:eberg-fs' on page 33 undefined on input line 1498
-.
-
+[34]
 File: resampling_files/figure-latex/eberg-iprob-1.pdf Graphic file (type pdf)
 <use resampling_files/figure-latex/eberg-iprob-1.pdf>
-[33]
-
-Package natbib Warning: Citation `roberts2017cross' on page 34 undefined on inp
-ut line 1564.
-
-[34]
+[35] [36]
 File: resampling_files/figure-latex/eberg-grid-1.pdf Graphic file (type pdf)
 <use resampling_files/figure-latex/eberg-grid-1.pdf>
-[35] [36]
+[37] [38] [39]
 File: resampling_files/figure-latex/eberg-eml-1.pdf Graphic file (type pdf)
 <use resampling_files/figure-latex/eberg-eml-1.pdf>
-[37]
-
-Package natbib Warning: Citation `meyer2021predicting' on page 38 undefined on 
-input line 1749.
-
-[38]
-
-Package natbib Warning: Citation `lu2021unified' on page 39 undefined on input 
-line 1774.
-
-[39]
-
-LaTeX Warning: Reference `fig:eberg-var-eml' on page 40 undefined on input line
- 1869.
-
-
-LaTeX Warning: Reference `fig:eberg-iprob' on page 40 undefined on input line 1
-870.
-
-[40]
+[40] [41] [42]
 File: resampling_files/figure-latex/eberg-var-eml-1.pdf Graphic file (type pdf)
 
 <use resampling_files/figure-latex/eberg-var-eml-1.pdf>
-
-LaTeX Warning: Reference `fig:eberg-var-eml' on page 41 undefined on input line
- 1901.
-
 File: ./img/Fig_zone_radius_CV.png Graphic file (type bmp)
 <./img/Fig_zone_radius_CV.png>
-
-LaTeX Warning: Reference `fig:example-cv' on page 41 undefined on input line 19
-12.
-
-
-Package natbib Warning: Citation `pohjankukka2017estimating' on page 41 undefin
-ed on input line 1913.
-
-
-Package natbib Warning: Citation `Wadoux2021EM' on page 41 undefined on input l
-ine 1915.
-
-
-Package natbib Warning: Citation `meyer2018improving' on page 41 undefined on i
-nput line 1920.
-
-
-Package natbib Warning: Citation `lovelace2019geocomputation' on page 41 undefi
-ned on input line 1920.
-
-
-Package natbib Warning: Citation `roberts2017cross' on page 41 undefined on inp
-ut line 1923.
-
-[41]
-
-Package natbib Warning: Citation `malone2009mapping' on page 42 undefined on in
-put line 1928.
-
-
-Package natbib Warning: Citation `hengl2019predictive' on page 42 undefined on 
-input line 1931.
-
-[42]
+[43] [44]
 File: resampling_files/figure-latex/edgeroi-map-1.pdf Graphic file (type pdf)
 <use resampling_files/figure-latex/edgeroi-map-1.pdf>
-
-Package natbib Warning: Citation `malone2009mapping' on page 43 undefined on in
-put line 1968.
-
-[43] [44] [45]
+[45] [46] [47]
 File: resampling_files/figure-latex/edgeroi-grid-sample-1.pdf Graphic file (typ
 e pdf)
 <use resampling_files/figure-latex/edgeroi-grid-sample-1.pdf>
-[46]
+[48]
 File: ./img/plot_CV_SOC_RF.png Graphic file (type bmp)
 <./img/plot_CV_SOC_RF.png>
-[47]
+[49]
 File: ./img/plot_CV_SOC_EML.png Graphic file (type bmp)
 <./img/plot_CV_SOC_EML.png>
-[48]
+[50]
 File: ./img/edgeroi_predictions_SOC_5cm.png Graphic file (type bmp)
 <./img/edgeroi_predictions_SOC_5cm.png>
-
-Package natbib Warning: Citation `roberts2017cross' on page 49 undefined on inp
-ut line 2227.
-
-
-Package natbib Warning: Citation `meyer2018improving' on page 49 undefined on i
-nput line 2227.
-
-[49]
+[51]
 File: resampling_files/figure-latex/edgeroi-var-eml-1.pdf Graphic file (type pd
 f)
 <use resampling_files/figure-latex/edgeroi-var-eml-1.pdf>
-[50]
-
-Package natbib Warning: Citation `gasch2015spatio' on page 51 undefined on inpu
-t line 2300.
-
-
-Package natbib Warning: Citation `meyer2018improving' on page 51 undefined on i
-nput line 2300.
-
-[51] [52
+[52] [53] [54
 
 
 ]
 Chapter 3.
-
-Package natbib Warning: Citation `gasch2015spatio' on page 53 undefined on inpu
-t line 2318.
-
-[53]
+[55]
 File: ./img/plot_CV_VW_RF.png Graphic file (type bmp)
 <./img/plot_CV_VW_RF.png>
-
-Package natbib Warning: Citation `gasch2015spatio' on page 54 undefined on inpu
-t line 2404.
-
-
-Package natbib Warning: Citation `roberts2017cross' on page 54 undefined on inp
-ut line 2411.
-
-[54]
+[56]
 LaTeX Font Info:    Font shape `TU/SourceCodePro(0)/b/it' will be
-(Font)              scaled to size 6.99997pt on input line 2421.
-[55] [56]
+(Font)              scaled to size 6.99997pt on input line 2413.
+[57] [58]
 File: ./img/plot_CV_VW_EML.png Graphic file (type bmp)
 <./img/plot_CV_VW_EML.png>
-[57]
+[59]
 File: resampling_st_files/figure-latex/map-eml-vw-1.pdf Graphic file (type pdf)
 
 <use resampling_st_files/figure-latex/map-eml-vw-1.pdf>
-[58]
-
-Package natbib Warning: Citation `meyer2018improving' on page 59 undefined on i
-nput line 2596.
-
-[59] [60
+[60] [61] [62
 
 
 ]
 Chapter 4.
-
-LaTeX Warning: Reference `fig:eberg-var-eml' on page 61 undefined on input line
- 2611.
-
-
-Package natbib Warning: Citation `stumpf2017uncertainty' on page 61 undefined o
-n input line 2612.
-
-
-Package natbib Warning: Citation `hengl2018random' on page 61 undefined on inpu
-t line 2629.
-
-[61]
+[63]
 File: extending_files/figure-latex/eberg-pnts-eml-1.pdf Graphic file (type pdf)
 
 <use extending_files/figure-latex/eberg-pnts-eml-1.pdf>
 File: ./img/Fig_sampling_reanalysis.png Graphic file (type bmp)
 <./img/Fig_sampling_reanalysis.png>
-[62] [63] [64
+[64] [65] [66
 
 
 ]
 Chapter 5.
-
-Package natbib Warning: Citation `ma2020comparison' on page 65 undefined on inp
-ut line 2743.
-
 File: ./img/Fig_summary_comparison_sampling_eberg.jpg Graphic file (type bmp)
 <./img/Fig_summary_comparison_sampling_eberg.jpg>
-[65] [66]
-
-Package natbib Warning: Citation `Venables2002Springer' on page 67 undefined on
- input line 2798.
-
-
-Package natbib Warning: Citation `roberts2017cross' on page 67 undefined on inp
-ut line 2799.
-
+[67] [68]
 Missing character: There is no ≫ (U+226B) in font [lmroman10-regular]:mapping=t
 ex-text;!
-
-Package natbib Warning: Citation `Wadoux2021EM' on page 67 undefined on input l
-ine 2810.
-
-
-Package natbib Warning: Citation `Brus2011EJSS' on page 67 undefined on input l
-ine 2815.
-
-
-Package natbib Warning: Citation `Brus2021sampling' on page 67 undefined on inp
-ut line 2818.
-
-[67] [68
-
-
-]
-Chapter 6.
-No file _main.bbl.
 [69] [70
 
 
 ]
-No file _main.ind.
+Chapter 6.
+(./_main.bbl [71] [72
 
-Package natbib Warning: There were undefined citations.
 
-(./_main.aux)
+] [73]) [74] (./_main.ind) (./_main.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `_main.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `_main.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  E29D45EE86AA366FF9E10C88F2E35C7D;5766.
+Package rerunfilecheck Info: File `_main.out' has not changed.
+(rerunfilecheck)             Checksum: D5891498D2A492BFBBABCF4CBA69573E;5861.
  ) 
 Here is how much of TeX's memory you used:
- 20957 strings out of 478190
- 401277 string characters out of 5854369
- 866985 words of memory out of 5000000
- 41168 multiletter control sequences out of 15000+600000
+ 21098 strings out of 478190
+ 404417 string characters out of 5854369
+ 880785 words of memory out of 5000000
+ 41297 multiletter control sequences out of 15000+600000
  475804 words of font info for 92 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  94i,8n,123p,473b,695s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on _main.pdf (70 pages).
+Output written on _main.pdf (74 pages).

@@ -23,7 +23,7 @@ The 2nd round Uncertainty guided sampling can be implemented either by:
 - Using the probability of exceeding threshold mapping accuracy to generate extra sampling points,
 
 In both cases 2nd round points can be then added to the original training dataset and the 
-model for the area can then be refitted (this procedure in data science is also referred to as _"re-analysis"_). 
+model for the area can then be refitted (this procedure in data science is also referred to as _“re-analysis”_). 
 Assuming that our initial model was unbiased, then even few tens of extra points 
 could lead to significant reduction in RMSPE. In practice, we might have to also 
 organize the 3rd round sampling until we finally reach some maximum possible accuracy [@hengl2018random].
@@ -87,7 +87,7 @@ study area and, of course, including randomization.
 </div>
 
 By adding 2nd, 3rd round sampling we can imagine that the mapping accuracy / RMSE 
-would gradually decrease following a decay function (e.g. `RMSE = b1 * x ^ -b1`) until some 
+would gradually decrease following a decay function (e.g. `RMSE = b0 * x ^ -b1`) until some 
 maximum possible accuracy is achieved. This way soil surveyor can optimize the 
 predictions and reduce costs by minimizing number of additional samples i.e. it 
 could be considered _the shortest path_ to increasing the mapping accuracy without 
