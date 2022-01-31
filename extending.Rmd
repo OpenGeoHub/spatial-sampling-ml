@@ -70,9 +70,24 @@ pnts.new <- spatstat.core::rpoint(50, f=dens.var)
 So the new sampling plan, assuming adding only 50 new points would thus look like this:
 
 ```{r eberg-pnts-eml, echo = TRUE, out.width = "100%", fig.cap = "Uncertainty guided 2nd round sampling: locations of initial (+) and 2nd round points (dots)."}
-plot(log1p(raster(edgeroi.error[c("inv.prob")])))
-points(edgeroi.sp, pch="+", cex=.8, col="blue")
-points(as(pnts.new, "SpatialPoints"), pch=19, cex=0.8, col="black")
+
+
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+edgeroi_error <- log1p(raster(edgeroi.error[c("inv.prob")])) %>%  as.data.frame(xy=T) %>% rename(inv.prob=layer)
+edgeroi.sp_df  <- as.data.frame(edgeroi.sp, xy=T) %>% select(LONGDA94,LATGDA94)
+pnts.new_df  <- as.data.frame(as(pnts.new, "SpatialPoints"), xy=T) 
+
+ggplot() +
+  geom_raster(data = edgeroi_error , aes(x = x, y = y, fill = inv.prob)) + 
+  geom_point(data = edgeroi.sp_df, aes(x=LONGDA94,y=LATGDA94), shape="+", size=3, colour="blue")+
+  geom_point(data = pnts.new_df, aes(x=mx,y=my), shape=19, size=3)+
+  scale_fill_gradientn(colours  = rev(terrain.colors(10)), name="") + 
+  coord_sf()+
+  ggtitle("Uncertainty guided 2nd round sampling: locations of initial (+) \nand 2nd round points (dots) ") +
+  theme_minimal()+  xlab("Easting")+ ylab("Northing")
 ```
 
 This puts much higher weight at locations where the prediction errors are higher, 

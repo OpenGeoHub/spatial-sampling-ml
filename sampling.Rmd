@@ -217,7 +217,7 @@ which gives the a total of 14 PCs. The patterns in the PC components reflect
 a complex combination of terrain variables, lithological discontinuities (`PMTZONES`) 
 and surface vegetation (`NVILANx`):
 
-```{r Fig_PCA_components_Ebergotzen, eval=FALSE}
+```{r PCA, fig.width=9, fig.height=3, fig.cap = "Principal Components derived using Ebergotzen dataset."}
 #spplot(eberg_spc@predicted[1:3], col.regions=SAGA_pal[[1]])
 eberg_spc_pred <- stack(eberg_spc@predicted[1:3]) %>%
   as.data.frame(xy=T) %>%
@@ -229,12 +229,7 @@ ggplot() +
   facet_wrap(PCA~.)+
   coord_quickmap()+
   ggtitle("PCA components Ebergotzen") +
-  theme_void()
-```
-
-
-```{r plot-spc, echo = FALSE, out.width = "100%", fig.cap = "Principal Components derived using Ebergotzen dataset."}
-knitr::include_graphics("./img/Fig_PCA_components_Ebergotzen.png")
+  theme_void()+  xlab("Westing")+ ylab("Northing")
 ```
 
 ## Simple Random Sampling
@@ -294,6 +289,7 @@ ml.prob <- predict(ml)
 ```
 
 ```{r eberg-maxlike, echo = TRUE, out.width = "80%", fig.cap = "Occurrence probability for SRS derived using the maxlike package."}
+ml.prob_gg <- ml.prob %>%  as.data.frame(xy=T)
 # plot(ml.prob)
 # points(rnd@coords, pch="+")
 ml.prob_gg <- ml.prob %>%  as.data.frame(xy=TRUE)
@@ -423,8 +419,8 @@ number of iterations to 100.
 We can plot the LHS sampling plan:
 
 ```{r eberg-clhs, echo = TRUE, out.width = "80%", fig.cap = "An example of a Latin Hypercube Sample (LHS)."}
-# plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
-# points(rnd.lhs@coords, pch="+")
+eberg_spc_pred <- raster(eberg_spc@predicted[1]) %>%  as.data.frame(xy=T)
+rnd.lhs_coords <- eberg_spc_pred[rnd.lhs,]
 eberg_spc_pred <- raster(eberg_spc@predicted[1]) %>%  as.data.frame(xy=TRUE)
 rnd.lhs_coords <- data.frame(rnd.lhs@coords)
 ggplot() +
@@ -521,8 +517,6 @@ rnd.fscs <- eberg_spc@predicted@coords[units,]
 ```
 
 ```{r eberg-fscs, echo = TRUE, out.width = "80%", fig.cap = "An example of a Feature Space Coverage Sampling (FSCS)."}
-# plot(raster(eberg_spc@predicted[1]), col=SAGA_pal[[1]])
-# points(rnd.fscs, pch="+")
 eberg_spc_pred <- raster(eberg_spc@predicted[1]) %>%  as.data.frame(xy=T)
 rnd.fscs <- as.data.frame(rnd.fscs)
 ggplot() +
