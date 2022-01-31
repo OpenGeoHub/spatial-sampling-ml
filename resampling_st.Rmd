@@ -37,6 +37,10 @@ We can load the prediction locations and regression-matrix from:
 ```{r}
 library(rgdal)
 library(ranger)
+library(raster)
+library(ggplot2)
+library(dplyr)
+
 cookfarm.rm = readRDS('extdata/cookfarm_st.rds')
 cookfarm.grid = readRDS('extdata/cookfarm_grid10m.rds')
 ```
@@ -154,11 +158,20 @@ pr.df = predict(eml.VW, newdata = new.st[,all.vars(fm)[-1]])
 To plot prediction together with locations of training points we can
 use:
 
-```{r, map-eml-vw, fig.width=6, echo=TRUE, out.width="90%", fig.cap="Predicted soil water content based on spatiotemporal EML."}
+```{r, map-eml-vw, fig.width=6, echo=TRUE, fig.cap="Predicted soil water content based on spatiotemporal EML."}
 cookfarm.grid$pr.VW = pr.df$data$response
-plot(raster::raster(cookfarm.grid["pr.VW"]), col=rev(bpy.colors()),
-     main="Predicted VW for 2012-07-30 and depth -0.3 m", axes=FALSE, box=FALSE)
-points(cookfarm$profiles[,c("Easting","Northing")], pch="+", cex=.8)
+cookfarm.grid_df <- raster(cookfarm.grid["pr.VW"]) %>%  as.data.frame(xy=T) %>% na.omit()
+cookfarm_profiles <-cookfarm$profiles[,c("Easting","Northing")]
+
+ggplot() +
+  geom_raster(data = cookfarm.grid_df , aes(x = x, y = y, fill = pr.VW)) +
+  geom_point(data = cookfarm_profiles, aes(x=Easting,y=Northing ), shape="+", size=3)+
+  scale_fill_gradientn(colours  = rev(bpy.colors()), name="") +
+  coord_sf()+
+  ggtitle("Predicted VW for 2012-07-30 and depth -0.3 m") +
+  theme_minimal()+  xlab("Easting")+ ylab("Northing")
+
+
 ```
 
 Because this is a spacetime dataset, we could also predict values of `VW` for 
