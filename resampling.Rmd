@@ -18,7 +18,7 @@ source("sampling_functions.R")
 ## Resampling and Cross-Validation
 
 In the previous examples we have demonstrated how to prepare sampling designs 
-for your own study area assuming no other point data is available. We have also 
+for your own study area assuming no previous point data is available. We have also 
 demonstrated how to run some sampling representation diagnostics to detect potential 
 problems especially in the feature space. In the next sections we will focus on 
 how to use different **resampling** methods i.e. 
@@ -28,26 +28,26 @@ how to use different **resampling** methods i.e.
 - _missing out covariates_ that are important but possibly _shadowed_ by the covariates 
   over-selected due to overfitting;  
 - _producing poor extrapolation_ i.e. generating artifacts or blunders in predictions;  
-- _over-/under-estimating mapping accuracy_ i.e. producing a biased estimate of model performance;  
+- _over-/under-estimating mapping accuracy_ i.e. producing biased estimates of model performance;  
 
 **Resamping** methods are discussed in detail in @hastie2009elements, @kuhn2013applied and 
 @roberts2017cross, and is also commonly implemented in many statistical and machine 
 learning packages such as the [caret](https://topepo.github.io/caret/) or [mlr](https://mlr3.mlr-org.com/).
-Spatial resampling methods are discussed in detail in @lovelace2019geocomputation.
+Spatial resampling methods are discussed in detail also in @lovelace2019geocomputation.
 
 For an introduction to Cross-Validation please refer to [this tutorial](https://neptune.ai/blog/cross-validation-in-machine-learning-how-to-do-it-right) 
-and the **[“Data Analysis and Prediction Algorithms with R”](https://rafalab.github.io/dsbook/cross-validation.html)** chapters on cross validation. 
+and the **[“Data Analysis and Prediction Algorithms with R”](https://rafalab.github.io/dsbook/cross-validation.html)** especially chapters on cross validation. 
 For an introduction to **spatial Cross-Validation** refer to the **[“Geocomputation with R”](https://geocompr.robinlovelace.net/spatial-cv.html)** book.
 
 It can be said that, in general, purpose of Machine Learning for predictive 
 mapping is to try to produce **Best Unbiased Predictions** (BUPS) of the target 
-variable and the associated uncertainty (e.g. prediction error). 
-BUPS is commonly implemented through: (1) selecting the Best Unbiased Predictor 
+variable and the associated uncertainty (e.g. prediction errors). 
+BUPS can be commonly implemented through: (1) selecting the Best Unbiased Predictor 
 [@Venables2002Springer], (2) selecting the optimal subset of covariates and model 
 parameters (usually by iterations), (3) applying predictions and providing an 
 estimate of the prediction uncertainty i.e. estimate of the prediction errors / 
 prediction intervals for a given probability distribution. In this tutorial the 
-path to BUPS we use includes:
+path to BUPS is based on:
 
 - **Ensemble Machine Learning** using stacking approach with 5-fold Cross-Validation 
   with a meta-learner i.e. an independent model correlating competing base-learners 
@@ -117,19 +117,18 @@ This shows an RMSE of about 7.3% and an R-square of about 0.61. The problem of t
 accuracy measure is that with this Random Forest model we ignore spatial clustering 
 of points, hence both the model and the accuracy metric could be over-optimistic [@roberts2017cross;@meyer2018improving]. Because we are typically interested in 
 how does the model perform over the WHOLE area of interest, not only in comparison 
-to out-of-bag points, to reduce overfitting or any bias in the BUPS we need to 
-apply some adjustments.
+to out-of-bag points, we need to apply some adjustments to reduce overfitting or any bias in the BUPS.
 
 Strategy #1 for producing more objective estimate of model parameters is to 
-resample sampling points by forcing as much as possible equal sampling intensity 
-(hence mimicking the SRS), then observe performance of the model accuracy. 
-We can implement such spatial resampling using the `sample.grid` function, 
-which basically resamples the existing point samples with an objective of producing 
-a sample more similar to SRS. This type of subsetting can be run `M` times and 
-then an ensemble model can be produced in which each individual model is based 
-on spatially balanced samples. These are not true SRS samples but we can refer 
-to them as the **pseudo-SRS samples** as they would probably pass all Spatial 
-Randomness tests.
+resample training points by forcing as much as possible equal sampling intensity 
+(hence mimicking the SRS), then observe performance of the model accuracy under 
+different resampling strategies. We can implement such spatial resampling using 
+the `sample.grid` function, which basically resamples the existing point samples 
+with an objective of producing a sample more similar to SRS. This type of 
+subsetting can be run `M` times and then an ensemble model can be produced in 
+which each individual model is based on spatially balanced samples. These are 
+not true SRS samples but we can refer to them as the **pseudo-SRS samples** as 
+they would probably pass most of the **Spatial Randomness tests**.
 
 In R we can implement spatial resampling using the following three steps. First, 
 we generate e.g. 10 random subsets where the sampling intensity of points is 
@@ -225,11 +224,12 @@ both could be determined by iterations.
 ## Weighted Machine Learning
 
 Note that the function `grid.sample` per definition draws points that are relatively 
-isolated (Fig. \@ref(fig:eberg-fs)) with higher probability. Hence, a more generic 
-approach (Strategy #2) from declustering, is to use the `case.weights` parameter 
-to instruct `ranger` to put more emphasis on isolated points / remove impact of 
+isolated (Fig. \@ref(fig:eberg-fs)) with higher probability. We could implement a similar 
+principle but this time use the `case.weights` parameter approach (Strategy #2). Many 
+Machine Learning algorithms allow for inclusion probabilities to be specified. For 
+example, we can instruct `ranger` to put more emphasis on isolated points / remove impact of 
 clustered points. The weighted estimation of model parameters is common in regression, 
-and also in spatial statistics (see e.g. the [nlme::gls](https://stat.ethz.ch/R-manual/R-devel/library/nlme/html/gls.html) Generalized Least Square (GLS) function). 
+and also in spatial statistics (see e.g. the [nlme::gls](https://stat.ethz.ch/R-manual/R-devel/library/nlme/html/gls.html); Generalized Least Square (GLS) function). 
 Theoretical basis for GLS / weighted regression is that the points that are clustered 
 might also be spatially correlated, and that means that they would introduce bias in 
 estimation of the regression parameters. Ideally, regression residuals should be 

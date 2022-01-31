@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>2 Resampling methods for Machine Learning | Spatial sampling and resampling for Machine Learning</title>
-<meta name="author" content="Tom Hengl, Leandro Parente and Ichsani Wheeler">
+<meta name="author" content="Tom Hengl, Leandro Parente, Abdelkrim Bousria and Ichsani Wheeler">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/header-attrs-2.8.1/header-attrs.js"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -63,7 +63,7 @@
 <span class="header-section-number">2.1</span> Resampling and Cross-Validation<a class="anchor" aria-label="anchor" href="#resampling-and-cross-validation"><i class="fas fa-link"></i></a>
 </h2>
 <p>In the previous examples we have demonstrated how to prepare sampling designs
-for your own study area assuming no other point data is available. We have also
+for your own study area assuming no previous point data is available. We have also
 demonstrated how to run some sampling representation diagnostics to detect potential
 problems especially in the feature space. In the next sections we will focus on
 how to use different <strong>resampling</strong> methods i.e. 
@@ -80,24 +80,24 @@ over-selected due to overfitting;<br>
 <em>producing poor extrapolation</em> i.e. generating artifacts or blunders in predictions;<br>
 </li>
 <li>
-<em>over-/under-estimating mapping accuracy</em> i.e. producing a biased estimate of model performance;</li>
+<em>over-/under-estimating mapping accuracy</em> i.e. producing biased estimates of model performance;</li>
 </ul>
 <p><strong>Resamping</strong> methods are discussed in detail in <span class="citation"><a href="references.html#ref-hastie2009elements" role="doc-biblioref">Hastie, Tibshirani, &amp; Friedman</a> (<a href="references.html#ref-hastie2009elements" role="doc-biblioref">2009</a>)</span>, <span class="citation"><a href="references.html#ref-kuhn2013applied" role="doc-biblioref">Kuhn &amp; Johnson</a> (<a href="references.html#ref-kuhn2013applied" role="doc-biblioref">2013</a>)</span> and
 <span class="citation"><a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al.</a> (<a href="references.html#ref-roberts2017cross" role="doc-biblioref">2017</a>)</span>, and is also commonly implemented in many statistical and machine
 learning packages such as the <a href="https://topepo.github.io/caret/">caret</a> or <a href="https://mlr3.mlr-org.com/">mlr</a>.
-Spatial resampling methods are discussed in detail in <span class="citation"><a href="references.html#ref-lovelace2019geocomputation" role="doc-biblioref">Lovelace, Nowosad, &amp; Muenchow</a> (<a href="references.html#ref-lovelace2019geocomputation" role="doc-biblioref">2019</a>)</span>.</p>
+Spatial resampling methods are discussed in detail also in <span class="citation"><a href="references.html#ref-lovelace2019geocomputation" role="doc-biblioref">Lovelace, Nowosad, &amp; Muenchow</a> (<a href="references.html#ref-lovelace2019geocomputation" role="doc-biblioref">2019</a>)</span>.</p>
 <p>For an introduction to Cross-Validation please refer to <a href="https://neptune.ai/blog/cross-validation-in-machine-learning-how-to-do-it-right">this tutorial</a>
-and the <strong><a href="https://rafalab.github.io/dsbook/cross-validation.html">“Data Analysis and Prediction Algorithms with R”</a></strong> chapters on cross validation.
+and the <strong><a href="https://rafalab.github.io/dsbook/cross-validation.html">“Data Analysis and Prediction Algorithms with R”</a></strong> especially chapters on cross validation.
 For an introduction to <strong>spatial Cross-Validation</strong> refer to the <strong><a href="https://geocompr.robinlovelace.net/spatial-cv.html">“Geocomputation with R”</a></strong> book.</p>
 <p>It can be said that, in general, purpose of Machine Learning for predictive
 mapping is to try to produce <strong>Best Unbiased Predictions</strong> (BUPS) of the target
-variable and the associated uncertainty (e.g. prediction error).
-BUPS is commonly implemented through: (1) selecting the Best Unbiased Predictor
+variable and the associated uncertainty (e.g. prediction errors).
+BUPS can be commonly implemented through: (1) selecting the Best Unbiased Predictor
 <span class="citation">(<a href="references.html#ref-Venables2002Springer" role="doc-biblioref">Venables &amp; Ripley, 2002</a>)</span>, (2) selecting the optimal subset of covariates and model
 parameters (usually by iterations), (3) applying predictions and providing an
 estimate of the prediction uncertainty i.e. estimate of the prediction errors /
 prediction intervals for a given probability distribution. In this tutorial the
-path to BUPS we use includes:</p>
+path to BUPS is based on:</p>
 <ul>
 <li>
 <strong>Ensemble Machine Learning</strong> using stacking approach with 5-fold Cross-Validation
@@ -174,18 +174,17 @@ top-soil clay content using e.g. random forest <span class="citation">(<a href=
 accuracy measure is that with this Random Forest model we ignore spatial clustering
 of points, hence both the model and the accuracy metric could be over-optimistic <span class="citation">(<a href="references.html#ref-meyer2018improving" role="doc-biblioref">Meyer, Reudenbach, Hengl, Katurji, &amp; Nauss, 2018</a>; <a href="references.html#ref-roberts2017cross" role="doc-biblioref">Roberts et al., 2017</a>)</span>. Because we are typically interested in
 how does the model perform over the WHOLE area of interest, not only in comparison
-to out-of-bag points, to reduce overfitting or any bias in the BUPS we need to
-apply some adjustments.</p>
+to out-of-bag points, we need to apply some adjustments to reduce overfitting or any bias in the BUPS.</p>
 <p>Strategy #1 for producing more objective estimate of model parameters is to
-resample sampling points by forcing as much as possible equal sampling intensity
-(hence mimicking the SRS), then observe performance of the model accuracy.
-We can implement such spatial resampling using the <code>sample.grid</code> function,
-which basically resamples the existing point samples with an objective of producing
-a sample more similar to SRS. This type of subsetting can be run <code>M</code> times and
-then an ensemble model can be produced in which each individual model is based
-on spatially balanced samples. These are not true SRS samples but we can refer
-to them as the <strong>pseudo-SRS samples</strong> as they would probably pass all Spatial
-Randomness tests.</p>
+resample training points by forcing as much as possible equal sampling intensity
+(hence mimicking the SRS), then observe performance of the model accuracy under
+different resampling strategies. We can implement such spatial resampling using
+the <code>sample.grid</code> function, which basically resamples the existing point samples
+with an objective of producing a sample more similar to SRS. This type of
+subsetting can be run <code>M</code> times and then an ensemble model can be produced in
+which each individual model is based on spatially balanced samples. These are
+not true SRS samples but we can refer to them as the <strong>pseudo-SRS samples</strong> as
+they would probably pass most of the <strong>Spatial Randomness tests</strong>.</p>
 <p>In R we can implement spatial resampling using the following three steps. First,
 we generate e.g. 10 random subsets where the sampling intensity of points is
 relatively homogeneous:</p>
@@ -259,11 +258,12 @@ both could be determined by iterations.</p>
 <span class="header-section-number">2.3</span> Weighted Machine Learning<a class="anchor" aria-label="anchor" href="#weighted-machine-learning"><i class="fas fa-link"></i></a>
 </h2>
 <p>Note that the function <code>grid.sample</code> per definition draws points that are relatively
-isolated (Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs">1.4</a>) with higher probability. Hence, a more generic
-approach (Strategy #2) from declustering, is to use the <code>case.weights</code> parameter
-to instruct <code>ranger</code> to put more emphasis on isolated points / remove impact of
+isolated (Fig. <a href="generating-spatial-sampling.html#fig:eberg-fs">1.4</a>) with higher probability. We could implement a similar
+principle but this time use the <code>case.weights</code> parameter approach (Strategy #2). Many
+Machine Learning algorithms allow for inclusion probabilities to be specified. For
+example, we can instruct <code>ranger</code> to put more emphasis on isolated points / remove impact of
 clustered points. The weighted estimation of model parameters is common in regression,
-and also in spatial statistics (see e.g. the <a href="https://stat.ethz.ch/R-manual/R-devel/library/nlme/html/gls.html">nlme::gls</a> Generalized Least Square (GLS) function).
+and also in spatial statistics (see e.g. the <a href="https://stat.ethz.ch/R-manual/R-devel/library/nlme/html/gls.html">nlme::gls</a>; Generalized Least Square (GLS) function).
 Theoretical basis for GLS / weighted regression is that the points that are clustered
 might also be spatially correlated, and that means that they would introduce bias in
 estimation of the regression parameters. Ideally, regression residuals should be
@@ -887,7 +887,7 @@ using spatial blocking refer also to <span class="citation"><a href="references.
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Spatial sampling and resampling for Machine Learning</strong>" was written by Tom Hengl, Leandro Parente and Ichsani Wheeler. </p>
+    <p>"<strong>Spatial sampling and resampling for Machine Learning</strong>" was written by Tom Hengl, Leandro Parente, Abdelkrim Bousria and Ichsani Wheeler. </p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
