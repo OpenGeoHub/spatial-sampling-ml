@@ -88,16 +88,10 @@ eberg.xy = eberg.xy[!is.na(ov.xy$DEMTOPx),]
 ```
 
 ```{r eberg-allpnts, echo = TRUE, fig.cap = "All sampling points available for Ebergotzen case study."}
-eberg_spc_pred <- raster(eberg_spc@predicted[1]) %>%  as.data.frame(xy=T)
-eberg.xy_df <- as.data.frame(eberg.xy, xy=T)
 
-ggplot() +
-  geom_raster(data = eberg_spc_pred , aes(x = x, y = y, fill = PC1)) + 
-  geom_point(data = eberg.xy_df, aes(x=X,y=Y), shape="+", size=2)+
-  scale_fill_gradientn(colours  =SAGA_pal[[1]], name="") + 
-  coord_sf()+
-  ggtitle("All sampling points available for \nEbergotzen case study") +
-  theme_minimal()+  xlab("Westing")+ ylab("Northing")
+plot.map(df=raster(eberg_spc@predicted[1]), points = as.data.frame(eberg.xy, xy=TRUE) , pcex=2,
+         title = "All Ebergotzen sampling points")
+
 ```
 
 If we ignore that property of the data and directly fit a predictive model for e.g. 
@@ -145,15 +139,9 @@ check that the training point sample looks more like a SRS or similar.
 
 ```{r eberg-grid-sample, fig.height=4.5, fig.cap = "Resampling original points using `sample.grid` function, which produces a sample with similar properties such as SRS."}
 
-sub.lst_df <- as.data.frame(sub.lst[[1]]$grid, xy=T)
-l1 <- as.data.frame(sub.lst[[1]]$subset)
+plot.map(df=sub.lst[[1]]$grid, points = as.data.frame(sub.lst[[1]]$subset)[,c("X","Y")], pcex = 2, maptype="grey",
+         title="Resampling using `sample.grid`")
 
-ggplot() +
-  geom_raster(data = sub.lst_df , aes(x = s1, y = s2), fill = "grey") +
-  geom_point(data = l1, aes(x=X,y=Y), shape="+", size=2)+
-  coord_sf()+
-  ggtitle("Resampling original points \nusing `sample.grid` function") +
-  theme_minimal()+  xlab("Westing")+ ylab("Northing")
 ```
 
 Second, we can fit a list of random forest models using 10 random draws mimicking 
@@ -197,18 +185,10 @@ eberg_grid25$pred.cly.erf = rowMeans(do.call(cbind, pred.cly.lst), na.rm=TRUE)
 ```
 
 ```{r eberg-pred-erf, echo = TRUE, fig.width=8.5, fig.height=4.5, fig.cap = "Predictions of clay content: (left) ignoring spatial clustering effect on model, (right) after de-clustering of points."}
+
 #zlim.cly = quantile(rm.eberg$CLYMHT_A, c(0.05, 0.95), na.rm=TRUE)
 
-eberg_grid25_df <- stack(eberg_grid25[c("pred.cly.rf", "pred.cly.erf")]) %>% 
-  as.data.frame(xy=T) %>% gather(key=layer, value = value, -x, -y)
-
-ggplot() +
-  geom_raster(data = eberg_grid25_df , aes(x = x, y = y, fill = value)) + 
-  scale_fill_gradientn(colours  = SAGA_pal[[1]], name="") + 
-  facet_wrap(layer~.)+
-  coord_sf()+
-  theme_minimal()+  xlab("Westing")+ ylab("Northing")+
-  theme(panel.spacing = unit(2, "lines"))
+compare.map(df=stack(eberg_grid25[c("pred.cly.rf", "pred.cly.erf")]), title="Clay content Predictions non-spatial clustering and de-clustering of points")
 
 ```
 
@@ -245,16 +225,8 @@ iprob.all <- landmap::spsample.prob(eberg.sp, eberg_spc@predicted[1:4])
 
 ```{r eberg-iprob, echo = TRUE, fig.cap = "Occurrence probability for existing point samples for the Ebergotzen case study derived as an average between the kernel density and maxlike occurrence probabilities."}
 
-iprob.all_prob <- raster(iprob.all$prob) %>%  as.data.frame(xy=T)
-iprob.all_obs  <- as.data.frame(iprob.all$observations, xy=T)
-
-ggplot() +
-  geom_raster(data = iprob.all_prob , aes(x = x, y = y, fill = iprob)) + 
-  geom_point(data = iprob.all_obs, aes(x=X,y=Y), shape="+", size=2)+
-  scale_fill_gradientn(colours  = rev(terrain.colors(10)), name="") + 
-  coord_sf()+
-  ggtitle("Occurrence probability") +
-  theme_minimal()+  xlab("Westing")+ ylab("Northing")
+plot.map(df=raster(iprob.all$prob), points=as.data.frame(iprob.all$observations, xy=TRUE),
+         fill = rev(terrain.colors(10)), pcex=2, grid = 4, title="maxlike occurrence probabilities")
 
 ```
 
@@ -301,16 +273,8 @@ id <- sp::over(eberg.xy, r.sp)$gid
 
 ```{r eberg-grid, echo = TRUE, fig.height=5, fig.cap = "500 m grid for spatial resampling."}
 
-r.sp_df <-  as.data.frame(r.sp,xy=T)
-eberg.xy_df <- as.data.frame(eberg.xy, xy=T)
-
-ggplot() +
-  geom_raster(data = r.sp_df , aes(x = x, y = y, fill = gid)) + 
-  geom_point(data = eberg.xy_df, aes(x=X,y=Y), shape="+", size=2)+
-  scale_fill_gradientn(colours  = terrain.colors(10), name="") + 
-  coord_sf()+
-  ggtitle("500 m grid for spatial resampling") +
-  theme_minimal()+  xlab("Westing")+ ylab("Northing")
+plot.map(df=r.sp, points = as.data.frame(eberg.xy, xy=TRUE), pcex=2, fill = terrain.colors(10), grid=6,
+         title="Spatial resampling grid (500 m)")
 
 ```
 
@@ -366,16 +330,8 @@ eberg_grid25$pred.cly.eml = pred.cly.eml$data$response
 
 ```{r eberg-eml, echo = TRUE, fig.width=8.5, fig.height=4.5, fig.cap = "Predictions of clay content: (left) Ensemble ML with spatial blocking, (right) after de-clustring of points."}
 
-eberg_grid25_df <- stack(eberg_grid25[c("pred.cly.eml", "pred.cly.erf")]) %>% 
-  as.data.frame(xy=T) %>% gather(key=layer, value = value, -x, -y)
+compare.map(df=stack(eberg_grid25[c("pred.cly.eml", "pred.cly.erf")]), title="Clay content predictions using EML spatial blocking and de-clustring")
 
-ggplot() +
-  geom_raster(data = eberg_grid25_df , aes(x = x, y = y, fill = value)) + 
-  scale_fill_gradientn(colours  = SAGA_pal[[1]], name="") + 
-  facet_wrap(layer~.)+
-  coord_sf()+
-  theme_minimal()+  xlab("Westing")+ ylab("Northing")+
-  theme(panel.spacing = unit(2, "lines"))
 ```
 
 Visual comparison with the predictions produced in previous section, show that 
@@ -492,16 +448,8 @@ as having much higher RMSPE (compare with Fig. \@ref(fig:eberg-iprob)):
 ```{r eberg-var-eml, echo = TRUE, out.width = "90%", fig.cap = "Prediction errors for the clay content based on the forestError package and Ensemble ML."}
 eberg_grid25$rmspe.cly.eml = sqrt(pred.q$estimates$mspe)
 
-eberg_grid25_df <- raster(eberg_grid25[c("rmspe.cly.eml")]) %>%  as.data.frame(xy=T)
-eberg.sp_df  <- as.data.frame(eberg.sp, xy=T)
-
-ggplot() +
-  geom_raster(data = eberg_grid25_df , aes(x = x, y = y, fill = rmspe.cly.eml)) + 
-  geom_point(data = eberg.sp_df, aes(x=X,y=Y), shape="+", size=2)+
-  scale_fill_gradientn(colours  = SAGA_pal[[16]], name="") + 
-  coord_sf()+
-  ggtitle("Occurrence probability") +
-  theme_minimal()+  xlab("Westing")+ ylab("Northing")
+plot.map(df=eberg_grid25[c("rmspe.cly.eml")],points = as.data.frame(eberg.sp, xy=T), pcex=2, fill=SAGA_pal[[16]], grid=4,
+         title="Clay content prediction errors using forestError and EML")
 ```
 
 In the previous examples we have shown that the actual samples from the Ebergotzen 
@@ -557,16 +505,8 @@ edgeroi.grids = landmap::spc(edgeroi.grids.100m[-1])
 
 ```{r edgeroi-map, echo = TRUE, fig.cap = "The Edgeroi dataset consisting of 359 soil profiles."}
 
-edgeroi.grids_pred <- raster(edgeroi.grids@predicted[1]) %>%  as.data.frame(xy=T)
-edgeroi.sp_df  <- as.data.frame(edgeroi.sp, xy=T) %>% select(LONGDA94,LATGDA94)
-
-ggplot() +
-  geom_raster(data = edgeroi.grids_pred , aes(x = x, y = y, fill = PC1)) + 
-  geom_point(data = edgeroi.sp_df, aes(y=LATGDA94,x=LONGDA94 ), shape="+", size=3)+
-  scale_fill_gradientn(colours  = rev(terrain.colors(10)), name="") + 
-  coord_sf()+
-  ggtitle("The Edgeroi dataset ") +
-  theme_minimal()+  xlab("Westing")+ ylab("Northing")
+plot.map(df=raster(edgeroi.grids@predicted[1]), points = coordinates(edgeroi.sp), fill = rev(terrain.colors(10)),
+         grid=5, title = "Edgeroi dataset: 359 soil profiles")
 
 ```
 
@@ -640,15 +580,8 @@ subE.lst = lapply(1:10, function(i){landmap::sample.grid(edgeroi.sp, c(3.5e3, 3.
 
 ```{r edgeroi-grid-sample, echo = TRUE, fig.cap = "Resampling original points using `sample.grid` function for the Edgeroi dataset."}
 
-subE.lst_df <- as.data.frame(subE.lst[[1]]$grid, xy=T)
-lE1 <- as.data.frame(subE.lst[[1]]$subset, xy=T)
+plot.map(df=subE.lst[[1]]$grid, points = subE.lst[[1]]$subset, pcex=2, grid=5, maptype = "grey", title="Resampling Edgeroi dataset using `sample.grid`")
 
-ggplot() +
-  geom_raster(data = subE.lst_df , aes(x = s1, y = s2), fill = "grey") +
-  geom_point(data = lE1, aes(x=LONGDA94,y=LATGDA94), shape="+", size=2)+
-  coord_sf()+
-  ggtitle("Resampling original points using `sample.grid` function \nfor the Edgeroi dataset") +
-  theme_minimal()+  xlab("Westing")+ ylab("Northing")
 ```
 
 So in any random pseudo-grid subset we take out about 100 profiles from 359 and 
@@ -730,19 +663,8 @@ edgeroi.grids.100m$eml_soc_5cm = predict(emlE, newdata=newdata[,emlE$features])$
 
 ```{r, pred-soc, echo=FALSE, fig.width=9, fig.height=4, fig.cap="Predictions of soil organic carbon (in log-scale) based on Random Forest (RF) and Ensemble ML (EML)."}
 
-edgeroi.grids.100m_df <- stack(edgeroi.grids.100m[c("rf_soc_5cm", "eml_soc_5cm")]) %>% 
-  as.data.frame(xy=T) %>% gather(key=layer, value = value, -x, -y)
-l.pnts <- as.data.frame(edgeroi.sp, xy=T)
-
-ggplot() +
-  geom_raster(data = edgeroi.grids.100m_df , aes(x = x, y = y, fill = value)) + 
-  scale_fill_gradientn(colours  = SAGA_pal[[1]], name="") +
-  geom_point(data = l.pnts, aes(x=LONGDA94,y=LATGDA94), shape="+", size=2)+
-  facet_wrap(layer~.)+
-  coord_sf()+
-  theme_minimal()+  xlab("Westing")+ ylab("Northing")+
-  theme(panel.spacing = unit(2, "lines"))
-
+compare.map(df=stack(edgeroi.grids.100m[c("rf_soc_5cm", "eml_soc_5cm")]), points = coordinates(edgeroi.sp), pcex=2,
+            title="SOC predictions (in log-scale) using EML and RF.")
 
 ```
 
@@ -776,17 +698,9 @@ Which again shows where could be the main extrapolation problems i.e. where
 multiple base learners perform poorly:
 
 ```{r edgeroi-var-eml, echo = TRUE, fig.cap = "Prediction errors for the soil organic carbon content based on the forestError package and Ensemble ML."}
-edgeroi.grids.100m$rmspe.soc.eml = sqrt(predE.q$estimates$mspe)
 
-edgeroi.grids.100m_df <- raster(edgeroi.grids.100m[c("rmspe.soc.eml")]) %>%  as.data.frame(xy=T)
-
-ggplot() +
-  geom_raster(data = edgeroi.grids.100m_df , aes(x = x, y = y, fill = rmspe.soc.eml)) + 
-  geom_point(data = edgeroi.sp_df, aes(y=LATGDA94,x=LONGDA94 ), shape="+", size=3)+
-  scale_fill_gradientn(colours  = SAGA_pal[[16]], name="") + 
-  coord_sf()+
-  ggtitle("Prediction errors for the soil organic carbon content based \non the forestError package and Ensemble ML. ") +
-  theme_minimal()+  xlab("Westing")+ ylab("Northing")
+plot.map(df=raster(edgeroi.grids.100m[c("rmspe.soc.eml")]), points = edgeroi.sp, fill=SAGA_pal[[16]], pcex=3,
+         title = "SOC errors prediction unsing forestError and EML", grid=5)
 ```
 
 ```{r}
