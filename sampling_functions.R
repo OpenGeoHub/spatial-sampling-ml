@@ -64,3 +64,98 @@ plot_hexbin <- function(varn, breaks, main, meas, pred, colorcut=c(0,0.01,0.03,0
     dev.off()
   }
 }
+
+## mapping wrapper functions
+
+
+plot.map <- function(df, title="", fill=SAGA_pal[[1]], points, pcex=4, maptype="", grid=3, points2=NULL){
+  
+  df<- df_prep(df)
+  
+  if("LONGDA94" %in% names(as.data.frame(points))){
+    points <- as.data.frame(points,xy=T) %>% rename(x=LONGDA94,y=LATGDA94)
+  }
+  names(points)<- c("x","y")
+  names(points) <- tolower(names(points))
+  
+  map <- ggplot()
+  
+  if (maptype == "grey") {
+    map <- map + geom_raster(data = df , aes(x = x, y = y), fill = "grey")
+  } else{
+    map <- map + geom_raster(data = df , aes(x = x, y = y, fill = value))
+  }
+  if(!is.null(points2)){
+    points2<- as.data.frame(points2, xy=TRUE)
+    names(points2) <- c("x","y")
+    map <- map+geom_point(data = points2, aes(x=x,y=y), shape=19, size=2, colour="blue")
+  }
+  
+  map + geom_point(data = points, aes(x = x, y = y), shape = "+",size = pcex) +
+    scale_fill_gradientn(colours  = fill, name = "") +
+    coord_sf() +
+    ggtitle(title) +
+    theme_minimal() +
+    xlab("Easting") +
+    ylab("Northing") +
+    scale_x_continuous(breaks = pretty(df$x, n = grid)) +
+    scale_y_continuous(breaks = pretty(df$y, n = grid))
+  
+  }
+
+
+
+compare.map <- function(df, title = "",  fill=SAGA_pal[[1]], points=NULL,grid=3, pcex=4) {
+  
+  df<- df %>% as.data.frame(xy = TRUE) %>% gather(key = layer, value = value,-x,-y)
+  
+  if("LONGDA94" %in% names(as.data.frame(points))){
+    points <- as.data.frame(points,xy=T) %>% rename(x=LONGDA94,y=LATGDA94)
+  }
+  map <- ggplot() +
+    geom_raster(data = df , aes(x = x, y = y, fill = value)) +
+    scale_fill_gradientn(colours = fill, name = "") +
+    facet_wrap(layer ~ .) +
+    coord_sf() +
+    ggtitle(title) +
+    theme_minimal() +
+    xlab("Easting") + 
+    ylab("Northing")+
+    theme(panel.spacing = unit(2, "lines"))+
+    scale_x_continuous(breaks = pretty(df$x, n = grid)) +
+    scale_y_continuous(breaks = pretty(df$y, n = grid))
+  
+  if(!is.null(points)){
+    names(points) <- tolower(names(points))
+    map+geom_point(data = points, aes(x=x,y=y), shape="+", size=pcex)
+  }else{
+    map
+  }
+}
+
+
+df_prep <- function(df) {
+  if (length(names(df)) == 1 & names(df) =="PC1") {
+    df <- df %>% as.data.frame(xy = TRUE)
+    names(df) <- c("x","y","value")
+  } 
+   else if("gid" %in% names(df)){
+     df <- as.data.frame(df, xy = TRUE)
+     names(df) <- c("value","x","y")
+   }else if (length(names(df)) == 1 & names(df) == "pr.VW") {
+     df <- df %>% as.data.frame(xy = TRUE)
+     names(df) <- c("x","y","value")
+   } 
+  else if("s1" %in% names(as.data.frame(df))){
+    df <- as.data.frame(df, xy = TRUE)
+    names(df) <- c("value","x","y")
+  }
+  else{
+    df <- df %>% as.data.frame(xy = TRUE) %>% gather(key = layer, value = value,-x,-y)
+    
+  }
+  df <- na.omit(df)
+  return(df)
+}
+
+
