@@ -246,7 +246,7 @@ these points represent the feature space using a density plot:
 ```{r eberg-fs, echo = TRUE, out.width = "80%", fig.cap = "Distribution of the SRS points from the previous example in the feature space."}
 ov.rnd = sp::over(rnd, eberg_spc@predicted[,1:2])
 
-plot_hex(df=eberg_spc@predicted@data[,1:2], pts=ov.rnd)
+plot_hex(df=eberg_spc@predicted@data[,1:2], pts=ov.rnd, title = 'PCA Ebergotzen SRS')
 
 ```
 
@@ -320,7 +320,7 @@ the two occurrence probability maps derived using maxlike next to each other (ac
 ```{r eberg-maxlike2, echo = TRUE, out.width = "100%", fig.cap = "Comparison occurrence probability for actual and SRS samples derived using the maxlike package."}
 
 occ_prob <- stack(raster(iprob$maxlike),ml.prob) 
-names(occ_prob) <- c("maxlike","ml.prob")
+names(occ_prob) <- c("Actual","SRS") # instead of c("maxlike","ml.prob")
 
 compare.map(df=occ_prob, points =rnd_pred , fill=rev(terrain.colors(5)), title = "Occurrence probability for actual and SRS samples using maxlike")
 
@@ -571,3 +571,39 @@ If you detect problems in feature space representation based on an existing poin
 sampling set, you can try to reduce those problems by adding additional samples e.g. through 
 **covariate space infill sampling** [@Brus2021sampling] or through 2nd round 
 sampling and then re-analysis. These methods are discussed in further chapters.
+
+
+
+
+```{r fig.height=5.5, fig.width=13.5, include=FALSE}
+
+library(patchwork)
+
+c <- theme(plot.title = element_text(hjust = 0.5,size=14))+
+  theme(legend.key.size = unit(0.3, 'cm'), #change legend key size
+        legend.key.height = unit(0.3, 'cm'), #change legend key height
+        legend.key.width = unit(0.5, 'cm'), #change legend key width
+        legend.title = element_text(size=12), #change legend title font size
+        legend.text = element_text(size=9)) #change legend text font size
+
+actual <- plot.map(df=raster(iprob$maxlike), points =rnd_pred , fill=rev(terrain.colors(5))) + theme_void()+c
+actual_hex <- plot_hex4(df=eberg_spc@predicted@data[,1:2], pts=ov2.rnd, title = 'PCA Ebergotzen actual')+c
+
+SRS <- plot.map(df = raster(eberg_spc@predicted[1]), points = rnd_pred) + theme_void()+c
+SRS_hex <- plot_hex4(df=eberg_spc@predicted@data[,1:2], pts=ov.rnd, title = 'PCA Ebergotzen SRS')+c
+
+LHS <- plot.map(df=raster(eberg_spc@predicted[1]),points = as.data.frame(rnd.lhs$sampled_data@coords)) + theme_void()+c
+LHS_hex <- plot_hex4(df=eberg_spc@predicted@data[,1:2], pts=as.data.frame(rnd.lhs$sampled_data@data), title = 'PCA Ebergotzen LHS')+c
+
+FSCS <- plot.map(df=raster(eberg_spc@predicted[1]),points = as.data.frame(rnd.fscs)) + theme_void()+c
+FSCS_hex <- plot_hex4(df=eberg_spc@predicted@data[,1:2], pts=eberg_spc@predicted@data[units,], title = 'PCA Ebergotzen FSCS')+c
+
+
+summary_plot <- actual + SRS   + LHS    + FSCS +  actual_hex + SRS_hex + LHS_hex + FSCS_hex+ plot_layout(ncol = 4, guides = "collect")
+
+saveRDS(summary_plot, "./output/summary_plot.rds")
+
+
+```
+
+

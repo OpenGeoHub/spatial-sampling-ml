@@ -31,8 +31,14 @@ as the most advantageous sampling design for predictive mapping [@ma2020comparis
 Such sampling diagnostics / comparisons geographical vs feature space help us 
 detect any possible problems before we start running ML.
 
-```{r summary-eberg, echo=FALSE, fig.cap="Summary comparison of sampling designs: convenience sampling (actual), Simple Random Sample (SRS), Latin Hypercube Sampling (LHS), and Feature Space Coverage Sampling (FSCS). Points shown in geographical (above) and feature space (below; with first 2 principal components as x, y coordinates).", out.width="100%"}
-knitr::include_graphics("./img/Fig_summary_comparison_sampling_eberg.jpg")
+```{r summary-eberg, fig.width=13.5, fig.height=5.5, echo=FALSE, fig.cap="Summary comparison of sampling designs: convenience sampling (actual), Simple Random Sample (SRS), Latin Hypercube Sampling (LHS), and Feature Space Coverage Sampling (FSCS). Points shown in geographical (above) and feature space (below; with first 2 principal components as x, y coordinates).", out.width="100%"}
+
+library(patchwork)
+#knitr::include_graphics("./img/Fig_summary_comparison_sampling_eberg.jpg")
+
+summary_plot <- readRDS("./output/summary_plot.rds")
+summary_plot 
+
 ```
 
 ## Sampling in a new area
@@ -91,6 +97,7 @@ as this ensures unbiased derivation of population parameters. Here the book by
 [practical instructions](https://github.com/DickBrus/SpatialSamplingwithR) for a diversity of data types.
 
 ```{r, include=FALSE}
+
 gc()
 #save.image.pigz(file="sampling_data.RData")
 ```
