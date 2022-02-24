@@ -159,3 +159,43 @@ df_prep <- function(df) {
 }
 
 
+
+
+plot_hex <- function(df, pts,title=""){
+  reds = RColorBrewer::brewer.pal(9, "YlOrRd")[-1]
+  df = as.data.frame(df)
+  pts= as.data.frame(pts)
+  
+  ggplot(df, aes(x = PC1, y=PC2)) +
+    stat_binhex(bins = 60)+
+    #scale_fill_distiller(palette = "YlOrRd",direction = 1)+
+    guides(fill = guide_coloursteps(show.limits = TRUE, title="Counts",barheight= grid::unit(6,"cm") ))+
+    theme_minimal()+
+    coord_equal()+
+    geom_point(data=pts, aes(x = PC1, y=PC2), shape="+", size=3)+
+    ggtitle(title)+
+    binned_scale(aesthetics = "fill", scale_name = "custom",
+                 palette = ggplot2:::binned_pal(scales::manual_pal(values = reds)),
+                 guide = "bins", breaks = seq(0,800,100), show.limits = TRUE)
+  
+}
+
+
+plot_hex4 <- function(df, pts,title=""){
+  reds = RColorBrewer::brewer.pal(9, "YlOrRd")[-1]
+  df = as.data.frame(df)
+  pts= as.data.frame(pts)
+  
+  ggplot(df, aes(x = PC1, y=PC2)) +
+    stat_binhex(bins = 60)+
+    #scale_fill_distiller(palette = "YlOrRd",direction = 1)+
+    guides(fill = guide_coloursteps(show.limits = TRUE, title="Counts",barheight= grid::unit(4,"cm") ))+
+    theme_minimal()+
+    coord_equal()+
+    geom_point(data=pts, aes(x = PC1, y=PC2), shape="+", size=3)+
+    ggtitle(title)+
+    binned_scale(aesthetics = "fill", scale_name = "custom",
+                 palette = ggplot2:::binned_pal(scales::manual_pal(values = reds)),
+                 guide = "bins", breaks = seq(0,800,100), show.limits = TRUE)
+  
+}
