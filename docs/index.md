@@ -1,7 +1,7 @@
 ---
 knit: "bookdown::render_book"
 title: "Spatial sampling and resampling for Machine Learning"
-author: "Tom Hengl, Leandro Parente, Abdelkrim Bousria and Ichsani Wheeler"
+author: "Tom Hengl, Leandro Parente, Abdelkrim Bouasria and Ichsani Wheeler"
 description: "This R tutorial contains instructions on how to organize spatial sampling using R packages. It is organized in three main parts: (1) planning new surveys: i.e. starting from scratch, (2) implementing resampling: learning from existing point data, focusing on subsampling and Cross-Validation strategies, (3) planning additional sampling: sampling additional point data based on initial models, the running re-analysis and gradually improving models until the maximum possible accuracy is reached. We use sample datasets to demonstrate processing steps and provide interpretation and dicussion of the results. More chapters will be added in the future. Contributions are welcome. To discuss issues or report a bug please use the repository homepage."
 url: 'https\://opengeohub.github.io/spatial-sampling-ml/'
 bibliography: ./tex/refs.bib
