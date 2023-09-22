@@ -371,7 +371,7 @@ library(clhs)
 rnd.lhs = clhs::clhs(eberg_spc@predicted[1:4], size=100, iter=100, progress=FALSE,simple=FALSE)
 ```
 
-This actually implements the so-called _“Conditional LHS”_ [@minasny2006conditioned], 
+This actually implements the so-called _“Conditioned LHS”_ [@minasny2006conditioned], 
 and can get quite computational for large stack of rasters, hence we manually limit the 
 number of iterations to 100.
 
@@ -498,6 +498,44 @@ surface designs such as [D-optimal designs](https://en.wikipedia.org/wiki/Optima
 ```{r}
 h2o.shutdown(prompt = FALSE)
 ```
+
+##  Spatially Balanced Sampling
+
+```{r}
+library(SamplingBigData)
+library(BalancedSampling)
+library(sampling)
+
+a= eberg_spc@predicted@data[,1] - min(eberg_spc@predicted@data[,1]) +1
+
+x= eberg_spc@predicted@data[,1:4] - min(eberg_spc@predicted@data[,1:4])+1
+x = cbind(eberg_spc@predicted@coords,x)
+prob <- probabilities(a,n=100)
+
+sampled <- SamplingBigData::lpm2_kdtree(prob,x)
+
+sbd_pnt = eberg_spc@predicted@coords[sampled,]
+
+
+```
+
+
+```{r eberg-fscs, echo = TRUE, out.width = "80%", fig.cap = "An example of Spatially Balanced Sampling (FSCS)."}
+
+plot.map(df=raster(eberg_spc@predicted[1]), 
+         points = as.data.frame(sbd_pnt), 
+         title="Spatially Balanced Sampling (SBS)" )
+
+```
+
+
+```{r eberg-fscs-pnts, echo = TRUE, out.width = "80%", fig.cap = "Distribution of the FSCS points from the previous example displayed in the feature space."}
+
+plot_hex(df=eberg_spc@predicted@data[,1:2], pts=eberg_spc@predicted@data[sampled,], title = 'PCA Ebergotzen SBS')
+
+```
+
+
 
 ## Summary points
 
