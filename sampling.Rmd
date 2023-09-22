@@ -371,7 +371,7 @@ library(clhs)
 rnd.lhs = clhs::clhs(eberg_spc@predicted[1:4], size=100, iter=100, progress=FALSE,simple=FALSE)
 ```
 
-This actually implements the so-called _“Conditional LHS”_ [@minasny2006conditioned], 
+This actually implements the so-called _“Conditioned LHS”_ [@minasny2006conditioned], 
 and can get quite computational for large stack of rasters, hence we manually limit the 
 number of iterations to 100.
 
